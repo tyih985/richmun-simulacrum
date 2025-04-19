@@ -1,0 +1,9 @@
+body {
+  background-color: var(--mantine-color-background-filled) !important;
+  /* background color redirects to the default values */
+}
+
+/** enforce base animations when programmatically repositioning a node */
+.react-flow__node {
+  transition: transform 0.1s linear;
+}

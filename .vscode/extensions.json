@@ -1,0 +1,8 @@
+{
+  "recommendations": [
+    "vunguyentuan.vscode-css-variables",
+    "vunguyentuan.vscode-postcss", // PostCSS Intellisense and Highlighting, for Mantine
+    "esbenp.prettier-vscode",
+    "styled-components.vscode-styled-components" // works for inline css
+  ]
+}

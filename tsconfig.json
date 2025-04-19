@@ -1,0 +1,34 @@
+{
+  "files": [],
+  "references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.node.json" }],
+  "compilerOptions": {
+    "target": "ES2021", // Ensures modern JavaScript features are supported
+    "lib": ["DOM", "ES2021"], // Includes DOM and ES2021 APIs
+    "module": "ESNext",
+    "strict": true,
+    "types": ["vite-plugin-pwa/client", "node", "react-helmet"],
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    // updating path aliases must also be done on  vite.config
+    "baseUrl": "./",
+    "paths": {
+      "@features": ["src/features"],
+      "@components/*": ["src/components/*"],
+
+      "@context/*": ["src/state/context/*"],
+      "@mutations/*": ["src/state/mutations/*"],
+      "@providers/*": ["src/state/providers/*"],
+      "@store/*": ["src/state/store/*"],
+      "@hooks/*": ["src/state/hooks/*"],
+
+      "@packages/*": ["src/packages/*"],
+      "@pages/*": ["src/pages/*"],
+      "@pages": ["src/pages"],
+      "@lib/*": ["src/lib/*"],
+      "@types": ["src/types"],
+      "@types/*": ["src/types/*"],
+      "@runtime": ["runtime-environments"],
+      "@runtime/*": ["runtime-environments/*"]
+    }
+  }
+}
