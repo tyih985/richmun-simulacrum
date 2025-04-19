@@ -41,6 +41,9 @@ importers:
       firebase:
         specifier: ^11.6.0
         version: 11.6.0
+      nanoid:
+        specifier: ^5.1.5
+        version: 5.1.5
       node-fetch:
         specifier: ^3.3.2
         version: 3.3.2
@@ -62,6 +65,9 @@ importers:
       sharp:
         specifier: ^0.33.5
         version: 0.33.5
+      uuid:
+        specifier: ^11.1.0
+        version: 11.1.0
       workbox-build:
         specifier: ^7.3.0
         version: 7.3.0
@@ -2491,6 +2497,11 @@ packages:
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
+  nanoid@5.1.5:
+    resolution: {integrity: sha512-Ir/+ZpE9fDsNH0hQ3C68uyThDXzYcim2EqcZ8zn8Chtt1iylPT9xXJB0kPCnqzgcEGikO9RxSrh63MsmVCU7Fw==}
+    engines: {node: ^18 || >=20}
+    hasBin: true
+
   natural-compare@1.4.0:
     resolution: {integrity: sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==}
 
@@ -3135,6 +3146,10 @@ packages:
 
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
+
+  uuid@11.1.0:
+    resolution: {integrity: sha512-0/A9rDy9P7cJ+8w1c9WD9V//9Wj15Ce2MPz8Ri6032usz+NfePxx5AcN3bN+r6ZL6jEo066/yNYB3tn4pQEx+A==}
+    hasBin: true
 
   vite-plugin-pwa@0.21.1:
     resolution: {integrity: sha512-rkTbKFbd232WdiRJ9R3u+hZmf5SfQljX1b45NF6oLA6DSktEKpYllgTo1l2lkiZWMWV78pABJtFjNXfBef3/3Q==}
@@ -5919,6 +5934,8 @@ snapshots:
 
   nanoid@3.3.8: {}
 
+  nanoid@5.1.5: {}
+
   natural-compare@1.4.0: {}
 
   node-domexception@1.0.0: {}
@@ -6645,6 +6662,8 @@ snapshots:
       react: 18.3.1
 
   util-deprecate@1.0.2: {}
+
+  uuid@11.1.0: {}
 
   vite-plugin-pwa@0.21.1(vite@6.1.0(@types/node@22.13.1)(sugarss@4.0.1(postcss@8.5.1))(terser@5.38.1))(workbox-build@7.3.0)(workbox-window@7.3.0):
     dependencies:

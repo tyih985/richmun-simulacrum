@@ -26,7 +26,6 @@
       "@pages": ["src/pages"],
       "@lib/*": ["src/lib/*"],
       "@types": ["src/types"],
-      "@types/*": ["src/types/*"],
       "@runtime": ["runtime-environments"],
       "@runtime/*": ["runtime-environments/*"]
     }
