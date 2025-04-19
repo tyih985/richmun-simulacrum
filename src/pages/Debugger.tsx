@@ -8,7 +8,7 @@ import { notifications } from '@mantine/notifications';
 
 const APP_UPDATE_NOTIFICATION_ID = 'version-update';
 
-export const Homepage = (): ReactElement => {
+export const Debugger = (): ReactElement => {
   const config = useConfig();
   const { showUpdatePrompt, applyUpdate, checkForUpdates } = useServiceWorker();
   const { setColorScheme, clearColorScheme } = useMantineColorScheme();
@@ -85,5 +85,3 @@ export const Homepage = (): ReactElement => {
     </div>
   );
 };
-
-export default Homepage;
