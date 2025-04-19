@@ -6,7 +6,7 @@ import { ParticipantType } from './roles';
  */
 export type SimulationReferenceType = {
   participatingAs: ParticipantType;
-} & Partial<SimulationType>
+} & Partial<SimulationType>;
 
 export type SimulationType = {
   id?: string;
@@ -16,7 +16,13 @@ export type SimulationType = {
     start: DateTimeStamp;
     end: DateTimeStamp;
   };
-  description?: MarkdownType
-  supportEmail: string
+  description?: MarkdownType;
+  supportEmail: string;
+  /**
+   * subcollections:
+   * ~/users
+   * ~/committees
+   */
+
   archived?: boolean;
 };
