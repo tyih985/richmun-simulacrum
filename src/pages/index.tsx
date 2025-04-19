@@ -3,6 +3,7 @@ import { Login } from './Login';
 import { Debugger } from './Debugger';
 import { useSession } from '@hooks/useSession';
 import { SimulationDirectory } from './SimulationDirectory';
+import { ApplicationShell } from './app';
 
 export const RootRoutes = () => {
   const { isChecking, isLoggedIn } = useSession();
@@ -19,8 +20,9 @@ export const RootRoutes = () => {
     return (
       <Routes>
         <Route path="/sim" element={<SimulationDirectory />} />
+        <Route path="/app/*" element={<ApplicationShell />} />
         {stableAccessRoutes}
-        <Route path="/*" element={<Navigate to="/simulations" />} />
+        <Route path="/*" element={<Navigate to="/sim" />} />
       </Routes>
     );
 
@@ -28,7 +30,7 @@ export const RootRoutes = () => {
     <Routes>
       <Route path="/login" element={<Login />} />
       {stableAccessRoutes}
-      <Route path="/*" element={<Navigate to="/" />} />
+      <Route path="/*" element={<Navigate to="/login" />} />
     </Routes>
   );
 };

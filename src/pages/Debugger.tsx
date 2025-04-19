@@ -5,11 +5,13 @@ import { useConfig } from '@hooks/useConfig';
 import { useCustomTheme } from '@hooks/useCustomTheme';
 import { useServiceWorker } from '@store/useServiceWorker';
 import { notifications } from '@mantine/notifications';
+import { useSession } from '@hooks/useSession';
 
 const APP_UPDATE_NOTIFICATION_ID = 'version-update';
 
 export const Debugger = (): ReactElement => {
   const config = useConfig();
+  const { logout, refreshUser } = useSession();
   const { showUpdatePrompt, applyUpdate, checkForUpdates } = useServiceWorker();
   const { setColorScheme, clearColorScheme } = useMantineColorScheme();
   const { updateFontSize, updateTypography } = useCustomTheme();
@@ -51,6 +53,12 @@ export const Debugger = (): ReactElement => {
         )}
         <Button size="sm" onClick={() => checkForUpdates()}>
           check for updates
+        </Button>
+        <Button size="sm" variant="outline" onClick={() => refreshUser()}>
+          refresh user
+        </Button>
+        <Button size="sm" variant="outline" onClick={() => logout()}>
+          logout
         </Button>
       </Group>
       <Group>
