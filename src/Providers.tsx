@@ -1,10 +1,10 @@
 import { Suspense, FC, ReactNode } from 'react';
 import { BrowserRouter } from 'react-router-dom';
+import { Notifications } from '@mantine/notifications';
+import { ReactFlowProvider } from '@xyflow/react';
 
 import { ConfigProvider } from '@providers/configProvider';
 import { ThemeProvider } from '@providers/themeProvider';
-import { Notifications } from '@mantine/notifications';
-import { ReactFlowProvider } from '@xyflow/react';
 import { ReactFlowViewportProvider } from '@providers/flowViewportProvider';
 import { FocusProvider } from '@providers/selectedFocusProvider';
 
