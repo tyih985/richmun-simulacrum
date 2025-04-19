@@ -1,6 +1,5 @@
 export const usersPath = (userId: string) => `users/${userId}`;
-export const userSimulationsPath = (userId: string) => `users/${userId}/staff`;
-export const userAssignmentsPath = (userId: string) => `users/${userId}/assignments`;
+export const userEventsPath = (userId: string) => `users/${userId}/events`;
 
 export const simulationPath = (simulationId: string) => `simulations/${simulationId}`;
 
