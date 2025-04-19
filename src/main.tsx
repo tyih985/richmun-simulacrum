@@ -5,6 +5,10 @@ import { Providers } from './Providers.tsx';
 import { RuntimeEnvironmentConfig } from '@runtime/types.ts';
 
 declare const __RUNTIME_CONFIG__: RuntimeEnvironmentConfig;
+import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community';
+
+// Register all Community features
+ModuleRegistry.registerModules([AllCommunityModule]);
 
 const initializeApp = () => {
   window.RUNTIME_ENV_CONFIG = __RUNTIME_CONFIG__;

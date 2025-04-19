@@ -7,6 +7,8 @@ import { userEventsPath } from '@packages/firestorePaths';
 import { SimulationReferenceType } from '@types';
 
 type SimulationsStoreType = {
+  all: FirestoreQueryState<SimulationReferenceType[]>;
+  // move this into store options, instead of separate objects
   admin: FirestoreQueryState<SimulationReferenceType[]>;
   overseer: FirestoreQueryState<SimulationReferenceType[]>;
   staff: FirestoreQueryState<SimulationReferenceType[]>;
@@ -14,7 +16,7 @@ type SimulationsStoreType = {
   archived: FirestoreQueryState<SimulationReferenceType[]>;
 };
 
-export const useSimulations = (
+export const useSimulationReferences = (
   uid: string,
   { enabled }: { enabled?: boolean },
 ): SimulationsStoreType => {
@@ -37,6 +39,7 @@ export const useSimulations = (
   const archived = events.data?.filter((event) => event.archived);
 
   return {
+    all: events,
     admin: { ...events, data: adminActive },
     overseer: { ...events, data: overseerActive },
     staff: { ...events, data: staffingActive },
