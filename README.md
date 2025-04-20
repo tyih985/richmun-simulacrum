@@ -16,7 +16,7 @@
 - The business value of a Progressive Web App
 - Extending an third-party UI Library for an out-of-the-box toolkit
 - Optimizing deployment lifecycle
-- Standardizing formatting using prettier
+- Standardizing formatting using `prettier`
 - Options in organizing CSS, and why this boilerplate uses react-jss
 - Data Management using Hooks in React Applications
 - WTF is workbox, and how does it work with a service-worker
