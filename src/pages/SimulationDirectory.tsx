@@ -1,7 +1,6 @@
 import { ReactElement } from 'react';
 import { Title, Text } from '@mantine/core';
 import { AgGridReact } from 'ag-grid-react';
-import { themeBalham } from 'ag-grid-community';
 
 import { useSimulationReferences } from '@hooks/useSimulationRefs';
 import { useSession } from '@hooks/useSession';
@@ -18,10 +17,8 @@ export const SimulationDirectory = (): ReactElement => {
       <Text>hello world</Text>
       {simulations.isLoading && <div>Loading...</div>}
       {simulations.isSuccess && (
-        <div style={{ width: '100%', height: '100%' }}>
-         
+        <div style={{ width: '100%', height: 'calc(100vh - 10rem)' }}>
           <AgGridReact
-            theme={themeBalham}
             rowData={MockData}
             columnDefs={[
               {
