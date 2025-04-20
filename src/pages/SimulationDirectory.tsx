@@ -67,6 +67,8 @@ const MockData = [
 /**
  * Need to create a new section wrapper that can
  * - simplify the fixed div size around the AgGrid
- * - determine and lock-in the height before rendering the grid... 
+ * - - add an animation transition to any dynmaic resizing
+ * - - add a standardized page header section with a min-height to keep things standardized
+ * - determine and lock-in the height before rendering the grid...
  * - standardize the grid theme when on dark mode
  */
