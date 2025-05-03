@@ -1,8 +1,9 @@
 import { ReactElement, useState } from 'react';
 import { useForm } from '@mantine/form';
-import { TextInput, Button, Stack, Title, Text } from '@mantine/core';
+import { TextInput, Button, Stack, Title, Text, Group, Flex, Image, SimpleGrid, PasswordInput, Divider, Space, Anchor, Center, Container} from '@mantine/core';
 import {
   sendSignInLinkToEmail,
+  signInWithEmailAndPassword,
   GoogleAuthProvider,
   signInWithPopup,
 } from 'firebase/auth';
@@ -10,10 +11,10 @@ import {
 import { auth } from '@packages/firebase/firebaseAuth';
 
 export const Login = (): ReactElement => {
-  const [emailLinkSent, setEmailLinkSent] = useState(false);
   const form = useForm({
     initialValues: {
       email: '',
+      password: ''
     },
   });
 
@@ -28,47 +29,81 @@ export const Login = (): ReactElement => {
     }
   };
 
-  const handleSignInLink = async (values: { email: string }) => {
-    const { email } = values;
-    const actionCodeSettings = {
-      url: window.location.href,
-      handleCodeInApp: true,
-    };
+  const handleSignIn = async (values: { email: string, password: string }) => {
+    const { email , password } = values;
     try {
-      await sendSignInLinkToEmail(auth, email, actionCodeSettings);
+      await signInWithEmailAndPassword(auth, email, password);
       window.localStorage.setItem('emailForSignIn', email);
-      setEmailLinkSent(true);
       // Handle sending sign-in link
     } catch (error) {
-      console.error('Error sending sign-in link:', error);
+      console.error('Error signing in:', error);
     }
   };
 
   return (
-    <Stack>
-      <Title>Welcome! Let's get started</Title>
+    <Container>
+      <SimpleGrid cols={{ base: 1, lg: 2 }} spacing={0} verticalSpacing={0}>
+      <Image
+      radius="0px"
+      h="100%"
+      w="100%"
+      src="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/images/bg-7.png"
+      alt="Login background"
+      display={{ base: 'none', lg: 'block' }}
+      />
+      <Center>
+      <Stack
+        bg="var(--mantine-color-body)"
+        align="stretch"
+        justify="center"
+        gap="sm"
+        p="10vh"
+      >
+        <Title>Welcome Back!</Title>
+        <form onSubmit={form.onSubmit(handleSignIn)}>
+          <Stack 
+          gap="sm"
+          >
+            <TextInput
+              radius="lg"
+              label="Email"
+              placeholder="Enter your email"
+              {...form.getInputProps('email')}
+              required
+            />
+            <PasswordInput
+              radius="lg"
+              label="Password"
+              placeholder="Enter your password"
+              {...form.getInputProps('password')}
+              required
+            />
+            <Flex
+              direction='row'
+              justify="flex-end">
+                <Anchor href="/forgot-password"  size="xs" target="_self" underline="hover"> 
+                  Forgot password?
+                </Anchor>
+            </Flex>
+            <Button 
+              fullWidth 
+              radius="lg" 
+              type="submit">
+                Sign In
+            </Button>
+          </Stack>
+        </form>
 
-      <Text>Sign-up or Login with Google</Text>
-      <Button onClick={handleGoogleSignInOrSignUp}>{'Sign in with Google'}</Button>
+        <Divider my="md" label="Or sign in with" labelPosition="center" />
 
-      <Text>
-        Enter your email below to sign in or create an account. If you don’t have an
-        account yet, we’ll send you a sign-in link to get started—no password required!
-      </Text>
-
-      <form onSubmit={form.onSubmit(handleSignInLink)}>
-        <TextInput
-          label="Email"
-          placeholder="Enter your email"
-          {...form.getInputProps('email')}
-          required
-        />
-        {emailLinkSent ? (
-          <Text>Email sent, check your email for a log-in link</Text>
-        ) : (
-          <Button type="submit">Sign In</Button>
-        )}
-      </form>
-    </Stack>
+        <Button radius="lg" onClick={handleGoogleSignInOrSignUp}>{'Google'}</Button>
+        <Text size='xs' ta='center'> Don't have an account?{' '} 
+          <Anchor href="/sign-up"  size="xs" target="_self" underline="hover">Sign up</Anchor>
+        </Text>
+      </Stack>
+      </Center>
+    </SimpleGrid>
+    </Container>
+    
   );
 };

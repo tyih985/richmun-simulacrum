@@ -1,9 +1,12 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { Login } from './Login';
+import { SignUp } from './SignUp';
+import { ForgotPassword } from './ForgotPassword';
 import { Debugger } from './Debugger';
 import { useSession } from '@hooks/useSession';
 import { SimulationDirectory } from './SimulationDirectory';
 import { ApplicationShell } from './app';
+import { Loader } from '@mantine/core';
 
 export const RootRoutes = () => {
   const { isChecking, isLoggedIn } = useSession();
@@ -12,7 +15,17 @@ export const RootRoutes = () => {
     return (
       <Routes>
         {stableAccessRoutes}
-        <Route path="/*" element={<div>Connecting...</div>} />
+        <Route path="/*" element={<Loader
+          variant="dots"
+          size="lg"
+          color="blue"
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+          }}
+        />} />
       </Routes>
     );
 
@@ -29,6 +42,8 @@ export const RootRoutes = () => {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/sign-up" element={<SignUp />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
       {stableAccessRoutes}
       <Route path="/*" element={<Navigate to="/login" />} />
     </Routes>
