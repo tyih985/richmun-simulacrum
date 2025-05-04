@@ -20,9 +20,12 @@ export const useSimulationReferences = (
   uid: string,
   { enabled }: { enabled?: boolean },
 ): SimulationsStoreType => {
-  const events = useFirestoreCollectionQuery<SimulationReferenceType>(userEventsPath(uid), {
-    enabled: !!uid && enabled,
-  });
+  const events = useFirestoreCollectionQuery<SimulationReferenceType>(
+    userEventsPath(uid),
+    {
+      enabled: !!uid && enabled,
+    },
+  );
 
   const adminActive = events.data?.filter(
     (event) => !event.archived && event.participatingAs === 'admin',

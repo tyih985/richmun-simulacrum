@@ -1,6 +1,20 @@
 import { ReactElement, useState } from 'react';
 import { useForm } from '@mantine/form';
-import { TextInput, Button, Stack, Title, Text, Group, Flex, Image, SimpleGrid, PasswordInput, Divider, Space, Anchor} from '@mantine/core';
+import {
+  TextInput,
+  Button,
+  Stack,
+  Title,
+  Text,
+  Group,
+  Flex,
+  Image,
+  SimpleGrid,
+  PasswordInput,
+  Divider,
+  Space,
+  Anchor,
+} from '@mantine/core';
 import {
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
@@ -13,7 +27,7 @@ export const SignUp = (): ReactElement => {
   const form = useForm({
     initialValues: {
       email: '',
-      password: ''
+      password: '',
     },
   });
 
@@ -28,12 +42,11 @@ export const SignUp = (): ReactElement => {
     }
   };
 
-  const handleSignUp = async (values: { email: string, password: string }) => {
-    const { email , password } = values;
+  const handleSignUp = async (values: { email: string; password: string }) => {
+    const { email, password } = values;
     try {
       await createUserWithEmailAndPassword(auth, email, password);
       window.localStorage.setItem('emailForSignIn', email);
-      
     } catch (error) {
       console.error('Error signing up:', error);
     }
@@ -42,12 +55,12 @@ export const SignUp = (): ReactElement => {
   return (
     <SimpleGrid cols={2} spacing={0} verticalSpacing={0}>
       <Image
-      radius="0px"
-      h="100vh"
-      w="auto"
-      fit="contain"
-      src="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/images/bg-7.png"
-      alt="Login background"
+        radius="0px"
+        h="100vh"
+        w="auto"
+        fit="contain"
+        src="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/images/bg-7.png"
+        alt="Login background"
       />
       <Stack
         bg="var(--mantine-color-body)"
@@ -58,9 +71,7 @@ export const SignUp = (): ReactElement => {
       >
         <Title>Let's Get Started.</Title>
         <form onSubmit={form.onSubmit(handleSignUp)}>
-          <Stack 
-          gap="sm"
-          >
+          <Stack gap="sm">
             <TextInput
               radius="lg"
               label="Email"
@@ -75,24 +86,24 @@ export const SignUp = (): ReactElement => {
               {...form.getInputProps('password')}
               required
             />
-            <Flex
-              direction='row'
-              justify="flex-end">
-            </Flex>
-            <Button 
-              fullWidth 
-              radius="lg" 
-              type="submit">
-                Create Account
+            <Flex direction="row" justify="flex-end"></Flex>
+            <Button fullWidth radius="lg" type="submit">
+              Create Account
             </Button>
           </Stack>
         </form>
 
         <Divider my="md" label="Or sign in with" labelPosition="center" />
 
-        <Button radius="lg" onClick={handleGoogleSignInOrSignUp}>{'Google'}</Button>
-        <Text size='xs' ta='center'> Already have an account?{' '}
-          <Anchor href="/login"  size="xs" target="_self" underline="hover">Sign in</Anchor>
+        <Button radius="lg" onClick={handleGoogleSignInOrSignUp}>
+          {'Google'}
+        </Button>
+        <Text size="xs" ta="center">
+          {' '}
+          Already have an account?{' '}
+          <Anchor href="/login" size="xs" target="_self" underline="hover">
+            Sign in
+          </Anchor>
         </Text>
       </Stack>
     </SimpleGrid>

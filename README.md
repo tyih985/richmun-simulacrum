@@ -1,4 +1,5 @@
 # Quick Summary
+
 - this app uses VITE, with Typescript SWC ("speedy web compiler")
 - it also uses VITE PWA ("Progressive Web App") to support downloading the app, and a prompt to manually update the version
 - it also has a white-labelling system to configure various runtime environments for different brands
@@ -6,6 +7,7 @@
 - uses `pnpm` as the more efficient alternative to base `npm` when installing packages
 
 #### Things I nver got around to
+
 - I never got around to applying Firebase functions and learning how the emulator works lol
 - I never got around to setting up white-labeled hosting, but that shouldn't be a large lift
 
@@ -47,23 +49,28 @@
 Drop your firebase configuration into `/runtime-environments/index.ts` > `prodFirebaseConfig`
 
 - this app _expects_ you to be using firebase auth, and is set-up for the following methods:
+
   - email sign-in link
   - email and password
   - google account login
 
 - this app _is set-up_ to support Firestore AND Real-time Database
+
   - if you are not using Firebase Database (firestore) then remove the field for firebase database from the type and the configuration
 
 - this app _is set-up_ to support Cloud Functions and hosting (functions requires hosting)
   - if you are not using Firebase Cloud Functions, then ignore the folder `./functions`, and ignore the functions configuration, and rewrites on the `firebase.json` file
 
-To run, make sure you have 
+To run, make sure you have
+
 ```
 npm i -g firebase-tools
 firebase login
 firebase init
 ```
+
 in order to run the emulator, you will also need java. Run `java -version` to make sure you have it installed. If you need to install it, use chatGPT to determine the steps to install it for your system. For linux it should be:
+
 ```
 sudo apt update
 sudo apt install default-jdk -y

@@ -1,7 +1,7 @@
 # Concept
 
 - /users/{uid}
-The canonical list of all user information, like event history, emergency contact information, etc.
+  The canonical list of all user information, like event history, emergency contact information, etc.
 
 - /simulation/
 - /simulation/{sid}

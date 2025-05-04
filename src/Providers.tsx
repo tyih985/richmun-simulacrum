@@ -25,21 +25,21 @@ const queryClient = new QueryClient({
 export const Providers: FC<ProvidersProps> = ({ children }: ProvidersProps) => (
   <ConfigProvider>
     <QueryClientProvider client={queryClient}>
-    <BrowserRouter>
-      <ThemeProvider>
-        <SessionProvider>
-          <Notifications
-            position="bottom-right"
-            zIndex={1000}
-            limit={5}
-            autoClose={3000}
-          />
-          <ReactFlowProvider>
-            <Suspense>{children}</Suspense>
-          </ReactFlowProvider>
-        </SessionProvider>
-      </ThemeProvider>
-    </BrowserRouter>
+      <BrowserRouter>
+        <ThemeProvider>
+          <SessionProvider>
+            <Notifications
+              position="bottom-right"
+              zIndex={1000}
+              limit={5}
+              autoClose={3000}
+            />
+            <ReactFlowProvider>
+              <Suspense>{children}</Suspense>
+            </ReactFlowProvider>
+          </SessionProvider>
+        </ThemeProvider>
+      </BrowserRouter>
     </QueryClientProvider>
   </ConfigProvider>
 );

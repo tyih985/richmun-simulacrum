@@ -19,7 +19,6 @@ type imageMtd = {
 
 // need to use values from the runtime env
 export const generateManifestFields = (config: RuntimeEnvironmentConfig) => {
-
   const icons: imageMtd[] = [];
   const screenshots: imageMtd[] = [];
 

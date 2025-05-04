@@ -5,12 +5,12 @@ import { AppShell, Burger, Group, Skeleton, Title } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 
 export const ApplicationShell = (): ReactElement => {
-//   const { isChecking, isLoggedIn } = useSession();
+  //   const { isChecking, isLoggedIn } = useSession();
 
   const [mobileOpened, { toggle: toggleMobile }] = useDisclosure();
   const [desktopOpened, { toggle: toggleDesktop }] = useDisclosure(true);
 
-//   if (!isLoggedIn || isChecking) return <Navigate to="/login" />;
+  //   if (!isLoggedIn || isChecking) return <Navigate to="/login" />;
 
   return (
     <AppShell

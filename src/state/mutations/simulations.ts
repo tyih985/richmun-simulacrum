@@ -61,11 +61,11 @@ export const courseMutations = (): SimulationsMutationsType => {
     return batchUpdateDocuments([
       {
         path: userEventPath(userId, simulationId),
-        data: { archived: true }
+        data: { archived: true },
       },
       {
         path: simulationPath(simulationId),
-        data: { archived: true }
+        data: { archived: true },
       },
     ]);
   };
@@ -73,6 +73,6 @@ export const courseMutations = (): SimulationsMutationsType => {
   return {
     create,
     update,
-    archive
+    archive,
   };
 };

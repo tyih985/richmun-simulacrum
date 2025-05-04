@@ -30,8 +30,8 @@ export const SessionProvider: React.FC<{ children: ReactNode }> = ({ children })
 
   // Monitor the Firebase Auth state
   useEffect(() => {
-    console.log('auth state', auth)
-    if (!auth) console.error("Auth state is invalid")
+    console.log('auth state', auth);
+    if (!auth) console.error('Auth state is invalid');
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setIsLoggedIn(true);
@@ -42,7 +42,7 @@ export const SessionProvider: React.FC<{ children: ReactNode }> = ({ children })
         setSessionUser(undefined);
         setIsChecking(false);
       }
-    })
+    });
     return unsubscribe; // Clean up the listener on unmount
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [auth]);

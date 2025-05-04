@@ -1,10 +1,10 @@
-import { MarkdownType } from "./primitives";
+import { MarkdownType } from './primitives';
 
 export type CommitteeType = {
   id?: string;
   shortName: string;
   longName: string;
-  description?: MarkdownType
+  description?: MarkdownType;
   /**
    * subcollections:
    * ~/staff

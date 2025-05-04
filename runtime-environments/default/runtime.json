@@ -1,21 +1,21 @@
 {
-    "short_name": "Simulacrum",
-    "long_name": "Simulacrum Consortium",
-    "subtitle": "A nerdy LARPing software",
-    "description": "",
-  
-    "support_email": "director@richmun.ca",
-    "site_title": "Simulacrum",
-    "favicon_url": "./demo/favicon.ico",
-    "logo_url": "",
-    "logo_mono_url": "",
-    "icon_192_url": "/demo/icon_192.png",
-    "icon_512_url": "/demo/icon_51.png",
-  
-    "theme_colors": {
-      "primaryColor": {
-        "light": "#3889C7",
-        "dark": "#4738c7"
-      }
+  "short_name": "Simulacrum",
+  "long_name": "Simulacrum Consortium",
+  "subtitle": "A nerdy LARPing software",
+  "description": "",
+
+  "support_email": "director@richmun.ca",
+  "site_title": "Simulacrum",
+  "favicon_url": "./demo/favicon.ico",
+  "logo_url": "",
+  "logo_mono_url": "",
+  "icon_192_url": "/demo/icon_192.png",
+  "icon_512_url": "/demo/icon_51.png",
+
+  "theme_colors": {
+    "primaryColor": {
+      "light": "#3889C7",
+      "dark": "#4738c7"
     }
+  }
 }

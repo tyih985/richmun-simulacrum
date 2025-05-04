@@ -7,4 +7,4 @@ export type MarkdownType = string;
  * Represents the number of milliseconds since January 1, 1970, 00:00:00 UTC (the epoch)
  * This is the same format used by JavaScript's Date.now() and new Date().getTime()
  */
-export type DateTimeStamp = EpochTimeStamp
+export type DateTimeStamp = EpochTimeStamp;
