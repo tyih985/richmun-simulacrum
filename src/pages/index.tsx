@@ -48,6 +48,7 @@ export const RootRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<AuthLayout />}>
+        <Route index element={<Navigate to="login" />} />
         <Route path="sign-up" element={<SignUp />} />
         <Route path="login" element={<Login />} />
         <Route path="forgot-password" element={<ForgotPassword />} />
