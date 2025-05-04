@@ -6,9 +6,17 @@ import {
   Stack,
   Title,
   Text,
+  Group,
+  Flex,
   Image,
   SimpleGrid,
+  PasswordInput,
+  Divider,
+  Paper,
   Anchor,
+  Center,
+  Container,
+  BackgroundImage,
 } from '@mantine/core';
 import { sendSignInLinkToEmail } from 'firebase/auth';
 
@@ -39,51 +47,54 @@ export const ForgotPassword = (): ReactElement => {
   };
 
   return (
-    <SimpleGrid cols={2} spacing={0} verticalSpacing={0}>
-      <Image
-        radius="0px"
-        h="100vh"
-        w="auto"
-        fit="contain"
+    <Container fluid p="0" h={'100vh'}>
+      <BackgroundImage
+        h="100%"
+        w="100%"
         src="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/images/bg-7.png"
-        alt="Login background"
-      />
-      <Stack
-        bg="var(--mantine-color-body)"
-        align="stretch"
-        justify="center"
-        gap="sm"
-        p="20vh"
       >
-        <Title>Forgot Password</Title>
-        <Text>A password-less sign-in link to be sent to your email.</Text>
-        <form onSubmit={form.onSubmit(handleSignInLink)}>
-          <Stack gap="sm">
-            <TextInput
-              radius="lg"
-              label="Email"
-              placeholder="Enter your email"
-              {...form.getInputProps('email')}
-              required
-            />
+        <Center h="100%" w="100%" p="5%">
+          <Paper
+            bg="var(--mantine-color-body)"
+            p="10vh"
+            h="625px"
+            w="450px"
+            radius="lg"
+            shadow="md"
+          >
+            <Stack align="stretch" justify="center">
+              <Title>Forgot Password</Title>
+              <Text>A password-less sign-in link to be sent to your email.</Text>
+              <form onSubmit={form.onSubmit(handleSignInLink)}>
+                <Stack gap="sm">
+                  <TextInput
+                    radius="lg"
+                    label="Email"
+                    placeholder="Enter your email"
+                    {...form.getInputProps('email')}
+                    required
+                  />
 
-            {emailLinkSent ? (
-              <Text>Email sent, check your email for a sign-in link</Text>
-            ) : (
-              <Button radius="lg" type="submit">
-                Send Sign-In Link
-              </Button>
-            )}
-          </Stack>
-        </form>
-        <Text size="xs" ta="center">
-          {' '}
-          Already have an account?{' '}
-          <Anchor href="/login" size="xs" target="_self" underline="hover">
-            Sign in
-          </Anchor>
-        </Text>
-      </Stack>
-    </SimpleGrid>
+                  {emailLinkSent ? (
+                    <Text>Email sent, check your email for a sign-in link</Text>
+                  ) : (
+                    <Button radius="lg" type="submit">
+                      Send Sign-In Link
+                    </Button>
+                  )}
+                </Stack>
+              </form>
+              <Text size="xs" ta="center">
+                {' '}
+                Already have an account?{' '}
+                <Anchor href="/login" size="xs" target="_self" underline="hover">
+                  Sign in
+                </Anchor>
+              </Text>
+            </Stack>
+          </Paper>
+        </Center>
+      </BackgroundImage>
+    </Container>
   );
 };

@@ -19,7 +19,6 @@ import {
   BackgroundImage,
 } from '@mantine/core';
 import {
-  sendSignInLinkToEmail,
   signInWithEmailAndPassword,
   GoogleAuthProvider,
   signInWithPopup,
@@ -58,14 +57,21 @@ export const Login = (): ReactElement => {
   };
 
   return (
-    <Container fluid p="0" h='100vh'>
+    <Container fluid p="0" h="100vh">
       <BackgroundImage
         h="100%"
         w="100%"
         src="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/images/bg-7.png"
       >
-        <Center h="100%" w="100%" p="md">
-          <Paper p="sm" radius="lg" shadow="md">
+        <Center h="100%" w="100%" p="5%">
+          <Paper
+            bg="var(--mantine-color-body)"
+            p="10vh"
+            h="625px"
+            w="450px"
+            radius="lg"
+            shadow="md"
+          >
             <Stack align="stretch" justify="center">
               <Title>Welcome Back!</Title>
               <form onSubmit={form.onSubmit(handleSignIn)}>

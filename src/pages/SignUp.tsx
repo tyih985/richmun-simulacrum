@@ -12,8 +12,11 @@ import {
   SimpleGrid,
   PasswordInput,
   Divider,
-  Space,
+  Paper,
   Anchor,
+  Center,
+  Container,
+  BackgroundImage,
 } from '@mantine/core';
 import {
   createUserWithEmailAndPassword,
@@ -53,59 +56,62 @@ export const SignUp = (): ReactElement => {
   };
 
   return (
-    <SimpleGrid cols={2} spacing={0} verticalSpacing={0}>
-      <Image
-        radius="0px"
-        h="100vh"
-        w="auto"
-        fit="contain"
+    <Container fluid p="0" h={'100vh'}>
+      <BackgroundImage
+        h="100%"
+        w="100%"
         src="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/images/bg-7.png"
-        alt="Login background"
-      />
-      <Stack
-        bg="var(--mantine-color-body)"
-        align="stretch"
-        justify="center"
-        gap="sm"
-        p="20vh"
       >
-        <Title>Let's Get Started.</Title>
-        <form onSubmit={form.onSubmit(handleSignUp)}>
-          <Stack gap="sm">
-            <TextInput
-              radius="lg"
-              label="Email"
-              placeholder="Enter your email"
-              {...form.getInputProps('email')}
-              required
-            />
-            <PasswordInput
-              radius="lg"
-              label="Password"
-              placeholder="Enter your password"
-              {...form.getInputProps('password')}
-              required
-            />
-            <Flex direction="row" justify="flex-end"></Flex>
-            <Button fullWidth radius="lg" type="submit">
-              Create Account
-            </Button>
-          </Stack>
-        </form>
+        <Center h="100%" w="100%" p="5%">
+          <Paper
+            bg="var(--mantine-color-body)"
+            p="10vh"
+            h="625px"
+            w="450px"
+            radius="lg"
+            shadow="md"
+          >
+            <Stack align="stretch" justify="center">
+              <Title>Let's Get Started.</Title>
+              <form onSubmit={form.onSubmit(handleSignUp)}>
+                <Stack gap="sm">
+                  <TextInput
+                    radius="lg"
+                    label="Email"
+                    placeholder="Enter your email"
+                    {...form.getInputProps('email')}
+                    required
+                  />
+                  <PasswordInput
+                    radius="lg"
+                    label="Password"
+                    placeholder="Enter your password"
+                    {...form.getInputProps('password')}
+                    required
+                  />
+                  <Flex direction="row" justify="flex-end"></Flex>
+                  <Button fullWidth radius="lg" type="submit">
+                    Create Account
+                  </Button>
+                </Stack>
+              </form>
 
-        <Divider my="md" label="Or sign in with" labelPosition="center" />
+              <Divider my="md" label="Or sign in with" labelPosition="center" />
 
-        <Button radius="lg" onClick={handleGoogleSignInOrSignUp}>
-          {'Google'}
-        </Button>
-        <Text size="xs" ta="center">
-          {' '}
-          Already have an account?{' '}
-          <Anchor href="/login" size="xs" target="_self" underline="hover">
-            Sign in
-          </Anchor>
-        </Text>
-      </Stack>
-    </SimpleGrid>
+              <Button radius="lg" onClick={handleGoogleSignInOrSignUp}>
+                {'Google'}
+              </Button>
+              <Text size="xs" ta="center">
+                {' '}
+                Already have an account?{' '}
+                <Anchor href="/login" size="xs" target="_self" underline="hover">
+                  Sign in
+                </Anchor>
+              </Text>
+            </Stack>
+          </Paper>
+        </Center>
+      </BackgroundImage>
+    </Container>
   );
 };
