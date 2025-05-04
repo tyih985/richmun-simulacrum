@@ -7,6 +7,7 @@ import { useSession } from '@hooks/useSession';
 import { SimulationDirectory } from './SimulationDirectory';
 import { ApplicationShell } from './app';
 import { Loader } from '@mantine/core';
+import AuthLayout from './AuthLayout';
 
 export const RootRoutes = () => {
   const { isChecking, isLoggedIn } = useSession();
@@ -46,9 +47,11 @@ export const RootRoutes = () => {
 
   return (
     <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/sign-up" element={<SignUp />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/" element={<AuthLayout />}>
+        <Route path="sign-up" element={<SignUp />} />
+        <Route path="login" element={<Login />} />
+        <Route path="forgot-password" element={<ForgotPassword />} />
+      </Route>
       {stableAccessRoutes}
       <Route path="/*" element={<Navigate to="/login" />} />
     </Routes>
