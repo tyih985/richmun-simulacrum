@@ -1,6 +1,6 @@
 import { ReactElement, useState } from 'react';
 import { useForm } from '@mantine/form';
-import { TextInput, Button, Stack, Title, Text, Group, Flex, Image, SimpleGrid, PasswordInput, Divider, Space, Anchor} from '@mantine/core';
+import { TextInput, Button, Stack, Title, Text, Group, Flex, Image, SimpleGrid, PasswordInput, Divider, Paper, Anchor, Center, Container, BackgroundImage} from '@mantine/core';
 import {
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
@@ -33,32 +33,40 @@ export const SignUp = (): ReactElement => {
     try {
       await createUserWithEmailAndPassword(auth, email, password);
       window.localStorage.setItem('emailForSignIn', email);
-      
+
     } catch (error) {
       console.error('Error signing up:', error);
     }
   };
 
   return (
-    <SimpleGrid cols={2} spacing={0} verticalSpacing={0}>
-      <Image
-      radius="0px"
-      h="100vh"
-      w="auto"
-      fit="contain"
-      src="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/images/bg-7.png"
-      alt="Login background"
-      />
+    <Container
+      fluid
+      p="0"
+      h={"100vh"}>
+      <BackgroundImage
+        h="100%"
+        w="100%"
+        src="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/images/bg-7.png"
+      >
+        <Center
+          h="100%"
+          w="100%"
+          p="5%">
+          <Paper
+            bg="var(--mantine-color-body)"
+            p="10vh"
+            h="625px"
+            w="450px"
+            radius="lg"
+            shadow='md'>
       <Stack
-        bg="var(--mantine-color-body)"
         align="stretch"
         justify="center"
-        gap="sm"
-        p="20vh"
       >
         <Title>Let's Get Started.</Title>
         <form onSubmit={form.onSubmit(handleSignUp)}>
-          <Stack 
+          <Stack
           gap="sm"
           >
             <TextInput
@@ -79,9 +87,9 @@ export const SignUp = (): ReactElement => {
               direction='row'
               justify="flex-end">
             </Flex>
-            <Button 
-              fullWidth 
-              radius="lg" 
+            <Button
+              fullWidth
+              radius="lg"
               type="submit">
                 Create Account
             </Button>
@@ -95,6 +103,9 @@ export const SignUp = (): ReactElement => {
           <Anchor href="/login"  size="xs" target="_self" underline="hover">Sign in</Anchor>
         </Text>
       </Stack>
-    </SimpleGrid>
+        </Paper>
+      </Center>
+    </BackgroundImage>
+</Container>
   );
 };

@@ -1,6 +1,6 @@
 import { ReactElement, useState } from 'react';
 import { useForm } from '@mantine/form';
-import { TextInput, Button, Stack, Title, Text, Image, SimpleGrid, Anchor } from '@mantine/core';
+import { TextInput, Button, Stack, Title, Text, Group, Flex, Image, SimpleGrid, PasswordInput, Divider, Paper, Anchor, Center, Container, BackgroundImage} from '@mantine/core';
 import {
   sendSignInLinkToEmail
 } from 'firebase/auth';
@@ -32,21 +32,29 @@ export const ForgotPassword = (): ReactElement => {
   };
   
   return (
-    <SimpleGrid cols={2} spacing={0} verticalSpacing={0}>
-          <Image
-          radius="0px"
-          h="100vh"
-          w="auto"
-          fit="contain"
-          src="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/images/bg-7.png"
-          alt="Login background"
-          />
-          <Stack
+    <Container
+      fluid
+      p="0"
+      h={"100vh"}>
+      <BackgroundImage
+        h="100%"
+        w="100%"
+        src="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/images/bg-7.png"
+      >
+        <Center
+          h="100%"
+          w="100%"
+          p="5%">
+          <Paper
             bg="var(--mantine-color-body)"
+            p="10vh"
+            h="625px"
+            w="450px"
+            radius="lg"
+            shadow='md'>
+          <Stack
             align="stretch"
             justify="center"
-            gap="sm"
-            p="20vh"
           >
             <Title>Forgot Password</Title>
              <Text>A password-less sign-in link to be sent to your email.</Text>
@@ -73,6 +81,9 @@ export const ForgotPassword = (): ReactElement => {
                 <Anchor href="/login"  size="xs" target="_self" underline="hover">Sign in</Anchor>
               </Text>
           </Stack>
-    </SimpleGrid>
+          </Paper>
+        </Center>
+      </BackgroundImage>
+    </Container>
   );
 };

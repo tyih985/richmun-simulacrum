@@ -2,7 +2,6 @@ import { ReactElement, useState } from 'react';
 import { useForm } from '@mantine/form';
 import { TextInput, Button, Stack, Title, Text, Group, Flex, Image, SimpleGrid, PasswordInput, Divider, Paper, Anchor, Center, Container, BackgroundImage} from '@mantine/core';
 import {
-  sendSignInLinkToEmail,
   signInWithEmailAndPassword,
   GoogleAuthProvider,
   signInWithPopup,
@@ -53,14 +52,15 @@ export const Login = (): ReactElement => {
         <Center
           h="100%"
           w="100%"
-          p="5">
+          p="5%">
           <Paper
             bg="var(--mantine-color-body)"
             p="10vh"
+            h="625px"
+            w="450px"
             radius="lg"
             shadow='md'>
           <Stack
-             
               align="stretch"
               justify="center"
             >
