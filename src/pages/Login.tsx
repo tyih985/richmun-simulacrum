@@ -77,12 +77,7 @@ export const Login = (): ReactElement => {
             required
           />
           <Flex direction="row" justify="flex-end">
-            <Anchor
-              href="/forgot-password"
-              size="xs"
-              target="_self"
-              underline="hover"
-            >
+            <Anchor href="/forgot-password" size="xs" target="_self" underline="hover">
               Forgot password?
             </Anchor>
           </Flex>

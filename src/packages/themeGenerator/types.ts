@@ -28,6 +28,14 @@ export type RuntimeThemeProps = {
     // user cannot modify header sizes
   };
   defaultBorderRadius?: string;
+
+  borderRadiusScale?: Partial<{
+    xs: string;
+    sm: string;
+    md: string;
+    lg: string;
+    xl: string;
+  }>;
 };
 
 /**
