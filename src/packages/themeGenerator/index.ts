@@ -70,18 +70,19 @@ export const generateMantineTheme = (
     );
 
   const userScale = runtimeTheme.borderRadiusScale ?? {};
-  const rawScale = { ...DEFAULT_THEME_SIZES.radius, ...userScale };
-  const radiusScale = Object.fromEntries(
-    Object.entries(rawScale).map(([key, val]) => [
-      key,
-      typeof val === 'number' ? `${val}px` : val,
-    ]),
-  ) as typeof DEFAULT_THEME_SIZES.radius;
+  // const rawScale = { ...DEFAULT_THEME_SIZES.radius, ...userScale };
+  // const radiusScale = Object.fromEntries(
+  //   Object.entries(rawScale).map(([key, val]) => [
+  //     key,
+  //     typeof val === 'number' ? `${val}px` : val,
+  //   ]),
+  // ) as typeof DEFAULT_THEME_SIZES.radius;
 
   const theme: MantineThemeOverride = {
     ...DEFAULT_THEME_SIZES,
 
-    radius: radiusScale,
+    // radius: rawScale,
+    ...(userScale ? {radius: userScale} : {}),
 
     defaultRadius: runtimeTheme.defaultBorderRadius ?? 'sm',
 
