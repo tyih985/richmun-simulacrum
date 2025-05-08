@@ -1,0 +1,30 @@
+{
+    "short_name": "RichMUN",
+    "long_name": "Richmond Model United Nations",
+    "subtitle": "",
+    "description": "!! Richmond's biggest MUN conference !!",
+  
+    "support_email": "director@richmun.ca",
+    "site_title": "RichMUN",
+    "favicon_url": "./demo/richMUN squarish.png",
+    "logo_url": "/demo/richMUN.png",
+    "logo_mono_url": "",
+    "icon_192_url": "/demo/richMUN squarish.png",
+    "icon_512_url": "/demo/richMUN squarish.png",
+  
+    "theme_colors": {
+      "primaryColor": {
+        "light": "##6dd1cf"
+      }
+    },
+  
+    "defaultBorderRadius": "sm",
+  
+    "borderRadiusScale": {
+      "xs": "2px",
+      "sm": "4px",
+      "md": "8px",
+      "lg": "16px",
+      "xl": "32px"
+    }  
+  }

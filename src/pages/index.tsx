@@ -8,6 +8,7 @@ import { SimulationDirectory } from './SimulationDirectory';
 import { ApplicationShell } from './app';
 import { Loader } from '@mantine/core';
 import AuthLayout from './AuthLayout';
+import { Branding } from './Branding';
 
 export const RootRoutes = () => {
   const { isChecking, isLoggedIn } = useSession();
@@ -63,6 +64,6 @@ export const RootRoutes = () => {
 const stableAccessRoutes = (
   <>
     <Route path="/debugger" element={<Debugger />} />
-    <Route path="/branding" element={<Debugger />} />
+    <Route path="/branding" element={<Branding />} />
   </>
 );
