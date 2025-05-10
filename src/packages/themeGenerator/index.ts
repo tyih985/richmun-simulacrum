@@ -82,7 +82,7 @@ export const generateMantineTheme = (
     ...DEFAULT_THEME_SIZES,
 
     // radius: rawScale,
-    ...(userScale ? {radius: userScale} : {}),
+    ...(userScale ? { radius: userScale } : {}),
 
     defaultRadius: runtimeTheme.defaultBorderRadius ?? 'sm',
 
