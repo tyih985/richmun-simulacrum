@@ -1,6 +1,6 @@
 import { Suspense, FC, ReactNode } from 'react';
 import { BrowserRouter } from 'react-router-dom';
-import { Notifications } from '@mantine/notifications';
+import { notifications, Notifications } from '@mantine/notifications';
 import { ReactFlowProvider } from '@xyflow/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
@@ -22,6 +22,7 @@ const queryClient = new QueryClient({
   },
 });
 
+
 export const Providers: FC<ProvidersProps> = ({ children }: ProvidersProps) => (
   <ConfigProvider>
     <QueryClientProvider client={queryClient}>
@@ -29,7 +30,7 @@ export const Providers: FC<ProvidersProps> = ({ children }: ProvidersProps) => (
         <ThemeProvider>
           <SessionProvider>
             <Notifications
-              position="bottom-right"
+              position="top-right"
               zIndex={1000}
               limit={5}
               autoClose={3000}

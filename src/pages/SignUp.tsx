@@ -17,6 +17,7 @@ import {
   Center,
   Container,
   BackgroundImage,
+  Checkbox,
 } from '@mantine/core';
 import {
   createUserWithEmailAndPassword,
@@ -74,7 +75,16 @@ export const SignUp = (): ReactElement => {
             {...form.getInputProps('password')}
             required
           />
-          <Flex direction="row" justify="flex-end"></Flex>
+          <Flex direction="row" justify="flex-end">
+            <Checkbox
+              size='xs'
+              radius="sm"
+              labelPosition="left"
+              label={<>I agree to the <Anchor href="/eula" size="xs" target="_blank" underline="hover"> EULA</Anchor>! :3</>}
+              required
+            />
+              
+          </Flex>
           <Button fullWidth radius="lg" type="submit">
             Create Account
           </Button>

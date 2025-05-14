@@ -9,6 +9,7 @@ import { ApplicationShell } from './app';
 import { Loader } from '@mantine/core';
 import AuthLayout from './AuthLayout';
 import { Branding } from './Branding';
+import { Eula } from './Eula';
 
 export const RootRoutes = () => {
   const { isChecking, isLoggedIn } = useSession();
@@ -54,6 +55,7 @@ export const RootRoutes = () => {
         <Route path="login" element={<Login />} />
         <Route path="forgot-password" element={<ForgotPassword />} />
       </Route>
+      <Route path="/eula" element={<Eula />}/>
       {stableAccessRoutes}
       <Route path="/*" element={<Navigate to="/login" />} />
     </Routes>
