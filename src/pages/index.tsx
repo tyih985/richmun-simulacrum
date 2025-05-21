@@ -10,6 +10,7 @@ import { Loader } from '@mantine/core';
 import AuthLayout from './AuthLayout';
 import { Branding } from './Branding';
 import { Eula } from './Eula';
+import MapPage from './Map';
 
 export const RootRoutes = () => {
   const { isChecking, isLoggedIn } = useSession();
@@ -42,6 +43,7 @@ export const RootRoutes = () => {
       <Routes>
         <Route path="/sim" element={<SimulationDirectory />} />
         <Route path="/app/*" element={<ApplicationShell />} />
+        <Route path="/map" element={<MapPage />} />
         {stableAccessRoutes}
         <Route path="/*" element={<Navigate to="/sim" />} />
       </Routes>
