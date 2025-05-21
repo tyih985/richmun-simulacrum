@@ -23,11 +23,16 @@ import {
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
   signInWithPopup,
+  User,
 } from 'firebase/auth';
 
 import { auth } from '@packages/firebase/firebaseAuth';
+import { createFirestoreDocument, getFirestoreDocument } from '@packages/firestoreAsQuery';
+import { usersPath } from '@packages/firestorePaths';
 
 export const SignUp = (): ReactElement => {
+  const [isEulaSigned, setIsEulaSigned] = useState(false);
+
   const form = useForm({
     initialValues: {
       email: '',
@@ -35,18 +40,48 @@ export const SignUp = (): ReactElement => {
     },
   });
 
+  const handleSuccessfulSignUp = async (user: User | null, isEulaSigned: boolean) => {
+    console.log('User:', user);
+    if (!user) {
+      console.error('User is null after sign up');
+      return;
+    }
+    const userId = user.uid;
+    const userData = {
+      email: user.email,
+      createdAt: new Date(),
+      isEulaSigned: isEulaSigned,
+    };
+
+    try {
+      await createFirestoreDocument(usersPath(userId), userData);
+      
+      // checking if the document is created and whats in it 
+      const result = getFirestoreDocument(usersPath(userId));
+      console.log('Firestore document created:', result);
+      
+      // Handle successful sign up (e.g., redirect to another page)
+    } catch (error) {
+      console.error('Error creating Firestore document:', error);
+    }
+  }
+
   const handleGoogleSignInOrSignUp = async () => {
+    console.log('Google sign-in/sign-up clicked');
     const provider = new GoogleAuthProvider();
     try {
-      await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
       // If the user is signing in for the first time, Firebase will automatically create a new account
       // Handle successful sign in/sign up
+      await handleSuccessfulSignUp(user, isEulaSigned);
     } catch (error) {
       console.error('Error with Google sign-in/sign-up:', error);
     }
   };
 
   const handleSignUp = async (values: { email: string; password: string }) => {
+    console.log('normal sign-in/sign-up clicked');
     const { email, password } = values;
     try {
       await createUserWithEmailAndPassword(auth, email, password);
@@ -78,6 +113,8 @@ export const SignUp = (): ReactElement => {
           <Flex direction="row" justify="flex-end">
             <Checkbox
               size='xs'
+              checked={isEulaSigned}
+              onChange={(event) => setIsEulaSigned(event.currentTarget.checked)}
               radius="sm"
               labelPosition="left"
               label={<>I agree to the <Anchor href="/eula" size="xs" target="_blank" underline="hover"> EULA</Anchor>! :3</>}

@@ -13,7 +13,7 @@ import { Eula } from './Eula';
 
 export const RootRoutes = () => {
   const { isChecking, isLoggedIn } = useSession();
-
+  
   if (isChecking)
     return (
       <Routes>
