@@ -22,11 +22,6 @@ export const MapBackgroundNode = memo(({ data }: NodeProps<Node<MapBackgroundPro
         alt="Map"
         height={height}
         width={width}
-        style={{
-          objectFit: 'cover',
-          width: '100%',
-          height: '100%',
-        }}
       />
     </>
   );
