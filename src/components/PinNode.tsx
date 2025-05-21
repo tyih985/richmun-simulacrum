@@ -54,14 +54,18 @@ export const PinNode = memo(({ data, selected }: NodeProps<Node<PinNodeData>>) =
           }}
         />
       )}
-      {selected && <div style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: `${size}px`,
-        height: `${size}px`,
-        background: 'red',
-      }}/>}
+      {selected && (
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: `${size}px`,
+            height: `${size}px`,
+            background: 'red',
+          }}
+        />
+      )}
     </div>
   );
 });

@@ -27,7 +27,10 @@ import {
 } from 'firebase/auth';
 
 import { auth } from '@packages/firebase/firebaseAuth';
-import { createFirestoreDocument, getFirestoreDocument } from '@packages/firestoreAsQuery';
+import {
+  createFirestoreDocument,
+  getFirestoreDocument,
+} from '@packages/firestoreAsQuery';
 import { usersPath } from '@packages/firestorePaths';
 
 export const SignUp = (): ReactElement => {
@@ -55,16 +58,16 @@ export const SignUp = (): ReactElement => {
 
     try {
       await createFirestoreDocument(usersPath(userId), userData);
-      
-      // checking if the document is created and whats in it 
+
+      // checking if the document is created and whats in it
       const result = getFirestoreDocument(usersPath(userId));
       console.log('Firestore document created:', result);
-      
+
       // Handle successful sign up (e.g., redirect to another page)
     } catch (error) {
       console.error('Error creating Firestore document:', error);
     }
-  }
+  };
 
   const handleGoogleSignInOrSignUp = async () => {
     console.log('Google sign-in/sign-up clicked');
@@ -112,15 +115,23 @@ export const SignUp = (): ReactElement => {
           />
           <Flex direction="row" justify="flex-end">
             <Checkbox
-              size='xs'
+              size="xs"
               checked={isEulaSigned}
               onChange={(event) => setIsEulaSigned(event.currentTarget.checked)}
               radius="sm"
               labelPosition="left"
-              label={<>I agree to the <Anchor href="/eula" size="xs" target="_blank" underline="hover"> EULA</Anchor>! :3</>}
+              label={
+                <>
+                  I agree to the{' '}
+                  <Anchor href="/eula" size="xs" target="_blank" underline="hover">
+                    {' '}
+                    EULA
+                  </Anchor>
+                  ! :3
+                </>
+              }
               required
             />
-              
           </Flex>
           <Button fullWidth radius="lg" type="submit">
             Create Account

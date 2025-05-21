@@ -100,7 +100,7 @@ export const Branding = (): ReactElement => {
   const [radiusValue, setRadiusValue] = useState('md');
   const [fontSize, setFontSize] = useState(100);
 
-useEffect(() => {
+  useEffect(() => {
     updateTheme({
       ...themes[brandSelection],
       defaultBorderRadius: radiusValue,
@@ -115,12 +115,12 @@ useEffect(() => {
     updateFontSize(fontSize);
   }, [brandSelection, radiusValue, fontSize, updateTheme, updateFontSize]);
 
-    const handleRadiusChange = (value: number) => {
-      const selectedMark = marks.find((mark) => mark.value === value);
-      if (selectedMark) {
-        setRadiusValue(selectedMark.label);
-      }
-    };
+  const handleRadiusChange = (value: number) => {
+    const selectedMark = marks.find((mark) => mark.value === value);
+    if (selectedMark) {
+      setRadiusValue(selectedMark.label);
+    }
+  };
 
   return (
     <Container fluid size="lg" py="xl">
@@ -155,7 +155,9 @@ useEffect(() => {
       <SimpleGrid w="100%" h="100%" cols={smallerThanMd ? 1 : 2} spacing="xl" p="xl">
         <Stack justify="flex-start" p="lg" gap="sm" h={'100%'}>
           <TextInput size="md" label="Your text here" placeholder="Type something…" />
-          <Button size="md" fullWidth>Action Button</Button>
+          <Button size="md" fullWidth>
+            Action Button
+          </Button>
         </Stack>
 
         <Stack justify="flex-start" p="lg" gap="sm" h={'100%'}>

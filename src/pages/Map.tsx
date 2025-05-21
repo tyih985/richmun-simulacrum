@@ -35,7 +35,7 @@ export const MapPage = (): ReactElement => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  console.log('selectedMapPins', selectedMapPins)
+  console.log('selectedMapPins', selectedMapPins);
 
   return (
     <div style={{ height: '100vh', width: '100vw' }}>

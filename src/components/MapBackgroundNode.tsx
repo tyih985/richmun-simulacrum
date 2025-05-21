@@ -17,11 +17,17 @@ export const MapBackgroundNode = memo(({ data }: NodeProps<Node<MapBackgroundPro
 
   return (
     <>
-       <img src={mapUrl} alt="Map" height={height} width={width} style={{
-         objectFit: 'cover',
-         width: '100%',
-         height: '100%'
-       }} />
+      <img
+        src={mapUrl}
+        alt="Map"
+        height={height}
+        width={width}
+        style={{
+          objectFit: 'cover',
+          width: '100%',
+          height: '100%',
+        }}
+      />
     </>
   );
 });

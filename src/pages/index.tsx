@@ -14,7 +14,7 @@ import MapPage from './Map';
 
 export const RootRoutes = () => {
   const { isChecking, isLoggedIn } = useSession();
-  
+
   if (isChecking)
     return (
       <Routes>
@@ -57,7 +57,7 @@ export const RootRoutes = () => {
         <Route path="login" element={<Login />} />
         <Route path="forgot-password" element={<ForgotPassword />} />
       </Route>
-      <Route path="/eula" element={<Eula />}/>
+      <Route path="/eula" element={<Eula />} />
       {stableAccessRoutes}
       <Route path="/*" element={<Navigate to="/login" />} />
     </Routes>

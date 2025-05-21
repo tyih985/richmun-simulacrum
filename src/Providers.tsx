@@ -22,7 +22,6 @@ const queryClient = new QueryClient({
   },
 });
 
-
 export const Providers: FC<ProvidersProps> = ({ children }: ProvidersProps) => (
   <ConfigProvider>
     <QueryClientProvider client={queryClient}>
