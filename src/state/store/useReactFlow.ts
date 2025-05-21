@@ -19,6 +19,7 @@ interface FlowState {
   onNodesChange: (changes: NodeChange[]) => void;
   onEdgesChange: (changes: EdgeChange[]) => void;
   updateSelection: (selection: { nodes: string[]; edges: string[] }) => void;
+  
   // private
   _selectedNodesLock: string[];
   _selectedEdgesLock: string[];
