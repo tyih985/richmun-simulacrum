@@ -1,5 +1,5 @@
-import { ReactElement, useEffect } from 'react';
-import { Panel, ReactFlow } from '@xyflow/react';
+import { ReactElement, useCallback, useEffect, useRef } from 'react';
+import { NodeOrigin, Panel, ReactFlow, useReactFlow, XYPosition } from '@xyflow/react';
 import { useShallow } from 'zustand/react/shallow';
 
 import { MapBackgroundNode } from '@components/MapBackgroundNode';
@@ -10,6 +10,9 @@ import { useSelectedMapPins } from '@hooks/useSelectedMapPins';
 import { NodeEditor } from '@components/NodeEditor';
 
 const ViewPortPadding = 200;
+const DOUBLE_CLICK_THRESHOLD = 300;
+
+const nodeOrigin: NodeOrigin = [0.5, 1];
 
 export const MapPage = (): ReactElement => {
   const nodeTypes = {
@@ -18,6 +21,8 @@ export const MapPage = (): ReactElement => {
     pin: PinNode,
   };
   const selectedMapPins = useSelectedMapPins();
+  const { screenToFlowPosition } = useReactFlow();
+  const lastClickTimeRef = useRef<number>(0);
 
   const { nodes, edges, syncNodes, syncEdges, onNodesChange, onEdgesChange } =
     useFlowState(
@@ -31,6 +36,40 @@ export const MapPage = (): ReactElement => {
       })),
     );
 
+  // mock function
+  const addNode = (position: XYPosition) => {
+    const newNodes = nodes.concat({
+      id: String(Math.random()),
+      type: 'draft',
+      position,
+      data: {},
+    });
+    syncNodes(newNodes);
+  };
+
+  const paneClick = useCallback(
+    (event: React.MouseEvent) => {
+      const currentTime = new Date().getTime();
+      const clickCoordinates = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+
+      const position = screenToFlowPosition({
+        x: clickCoordinates.x,
+        y: clickCoordinates.y,
+      });
+      console.log('pane', position);
+
+      const timeSinceLastClick = currentTime - lastClickTimeRef.current;
+      lastClickTimeRef.current = currentTime;
+      if (timeSinceLastClick < DOUBLE_CLICK_THRESHOLD) {
+        addNode(position);
+      }
+    },
+    [addNode],
+  );
+
   useEffect(() => {
     syncNodes(NODES);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -41,13 +80,18 @@ export const MapPage = (): ReactElement => {
   return (
     <div style={{ height: '100vh', width: '100vw' }}>
       <ReactFlow
+        nodeOrigin={nodeOrigin}
         nodes={nodes}
         edges={edges}
         nodeTypes={nodeTypes}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
+        onPaneClick={paneClick}
         maxZoom={20}
+        zoomOnDoubleClick={false}
         fitView
+        snapToGrid
+        snapGrid={[0.1, 0.1]}
         draggable={true}
         // translateExtent={[
         //   [0 - ViewPortPadding, 0 - ViewPortPadding],
@@ -62,7 +106,6 @@ export const MapPage = (): ReactElement => {
     </div>
   );
 };
-
 export default MapPage;
 
 const NODES = [
@@ -152,3 +195,19 @@ const NODES = [
     },
   },
 ];
+export function getClientCoordinates(
+  e: Event | MouseEvent | React.MouseEvent<Element> | TouchEvent | PointerEvent,
+): { x: number; y: number } {
+  if ('clientX' in e && 'clientY' in e) {
+    // MouseEvent, PointerEvent, or React.MouseEvent
+    return { x: e.clientX, y: e.clientY };
+  } else if ('touches' in e && e.touches.length > 0) {
+    // TouchEvent with active touches
+    return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  } else if ('changedTouches' in e && e.changedTouches.length > 0) {
+    // TouchEvent with changed touches (like touchend)
+    return { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
+  }
+
+  throw new Error('Attempted to get cooridinates on an invalid or incomplete event type');
+}

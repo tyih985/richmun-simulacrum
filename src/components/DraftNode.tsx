@@ -2,21 +2,18 @@ import React, { memo } from 'react';
 import { Handle, Position, NodeProps, Node } from '@xyflow/react';
 import { PinNodeData } from '@types';
 
-
 export const DraftNode = memo(
   ({
     data,
     positionAbsoluteX: xPos,
     positionAbsoluteY: yPos,
     selected,
-    dragging
+    dragging,
   }: NodeProps<Node<PinNodeData>>) => {
     return (
       <div
         style={{
           position: 'relative',
-          width: '40px',
-          height: '40px',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -35,12 +32,6 @@ export const DraftNode = memo(
               marginTop: '5px',
             }}
           />
-
-          {/* Coordinate display */}
-          <div style={{ fontSize: '8px', textAlign: 'center' }}>
-            ({Math.round(xPos || 0)}, {Math.round(yPos || 0)})
-          </div>
-
         </div>
       </div>
     );
