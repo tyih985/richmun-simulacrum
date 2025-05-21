@@ -12,6 +12,7 @@ export const DraftNode = memo(
     positionAbsoluteX: xPos,
     positionAbsoluteY: yPos,
     selected,
+    dragging
   }: NodeProps<Node<DraftNodeData>>) => {
     return (
       <div
@@ -25,7 +26,7 @@ export const DraftNode = memo(
           justifyContent: 'center',
         }}
       >
-        <div className={selected ? 'bouncing-pin' : ''}>
+        <div className={selected && !dragging ? 'bouncing-pin' : ''}>
           {/* Black triangle pointing downward */}
           <div
             style={{

@@ -1,5 +1,5 @@
 import { ReactElement, useEffect } from 'react';
-import { ReactFlow } from '@xyflow/react';
+import { Panel, ReactFlow } from '@xyflow/react';
 import { useShallow } from 'zustand/react/shallow';
 
 import { MapBackgroundNode } from '@components/MapBackgroundNode';
@@ -53,6 +53,9 @@ export const MapPage = (): ReactElement => {
         //   [1000 + ViewPortPadding, 1000 + ViewPortPadding],
         // ]}
       />
+      <Panel position='bottom-center'>
+        hello world
+      </Panel>
     </div>
   );
 };
