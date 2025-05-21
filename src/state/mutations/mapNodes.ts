@@ -64,7 +64,7 @@ export const mapNodesMutations = (): MapNodesMutationsType => {
     nodeId: string,
     position: { x: number; y: number },
   ) => {
-    const path = `${committeeMapNodesPath(committeeId, mapId)}/${nodeId}`;
+    const path = committeeMapNodePath(committeeId, mapId, nodeId);
     return updateFirestoreDocument(path, { position });
   };
 

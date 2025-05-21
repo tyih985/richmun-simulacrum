@@ -49,8 +49,6 @@ export const useMapNodes = (
     return [...regularNodes, ...processedBackgroundNodes];
   }, [nodesQuery.data, backgroundNodesQuery.data]);
 
-  console.log('useMapNodes - combinedNodes', combinedNodes);
-
   const result = useMemo(
     () => ({
       nodes: combinedNodes,

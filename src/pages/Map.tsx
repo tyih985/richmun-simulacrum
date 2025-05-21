@@ -6,6 +6,7 @@ import {
   useReactFlow,
   XYPosition,
   Node,
+  type OnNodeDrag,
 } from '@xyflow/react';
 import { useShallow } from 'zustand/react/shallow';
 
@@ -31,7 +32,7 @@ export const MapPage = (): ReactElement => {
     draft: DraftNode,
     pin: PinNode,
   };
-  const { createNode } = mapNodesMutations();
+  const { createNode, updateNodePosition } = mapNodesMutations();
   const selectedMapPins = useSelectedMapPins();
   const { screenToFlowPosition } = useReactFlow();
   const lastClickTimeRef = useRef<number>(0);
@@ -87,10 +88,21 @@ export const MapPage = (): ReactElement => {
         addNode(position);
       }
     },
-    [addNode],
+    [addNode, screenToFlowPosition],
   );
 
-  console.log('selectedMapPins', selectedMapPins);
+  const onNodeDragStop = useCallback<OnNodeDrag<Node>>(
+    (_, node) => {
+      console.log('onNodeDragStop');
+      updateNodePosition(
+        FJCC_COMMITTEE_KEY,
+        FJCC_COMMITTEE_MAP_KEY_1,
+        node.id,
+        node.position,
+      );
+    },
+    [updateNodePosition],
+  );
 
   return (
     <div style={{ height: '100vh', width: '100vw' }}>
@@ -104,6 +116,7 @@ export const MapPage = (): ReactElement => {
         onPaneClick={paneClick}
         maxZoom={20}
         zoomOnDoubleClick={false}
+        onNodeDragStop={onNodeDragStop}
         fitView
         snapToGrid
         snapGrid={[0.1, 0.1]}
