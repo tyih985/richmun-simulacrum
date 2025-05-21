@@ -1,11 +1,6 @@
 import React, { memo } from 'react';
 import { NodeProps, Node } from '@xyflow/react';
-
-type PinNodeData = {
-  color?: string;
-  iconUrl?: string;
-  size?: number;
-};
+import { PinNodeData } from '@types';
 
 const PIN_SIZE = 45;
 const IMAGE_SIZE = 27;
