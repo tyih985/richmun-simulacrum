@@ -53,9 +53,7 @@ export const MapPage = (): ReactElement => {
         //   [1000 + ViewPortPadding, 1000 + ViewPortPadding],
         // ]}
       />
-      <Panel position='bottom-center'>
-        hello world
-      </Panel>
+      {selectedMapPins.length > 0 && <Panel position="bottom-center">hello world</Panel>}
     </div>
   );
 };
