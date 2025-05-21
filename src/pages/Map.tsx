@@ -68,11 +68,13 @@ const NODES = [
         'https://cdn.discordapp.com/attachments/1367630288792064000/1372650083627045118/IMG_4489.webp?ex=682ecbc2&is=682d7a42&hm=a348de612108e5993058251f3b1b06be595bcceca4877ef1ea3c26eabd2e3ec7',
       height: 1000,
     },
-    draggable: false,
     position: {
       x: 0,
       y: 0,
     },
+    // these props should be enforced on the type
+    draggable: false,
+    selectable: false,
   },
   {
     type: 'draft',
