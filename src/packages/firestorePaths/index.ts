@@ -1,55 +1,44 @@
-export const usersPath = (userId: string) => `users/${userId}`;
-export const userEventsPath = (userId: string) => `users/${userId}/events_ref`;
-export const userEventPath = (userId: string, simulationId: string) =>
-  `users/${userId}/events_ref/${simulationId}`;
-
-export const simulationPath = (simulationId: string) => `simulations/${simulationId}`;
-
 /**
  * The USERS sub-collection is the mapping of users to their role
  * whether it's as a staff, or a delegate, or co-delegates, this is the canonical mapping
  */
-export const simulationUsersPath = (simulationId: string) =>
-  `simulations/${simulationId}/users`;
-export const simulationUserPath = (simulationId: string, userId: string) =>
-  `simulations/${simulationId}/users/${userId}`;
+export const usersPath = (userId: string) => `users/${userId}`;
 
-export const committeesPath = (simulationId: string) =>
-  `simulations/${simulationId}/committees`;
-export const committeePath = (simulationId: string, committeeId: string) =>
-  `simulations/${simulationId}/committees/${committeeId}`;
+// events are stored on a separate list, to reference one or more simulations if needed
+export const userEventsPath = (userId: string) => `users/${userId}/events_ref`;
+export const userEventPath = (userId: string, committeeId: string) =>
+  `users/${userId}/events_ref/${committeeId}`;
 
-export const committeeDelegationsPath = (simulationId: string, committeeId: string) =>
-  `simulations/${simulationId}/committees/${committeeId}/delegations`;
-export const committeeDelegationPath = (
-  simulationId: string,
-  committeeId: string,
-  delegateId: string,
-) => `simulations/${simulationId}/committees/${committeeId}/delegations/${delegateId}`;
-export const delegationDirectivesPath = (
-  simulationId: string,
-  committeeId: string,
-  delegateId: string,
-) =>
-  `simulations/${simulationId}/committees/${committeeId}/delegations/${delegateId}/directives_ref`;
-export const delegationDirectivePath = (
-  simulationId: string,
-  committeeId: string,
-  delegateId: string,
-  directiveId: string,
-) =>
-  `simulations/${simulationId}/committees/${committeeId}/delegations/${delegateId}/directives_ref/${directiveId}`;
+// Committees collection paths
+export const committeesPath = () => 'committees';
+export const committeePath = (committeeId: string) => `committees/${committeeId}`;
 
-export const directivesPath = (simulationId: string, committeeId: string) =>
-  `simulations/${simulationId}/committees/${committeeId}/directives`;
-export const directivePath = (
-  simulationId: string,
-  committeeId: string,
-  directiveId: string,
-) => `simulations/${simulationId}/committees/${committeeId}/directives/${directiveId}`;
-export const directiveEditorsPath = (
-  simulationId: string,
-  committeeId: string,
-  directiveId: string,
-) =>
-  `simulations/${simulationId}/committees/${committeeId}/directives/${directiveId}/editors`;
+// Visibility groups paths within a committee
+export const committeeVisibilityGroupsPath = (committeeId: string) =>
+  `committees/${committeeId}/visibility_groups`;
+export const committeeVisibilityGroupPath = (committeeId: string, groupId: string) =>
+  `committees/${committeeId}/visibility_groups/${groupId}`;
+
+// Delegates paths within a committee
+export const committeeDelegatesPath = (committeeId: string) =>
+  `committees/${committeeId}/delegates`;
+export const committeeDelegatePath = (committeeId: string, delegateId: string) =>
+  `committees/${committeeId}/delegates/${delegateId}`;
+
+// Staff paths within a committee
+export const committeeStaffPath = (committeeId: string) =>
+  `committees/${committeeId}/staff`;
+export const committeeStaffMemberPath = (committeeId: string, staffId: string) =>
+  `committees/${committeeId}/staff/${staffId}`;
+
+// Maps paths within a committee
+export const committeeMapsPath = (committeeId: string) =>
+  `committees/${committeeId}/maps`;
+export const committeeMapPath = (committeeId: string, mapId: string) =>
+  `committees/${committeeId}/maps/${mapId}`;
+
+// Map nodes paths
+export const committeeMapNodesPath = (committeeId: string, mapId: string) =>
+  `committees/${committeeId}/maps/${mapId}/nodes`;
+export const committeeMapBackgroundNodesPath = (committeeId: string, mapId: string) =>
+  `committees/${committeeId}/maps/${mapId}/background_nodes`;
