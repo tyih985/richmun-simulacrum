@@ -1,8 +1,13 @@
-import { useReactFlow } from '@xyflow/react';
+import { useNodes, useReactFlow } from '@xyflow/react';
+import { useMemo } from 'react';
 
 export const useSelectedMapPins = () => {
+  const nodes = useNodes();
   const { getNodes } = useReactFlow();
-  const selectedNodes = getNodes().filter((node) => node.selected);
+  const selectedNodes = useMemo(
+    () => getNodes().filter((node) => node.selected),
+    [nodes],
+  );
 
   return selectedNodes;
 };
