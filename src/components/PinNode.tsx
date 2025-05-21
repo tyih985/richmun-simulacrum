@@ -31,41 +31,31 @@ export const PinNode = memo(({ data, selected }: NodeProps<Node<PinNodeData>>) =
         justifyContent: 'center',
       }}
     >
-      {/* Pin display - either an icon or a triangle */}
-      {iconUrl ? (
-        <img
-          src={iconUrl}
-          alt="Pin Icon"
-          style={{
-            width: `${size}px`,
-            height: `${size}px`,
-            objectFit: 'contain',
-          }}
-        />
-      ) : (
-        <div
-          style={{
-            width: 0,
-            height: 0,
-            borderLeft: `${size / 4}px solid transparent`,
-            borderRight: `${size / 4}px solid transparent`,
-            borderTop: `${size / 2}px solid ${color}`,
-            marginTop: `${size / 8}px`,
-          }}
-        />
-      )}
-      {selected && (
-        <div
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: `${size}px`,
-            height: `${size}px`,
-            background: 'red',
-          }}
-        />
-      )}
+      <div className={selected ? 'bouncing-pin' : ''}>
+        {/* Pin display - either an icon or a triangle */}
+        {iconUrl ? (
+          <img
+            src={iconUrl}
+            alt="Pin Icon"
+            style={{
+              width: `${size}px`,
+              height: `${size}px`,
+              objectFit: 'contain',
+            }}
+          />
+        ) : (
+          <div
+            style={{
+              width: 0,
+              height: 0,
+              borderLeft: `${size / 4}px solid transparent`,
+              borderRight: `${size / 4}px solid transparent`,
+              borderTop: `${size / 2}px solid ${color}`,
+              marginTop: `${size / 8}px`,
+            }}
+          />
+        )}
+      </div>
     </div>
   );
 });

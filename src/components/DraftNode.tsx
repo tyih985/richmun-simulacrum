@@ -25,34 +25,25 @@ export const DraftNode = memo(
           justifyContent: 'center',
         }}
       >
-        {/* Black triangle pointing downward */}
-        <div
-          style={{
-            width: 0,
-            height: 0,
-            borderLeft: '10px solid transparent',
-            borderRight: '10px solid transparent',
-            borderTop: '20px solid black',
-            marginTop: '5px',
-          }}
-        />
-
-        {/* Coordinate display */}
-        <div style={{ fontSize: '8px', textAlign: 'center' }}>
-          ({Math.round(xPos || 0)}, {Math.round(yPos || 0)})
-        </div>
-        {selected && (
+        <div className={selected ? 'bouncing-pin' : ''}>
+          {/* Black triangle pointing downward */}
           <div
             style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: `40px`,
-              height: `40px`,
-              background: 'red',
+              width: 0,
+              height: 0,
+              borderLeft: '10px solid transparent',
+              borderRight: '10px solid transparent',
+              borderTop: '20px solid black',
+              marginTop: '5px',
             }}
           />
-        )}
+
+          {/* Coordinate display */}
+          <div style={{ fontSize: '8px', textAlign: 'center' }}>
+            ({Math.round(xPos || 0)}, {Math.round(yPos || 0)})
+          </div>
+
+        </div>
       </div>
     );
   },
