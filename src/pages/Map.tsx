@@ -7,6 +7,7 @@ import { DraftNode } from '@components/DraftNode';
 import { PinNode } from '@components/PinNode';
 import { useFlowState } from '@store/useReactFlow';
 import { useSelectedMapPins } from '@hooks/useSelectedMapPins';
+import { NodeEditor } from '@components/NodeEditor';
 
 const ViewPortPadding = 200;
 
@@ -53,7 +54,11 @@ export const MapPage = (): ReactElement => {
         //   [1000 + ViewPortPadding, 1000 + ViewPortPadding],
         // ]}
       />
-      {selectedMapPins.length > 0 && <Panel position="bottom-center">hello world</Panel>}
+      {selectedMapPins.length > 0 && (
+        <Panel position="bottom-center">
+          <NodeEditor onPublish={(data) => console.log(data)} />
+        </Panel>
+      )}
     </div>
   );
 };
