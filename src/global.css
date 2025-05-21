@@ -5,5 +5,5 @@ body {
 
 /** enforce base animations when programmatically repositioning a node */
 .react-flow__node {
-  transition: transform 0.1s linear;
+  transition: transform 0s linear !important;
 }
