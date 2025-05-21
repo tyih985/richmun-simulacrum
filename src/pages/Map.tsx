@@ -6,6 +6,7 @@ import { MapBackgroundNode } from '@components/MapBackgroundNode';
 import { DraftNode } from '@components/DraftNode';
 import { PinNode } from '@components/PinNode';
 import { useFlowState } from '@store/useReactFlow';
+import { useSelectedMapPins } from '@hooks/useSelectedMapPins';
 
 const ViewPortPadding = 200;
 
@@ -15,6 +16,7 @@ export const MapPage = (): ReactElement => {
     draft: DraftNode,
     pin: PinNode,
   };
+  const selectedMapPins = useSelectedMapPins();
 
   const { nodes, edges, syncNodes, syncEdges, onNodesChange, onEdgesChange } =
     useFlowState(
@@ -33,6 +35,8 @@ export const MapPage = (): ReactElement => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  console.log('selectedMapPins', selectedMapPins)
+
   return (
     <div style={{ height: '100vh', width: '100vw' }}>
       <ReactFlow
@@ -42,11 +46,12 @@ export const MapPage = (): ReactElement => {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         maxZoom={20}
+        fitView
         draggable={true}
-        translateExtent={[
-          [0 - ViewPortPadding, 0 - ViewPortPadding],
-          [1000 + ViewPortPadding, 1000 + ViewPortPadding],
-        ]}
+        // translateExtent={[
+        //   [0 - ViewPortPadding, 0 - ViewPortPadding],
+        //   [1000 + ViewPortPadding, 1000 + ViewPortPadding],
+        // ]}
       />
     </div>
   );

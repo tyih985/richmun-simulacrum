@@ -11,6 +11,7 @@ export const DraftNode = memo(
     data,
     positionAbsoluteX: xPos,
     positionAbsoluteY: yPos,
+    selected,
   }: NodeProps<Node<DraftNodeData>>) => {
     return (
       <div
@@ -40,6 +41,18 @@ export const DraftNode = memo(
         <div style={{ fontSize: '8px', textAlign: 'center' }}>
           ({Math.round(xPos || 0)}, {Math.round(yPos || 0)})
         </div>
+        {selected && (
+          <div
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: `40px`,
+              height: `40px`,
+              background: 'red',
+            }}
+          />
+        )}
       </div>
     );
   },

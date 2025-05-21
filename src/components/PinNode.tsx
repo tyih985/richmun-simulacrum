@@ -10,7 +10,7 @@ type PinNodeData = {
 const PIN_SIZE = 45;
 const IMAGE_SIZE = 27;
 
-export const PinNode = memo(({ data }: NodeProps<Node<PinNodeData>>) => {
+export const PinNode = memo(({ data, selected }: NodeProps<Node<PinNodeData>>) => {
   const {
     color = '#FF5733', // Default color if none provided
     iconUrl,
@@ -54,6 +54,14 @@ export const PinNode = memo(({ data }: NodeProps<Node<PinNodeData>>) => {
           }}
         />
       )}
+      {selected && <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: `${size}px`,
+        height: `${size}px`,
+        background: 'red',
+      }}/>}
     </div>
   );
 });
