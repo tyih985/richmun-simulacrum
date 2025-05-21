@@ -11,6 +11,7 @@ import {
   TextInput,
   Popover,
 } from '@mantine/core';
+import { useDebouncedCallback } from '@mantine/hooks';
 import { IconUpload, IconPhoto, IconPalette, IconEye } from '@tabler/icons-react';
 import { PinNodeData } from '@types';
 
@@ -22,6 +23,7 @@ interface NodeEditorProps {
 }
 
 export const NodeEditor = ({
+  onChange,
   onPublish,
   initialContent = '',
   initialColor = '#FF5733',
@@ -29,6 +31,31 @@ export const NodeEditor = ({
   const [content, setContent] = useState(initialContent);
   const [color, setColor] = useState(initialColor);
   const [showColorPicker, setShowColorPicker] = useState(false);
+
+  const debouncedOnChange = useDebouncedCallback((data: Partial<PinNodeData>) => {
+    onChange?.(data);
+  }, 500);
+
+  const handleContentChange = (value: string) => {
+    setContent(value);
+    if (onChange) {
+      debouncedOnChange({ text: value, color });
+    }
+  };
+
+  const handleColorChange = (value: string) => {
+    setColor(value);
+    if (onChange) {
+      debouncedOnChange({ text: content, color: value });
+    }
+  };
+
+  const handleBlur = () => {
+    if (onChange) {
+      debouncedOnChange.flush();
+      onChange({ text: content, color });
+    }
+  };
 
   const handlePublish = () => {
     if (!content.trim()) return;
@@ -67,7 +94,12 @@ export const NodeEditor = ({
             </ActionIcon>
           </Popover.Target>
           <Popover.Dropdown>
-            <ColorPicker format="hex" value={color} onChange={setColor} />
+            <ColorPicker
+              format="hex"
+              value={color}
+              onChange={handleColorChange}
+              onChangeEnd={handleBlur}
+            />
           </Popover.Dropdown>
         </Popover>
 
@@ -75,7 +107,8 @@ export const NodeEditor = ({
         <TextInput
           placeholder="Add your note here..."
           value={content}
-          onChange={(e) => setContent(e.currentTarget.value)}
+          onChange={(e) => handleContentChange(e.currentTarget.value)}
+          onBlur={handleBlur}
           style={{ flexGrow: 1 }}
           rightSection={
             <ActionIcon
