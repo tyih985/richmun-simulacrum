@@ -1,5 +1,12 @@
 import { ReactElement, useCallback, useEffect, useRef } from 'react';
-import { NodeOrigin, Panel, ReactFlow, useReactFlow, XYPosition } from '@xyflow/react';
+import {
+  NodeOrigin,
+  Panel,
+  ReactFlow,
+  useReactFlow,
+  XYPosition,
+  Node,
+} from '@xyflow/react';
 import { useShallow } from 'zustand/react/shallow';
 
 import { MapBackgroundNode } from '@components/MapBackgroundNode';
@@ -8,6 +15,10 @@ import { PinNode } from '@components/PinNode';
 import { useFlowState } from '@store/useReactFlow';
 import { useSelectedMapPins } from '@hooks/useSelectedMapPins';
 import { NodeEditor } from '@components/NodeEditor';
+import { useMapNodes } from '@hooks/useMapNodes';
+import { FJCC_COMMITTEE_KEY, FJCC_COMMITTEE_MAP_KEY_1 } from '@lib/mapPrototypeKeys';
+import { mapNodesMutations } from '@mutations/mapNodes';
+import { PinNodeDataType } from '@types';
 
 const ViewPortPadding = 200;
 const DOUBLE_CLICK_THRESHOLD = 300;
@@ -20,9 +31,14 @@ export const MapPage = (): ReactElement => {
     draft: DraftNode,
     pin: PinNode,
   };
+  const { createNode } = mapNodesMutations();
   const selectedMapPins = useSelectedMapPins();
   const { screenToFlowPosition } = useReactFlow();
   const lastClickTimeRef = useRef<number>(0);
+  const { nodes: incomingNodes, isLoading } = useMapNodes(
+    FJCC_COMMITTEE_KEY,
+    FJCC_COMMITTEE_MAP_KEY_1,
+  );
 
   const { nodes, edges, syncNodes, syncEdges, onNodesChange, onEdgesChange } =
     useFlowState(
@@ -36,15 +52,19 @@ export const MapPage = (): ReactElement => {
       })),
     );
 
-  // mock function
+  useEffect(() => {
+    syncNodes(incomingNodes);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [incomingNodes]);
+
   const addNode = (position: XYPosition) => {
-    const newNodes = nodes.concat({
-      id: String(Math.random()),
+    const newNode: Omit<Node<PinNodeDataType>, 'id'> = {
       type: 'draft',
       position,
-      data: {},
-    });
-    syncNodes(newNodes);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      data: {} as unknown as any,
+    };
+    createNode(FJCC_COMMITTEE_KEY, FJCC_COMMITTEE_MAP_KEY_1, newNode);
   };
 
   const paneClick = useCallback(
@@ -69,11 +89,6 @@ export const MapPage = (): ReactElement => {
     },
     [addNode],
   );
-
-  useEffect(() => {
-    syncNodes(NODES);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   console.log('selectedMapPins', selectedMapPins);
 

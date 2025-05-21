@@ -1,12 +1,12 @@
 import React, { memo } from 'react';
 import { NodeProps, Node } from '@xyflow/react';
-import { PinNodeData } from '@types';
+import { PinNodeDataType } from '@types';
 
 const PIN_SIZE = 45;
 const IMAGE_SIZE = 27;
 
 export const PinNode = memo(
-  ({ data, selected, dragging }: NodeProps<Node<PinNodeData>>) => {
+  ({ data, selected, dragging }: NodeProps<Node<PinNodeDataType>>) => {
     const {
       color = '#FF5733', // Default color if none provided
       iconUrl,

@@ -1,4 +1,6 @@
-export type PinNodeData = {
+// import { XYPosition } from '@xyflow/react';
+
+export type PinNodeDataType = {
   iconUrl?: string;
   color?: string;
   text?: string;
@@ -6,3 +8,10 @@ export type PinNodeData = {
   visibilityRoles: string[];
   size?: number; // not supported right now, but technically in the future
 };
+
+// prob not needed
+// export type FlattenedPinNodeDataType = Omit<Node, 'data'> &
+//   PinNodeDataType & {
+//     type: 'pin' | 'draft';
+//     position: XYPosition;
+//   };

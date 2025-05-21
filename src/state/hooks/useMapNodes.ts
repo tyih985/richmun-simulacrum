@@ -1,9 +1,13 @@
+import { useMemo } from 'react';
+import { Node } from '@xyflow/react';
+
 import { useFirestoreCollectionQuery } from '@packages/firestoreAsQuery/firestoreSubscription';
 import {
   committeeMapNodesPath,
   committeeMapBackgroundNodesPath,
 } from '@packages/firestorePaths';
-import { useMemo } from 'react';
+
+import { PinNodeDataType } from '@types';
 
 export const useMapNodes = (
   committeeId: string,
@@ -12,7 +16,7 @@ export const useMapNodes = (
 ) => {
   const { enabled = true, sortBy = false } = options;
 
-  const nodesQuery = useFirestoreCollectionQuery(
+  const nodesQuery = useFirestoreCollectionQuery<Node<PinNodeDataType>>(
     committeeId && mapId ? committeeMapNodesPath(committeeId, mapId) : '',
     {
       enabled: !!committeeId && !!mapId && enabled,
@@ -20,7 +24,7 @@ export const useMapNodes = (
     },
   );
 
-  const backgroundNodesQuery = useFirestoreCollectionQuery(
+  const backgroundNodesQuery = useFirestoreCollectionQuery<Node>(
     committeeId && mapId ? committeeMapBackgroundNodesPath(committeeId, mapId) : '',
     {
       enabled: !!committeeId && !!mapId && enabled,
@@ -44,6 +48,8 @@ export const useMapNodes = (
 
     return [...regularNodes, ...processedBackgroundNodes];
   }, [nodesQuery.data, backgroundNodesQuery.data]);
+
+  console.log('useMapNodes - combinedNodes', combinedNodes);
 
   const result = useMemo(
     () => ({

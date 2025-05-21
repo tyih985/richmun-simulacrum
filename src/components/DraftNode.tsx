@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { Handle, Position, NodeProps, Node } from '@xyflow/react';
-import { PinNodeData } from '@types';
+import { PinNodeDataType } from '@types';
 
 export const DraftNode = memo(
   ({
@@ -9,7 +9,7 @@ export const DraftNode = memo(
     positionAbsoluteY: yPos,
     selected,
     dragging,
-  }: NodeProps<Node<PinNodeData>>) => {
+  }: NodeProps<Node<PinNodeDataType>>) => {
     return (
       <div
         style={{

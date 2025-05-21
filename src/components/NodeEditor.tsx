@@ -13,11 +13,11 @@ import {
 } from '@mantine/core';
 import { useDebouncedCallback } from '@mantine/hooks';
 import { IconUpload, IconPhoto, IconPalette, IconEye } from '@tabler/icons-react';
-import { PinNodeData } from '@types';
+import { PinNodeDataType } from '@types';
 
 interface NodeEditorProps {
-  onChange?: (data: Partial<PinNodeData>) => void; // real-time
-  onPublish?: (data: Partial<PinNodeData>) => void; // button behaviour
+  onChange?: (data: Partial<PinNodeDataType>) => void; // real-time
+  onPublish?: (data: Partial<PinNodeDataType>) => void; // button behaviour
   initialContent?: string;
   initialColor?: string;
 }
@@ -32,7 +32,7 @@ export const NodeEditor = ({
   const [color, setColor] = useState(initialColor);
   const [showColorPicker, setShowColorPicker] = useState(false);
 
-  const debouncedOnChange = useDebouncedCallback((data: Partial<PinNodeData>) => {
+  const debouncedOnChange = useDebouncedCallback((data: Partial<PinNodeDataType>) => {
     onChange?.(data);
   }, 500);
 
