@@ -1,4 +1,4 @@
-// import { XYPosition } from '@xyflow/react';
+import { XYPosition } from '@xyflow/react';
 
 export type PinNodeDataType = {
   iconUrl?: string;
@@ -9,9 +9,7 @@ export type PinNodeDataType = {
   size?: number; // not supported right now, but technically in the future
 };
 
-// prob not needed
-// export type FlattenedPinNodeDataType = Omit<Node, 'data'> &
-//   PinNodeDataType & {
-//     type: 'pin' | 'draft';
-//     position: XYPosition;
-//   };
+export type FlattenedPinNodeDataType = PinNodeDataType & {
+  type: 'pin' | 'draft';
+  position: XYPosition;
+};
