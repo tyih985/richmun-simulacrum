@@ -1,25 +1,24 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Node } from '@xyflow/react';
 import {
   createFirestoreDocument,
   updateFirestoreDocument,
   deleteFirestoreDocument,
 } from '@packages/firestoreAsQuery';
-import { committeeMapNodePath, committeeMapNodesPath } from '@packages/firestorePaths';
-import { PinNodeDataType } from '@types';
+import { committeeMapNodePath } from '@packages/firestorePaths';
+import { PostablePinNodeType } from '@types';
 import { generateNodeId } from '@packages/generateIds';
 
 type MapNodesMutationsType = {
   createNode: (
     committeeId: string,
     mapId: string,
-    data: Omit<Node<PinNodeDataType>, 'id'>,
+    data: PostablePinNodeType,
   ) => Promise<any>;
   updateNode: (
     committeeId: string,
     mapId: string,
     nodeId: string,
-    data: Partial<Node<PinNodeDataType>>,
+    data: PostablePinNodeType,
   ) => Promise<any>;
   deleteNode: (committeeId: string, mapId: string, nodeId: string) => Promise<any>;
   updateNodePosition: (
@@ -31,11 +30,7 @@ type MapNodesMutationsType = {
 };
 
 export const mapNodesMutations = (): MapNodesMutationsType => {
-  const createNode = (
-    committeeId: string,
-    mapId: string,
-    data: Omit<Node<PinNodeDataType>, 'id'>,
-  ) => {
+  const createNode = (committeeId: string, mapId: string, data: PostablePinNodeType) => {
     console.log('createNode', committeeId, mapId, data);
     const newNodeId = generateNodeId();
     const path = committeeMapNodePath(committeeId, mapId, newNodeId);
@@ -46,7 +41,7 @@ export const mapNodesMutations = (): MapNodesMutationsType => {
     committeeId: string,
     mapId: string,
     nodeId: string,
-    data: Partial<Node<PinNodeDataType>>,
+    data: PostablePinNodeType,
   ) => {
     const path = committeeMapNodePath(committeeId, mapId, nodeId);
     return updateFirestoreDocument(path, data);

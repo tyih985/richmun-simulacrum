@@ -19,7 +19,7 @@ import { NodeEditor } from '@components/NodeEditor';
 import { useMapNodes } from '@hooks/useMapNodes';
 import { FJCC_COMMITTEE_KEY, FJCC_COMMITTEE_MAP_KEY_1 } from '@lib/mapPrototypeKeys';
 import { mapNodesMutations } from '@mutations/mapNodes';
-import { PinNodeDataType } from '@types';
+import { PinNodeDataType, PostablePinNodeType } from '@types';
 
 const ViewPortPadding = 200;
 const DOUBLE_CLICK_THRESHOLD = 300;
@@ -58,15 +58,13 @@ export const MapPage = (): ReactElement => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [incomingNodes]);
 
-  const addNode = (position: XYPosition) => {
-    const newNode: Omit<Node<PinNodeDataType>, 'id'> = {
+  const addNode = useCallback((position: XYPosition) => {
+    const newNode: PostablePinNodeType = {
       type: 'draft',
       position,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      data: {} as unknown as any,
     };
     createNode(FJCC_COMMITTEE_KEY, FJCC_COMMITTEE_MAP_KEY_1, newNode);
-  };
+  }, [createNode]);
 
   const paneClick = useCallback(
     (event: React.MouseEvent) => {
