@@ -4,8 +4,6 @@ import { SignUp } from './SignUp';
 import { ForgotPassword } from './ForgotPassword';
 import { Debugger } from './Debugger';
 import { useSession } from '@hooks/useSession';
-import { SimulationDirectory } from './SimulationDirectory';
-import { ApplicationShell } from './app';
 import { Loader } from '@mantine/core';
 import AuthLayout from './AuthLayout';
 import { Branding } from './Branding';
@@ -41,11 +39,9 @@ export const RootRoutes = () => {
   if (isLoggedIn)
     return (
       <Routes>
-        <Route path="/sim" element={<SimulationDirectory />} />
-        <Route path="/app/*" element={<ApplicationShell />} />
-        <Route path="/map" element={<MapPage />} />
         {stableAccessRoutes}
-        <Route path="/*" element={<Navigate to="/sim" />} />
+        <Route path="/map" element={<MapPage />} />
+        <Route path="/*" element={<Navigate to="/map" />} />
       </Routes>
     );
 
