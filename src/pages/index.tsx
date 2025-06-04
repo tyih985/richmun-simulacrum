@@ -1,14 +1,10 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
-import { Login } from './Login';
-import { SignUp } from './SignUp';
-import { ForgotPassword } from './ForgotPassword';
 import { Debugger } from './Debugger';
 import { useSession } from '@hooks/useSession';
 import { Loader } from '@mantine/core';
-import AuthLayout from './AuthLayout';
 import { Branding } from './Branding';
-import { Eula } from './Eula';
-import  { MapRouter } from './Map';
+import { MapRouter } from './Map';
+import { AuthRoutes } from './Auth';
 
 export const RootRoutes = () => {
   const { isChecking, isLoggedIn } = useSession();
@@ -47,15 +43,9 @@ export const RootRoutes = () => {
 
   return (
     <Routes>
-      <Route path="/" element={<AuthLayout />}>
-        <Route index element={<Navigate to="login" />} />
-        <Route path="sign-up" element={<SignUp />} />
-        <Route path="login" element={<Login />} />
-        <Route path="forgot-password" element={<ForgotPassword />} />
-      </Route>
-      <Route path="/eula" element={<Eula />} />
+      <Route path="/auth/*" element={<AuthRoutes />} />
       {stableAccessRoutes}
-      <Route path="/*" element={<Navigate to="/login" />} />
+      <Route path="/*" element={<Navigate to="/auth/login" />} />
     </Routes>
   );
 };

@@ -25,6 +25,7 @@ import {
   signInWithPopup,
   User,
 } from 'firebase/auth';
+import { Link } from 'react-router-dom';
 
 import { auth } from '@packages/firebase/firebaseAuth';
 import {
@@ -123,10 +124,9 @@ export const SignUp = (): ReactElement => {
               label={
                 <>
                   I agree to the{' '}
-                  <Anchor href="/eula" size="xs" target="_blank" underline="hover">
-                    {' '}
+                  <Link to="/auth/eula" target="_blank" style={{ fontSize: 'var(--mantine-font-size-xs)', textDecoration: 'underline' }}>
                     EULA
-                  </Anchor>
+                  </Link>
                   ! :3
                 </>
               }
