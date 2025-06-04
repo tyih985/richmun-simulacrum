@@ -33,7 +33,6 @@
 
       "@context/*": ["src/state/context/*"],
       "@mutations/*": ["src/state/mutations/*"],
-      "@providers/*": ["src/state/providers/*"],
       "@store/*": ["src/state/store/*"],
       "@hooks/*": ["src/state/hooks/*"],
 

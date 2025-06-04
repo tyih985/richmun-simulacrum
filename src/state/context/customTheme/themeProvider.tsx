@@ -11,7 +11,7 @@ import {
 import { useConfig } from '@hooks/useConfig';
 import { generateGoogleFontsHref } from '@packages/themeGenerator/utils';
 import { getConfig } from '@runtime/index';
-import { CustomThemeContext } from '@context/theme';
+import { CustomThemeContext } from '@context/customTheme/theme';
 
 const FONTSIZE_LOCAL_STORAGE_KEY = 'theme:fontsize';
 const TYPOGRAPHY_LOCAL_STORAGE_KEY = 'theme:body-typography';

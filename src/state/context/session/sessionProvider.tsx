@@ -8,7 +8,8 @@ import {
 } from 'firebase/auth';
 import { useQueryClient } from '@tanstack/react-query';
 import { auth } from '@packages/firebase/firebaseAuth';
-import { SessionContext } from '@context/sessionContext';
+
+import { SessionContext } from './sessionContext';
 
 export type Session = {
   isChecking: boolean;

@@ -103,7 +103,6 @@ export default defineConfig(({ mode }) => {
 
         '@context': path.resolve(__dirname, 'src/state/context'),
         '@mutations': path.resolve(__dirname, 'src/state/mutations'),
-        '@providers': path.resolve(__dirname, 'src/state/providers'),
         '@store': path.resolve(__dirname, 'src/state/store'),
         '@hooks': path.resolve(__dirname, 'src/state/hooks'),
 

@@ -1,12 +1,12 @@
 import { Suspense, FC, ReactNode } from 'react';
 import { BrowserRouter } from 'react-router-dom';
-import { notifications, Notifications } from '@mantine/notifications';
+import { Notifications } from '@mantine/notifications';
 import { ReactFlowProvider } from '@xyflow/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-import { ConfigProvider } from '@providers/configProvider';
-import { ThemeProvider } from '@providers/themeProvider';
-import { SessionProvider } from '@providers/sessionProvider';
+import { ConfigProvider } from '@context/config';
+import { ThemeProvider } from '@context/customTheme';
+import { SessionProvider } from '@context/session';
 
 type ProvidersProps = {
   children: ReactNode;
