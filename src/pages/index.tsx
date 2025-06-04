@@ -5,6 +5,7 @@ import { Loader } from '@mantine/core';
 import { Branding } from './Branding';
 import { MapRouter } from './Map';
 import { AuthRoutes } from './Auth';
+import { CommitteeRoutes } from './Committee.tsx';
 
 export const RootRoutes = () => {
   const { isChecking, isLoggedIn } = useSession();
@@ -36,6 +37,7 @@ export const RootRoutes = () => {
     return (
       <Routes>
         {stableAccessRoutes}
+        <Route path="/c/*" element={<CommitteeRoutes />} />
         <Route path="/map/*" element={<MapRouter />} />
         <Route path="/*" element={<Navigate to="/map" />} />
       </Routes>
