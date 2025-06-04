@@ -17,7 +17,6 @@ import { useFlowState } from '@store/useReactFlow';
 import { useSelectedMapPins } from '@hooks/useSelectedMapPins';
 import { NodeEditor } from '@components/NodeEditor';
 import { useMapNodes } from '@hooks/useMapNodes';
-import { FJCC_COMMITTEE_KEY, FJCC_COMMITTEE_MAP_KEY_1 } from '@lib/mapPrototypeKeys';
 import { mapNodesMutations } from '@mutations/mapNodes';
 import { PinNodeDataType, PostablePinNodeType } from '@types';
 
@@ -26,7 +25,12 @@ const DOUBLE_CLICK_THRESHOLD = 300;
 
 const nodeOrigin: NodeOrigin = [0.5, 1];
 
-export const MapPage = (): ReactElement => {
+interface MapViewProps {
+  committeeId: string;
+  mapKey: string;
+}
+
+export const MapView = ({ committeeId, mapKey }: MapViewProps): ReactElement => {
   const nodeTypes = {
     background: MapBackgroundNode,
     draft: DraftNode,
@@ -37,8 +41,8 @@ export const MapPage = (): ReactElement => {
   const { screenToFlowPosition } = useReactFlow();
   const lastClickTimeRef = useRef<number>(0);
   const { nodes: incomingNodes, isLoading } = useMapNodes(
-    FJCC_COMMITTEE_KEY,
-    FJCC_COMMITTEE_MAP_KEY_1,
+    committeeId,
+    mapKey,
   );
 
   const { nodes, edges, syncNodes, syncEdges, onNodesChange, onEdgesChange } =
@@ -63,8 +67,8 @@ export const MapPage = (): ReactElement => {
       type: 'draft',
       position,
     };
-    createNode(FJCC_COMMITTEE_KEY, FJCC_COMMITTEE_MAP_KEY_1, newNode);
-  }, [createNode]);
+    createNode(committeeId, mapKey, newNode);
+  }, [createNode, committeeId, mapKey]);
 
   const paneClick = useCallback(
     (event: React.MouseEvent) => {
@@ -93,13 +97,13 @@ export const MapPage = (): ReactElement => {
     (_, node) => {
       console.log('onNodeDragStop');
       updateNodePosition(
-        FJCC_COMMITTEE_KEY,
-        FJCC_COMMITTEE_MAP_KEY_1,
+        committeeId,
+        mapKey,
         node.id,
         node.position,
       );
     },
-    [updateNodePosition],
+    [updateNodePosition, committeeId, mapKey],
   );
 
   return (
@@ -132,7 +136,8 @@ export const MapPage = (): ReactElement => {
     </div>
   );
 };
-export default MapPage;
+
+export default MapView;
 
 const NODES = [
   {
