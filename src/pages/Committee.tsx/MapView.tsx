@@ -15,12 +15,13 @@ import { useParams, useSearchParams } from 'react-router-dom';
 
 import { MapBackgroundNode } from '@components/MapBackgroundNode';
 import { PinNode } from '@components/PinNode';
-import { PinsToolbar } from '@components/PinsToolbar';
+import { SpoilerNode } from '@components/SpoilerNode';
+import { NodesToolbar } from '@components/NodesToolbar';
 import { useFlowState } from '@store/useReactFlow';
 import { useSelectedMapPins } from '@hooks/useSelectedMapPins';
 import { useMapNodes } from '@hooks/useMapNodes';
 import { mapNodesMutations } from '@mutations/mapNodeMutation';
-import { PinNodeDataType, PostableNodeType } from '@types';
+import { PinNodeDataType, SpoilerNodeDataType, PostableNodeType } from '@types';
 import { useCommitteeAccess } from '@hooks/useCommitteeAccess';
 import { SelectedPinInfo } from '@components/SelectedPinInfo';
 
@@ -32,7 +33,8 @@ const nodeOrigin: NodeOrigin = [0.5, 1];
 export const MapView = (): ReactElement => {
   const { committeeId: urlCommitteeId } = useParams();
   const [searchParams] = useSearchParams();
-  const { availableCommittees, availableMaps, accessLevel, userFactions } = useCommitteeAccess();
+  const { availableCommittees, availableMaps, accessLevel, userFactions } =
+    useCommitteeAccess();
 
   // Use props if provided, otherwise fall back to URL parameters
   const committeeId = urlCommitteeId;
@@ -41,6 +43,7 @@ export const MapView = (): ReactElement => {
   const nodeTypes = {
     background: MapBackgroundNode,
     pin: PinNode,
+    spoiler: SpoilerNode,
   };
 
   const { createNode, updateNodePosition } = mapNodesMutations({
@@ -55,18 +58,25 @@ export const MapView = (): ReactElement => {
     mapKey || '',
   );
 
-  const { nodes, edges, syncNodes, syncEdges, onNodesChange, onEdgesChange, setUserFactions } =
-    useFlowState(
-      useShallow((state) => ({
-        nodes: state.nodes,
-        edges: state.edges,
-        syncNodes: state.syncNodes,
-        syncEdges: state.syncEdges,
-        onNodesChange: accessLevel === 'staff' ? state.onNodesChange : undefined,
-        onEdgesChange: accessLevel === 'staff' ? state.onEdgesChange : undefined,
-        setUserFactions: state.setUserFactions,
-      })),
-    );
+  const {
+    nodes,
+    edges,
+    syncNodes,
+    syncEdges,
+    onNodesChange,
+    onEdgesChange,
+    setUserFactions,
+  } = useFlowState(
+    useShallow((state) => ({
+      nodes: state.nodes,
+      edges: state.edges,
+      syncNodes: state.syncNodes,
+      syncEdges: state.syncEdges,
+      onNodesChange: accessLevel === 'staff' ? state.onNodesChange : undefined,
+      onEdgesChange: accessLevel === 'staff' ? state.onEdgesChange : undefined,
+      setUserFactions: state.setUserFactions,
+    })),
+  );
 
   // Set user factions when they change
   useEffect(() => {
@@ -77,17 +87,21 @@ export const MapView = (): ReactElement => {
   }, [userFactions, setUserFactions]);
 
   useEffect(() => {
-    console.log('syncing nodes', incomingNodes)
+    console.log('syncing nodes', incomingNodes);
     syncNodes(incomingNodes);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [incomingNodes]);
 
   const addNode = useCallback(
-    (position: XYPosition, nodeType = 'pin', nodeData?: PinNodeDataType) => {
+    (
+      position: XYPosition,
+      nodeType: 'pin' | 'spoiler' = 'pin',
+      nodeData?: PinNodeDataType | SpoilerNodeDataType,
+    ) => {
       if (!committeeId || !mapKey) return;
 
       const newNode: PostableNodeType = {
-        type: 'pin', // nodeType,
+        type: nodeType,
         position,
         ...(nodeData || {}), // Ensure data is always present
       };
@@ -117,7 +131,7 @@ export const MapView = (): ReactElement => {
       const timeSinceLastClick = currentTime - lastClickTimeRef.current;
       lastClickTimeRef.current = currentTime;
       if (timeSinceLastClick < DOUBLE_CLICK_THRESHOLD) {
-        addNode(position, 'draft');
+        addNode(position, 'pin');
       }
     },
     [addNode, screenToFlowPosition, committeeId, mapKey],
@@ -133,14 +147,18 @@ export const MapView = (): ReactElement => {
     [updateNodePosition, committeeId, mapKey],
   );
 
-  // Handle drag start from toolbar - now accepts full pin configuration
+  // Handle drag start from toolbar - now accepts node type and configuration
   const handleToolbarDragStart = useCallback(
-    (event: React.DragEvent, pinData: PinNodeDataType) => {
-      event.dataTransfer.setData('application/reactflow', 'pin');
-      // Serialize the entire pin configuration as JSON
-      event.dataTransfer.setData('pin/config', JSON.stringify(pinData));
+    (
+      event: React.DragEvent,
+      nodeType: 'pin' | 'spoiler',
+      nodeData: PinNodeDataType | SpoilerNodeDataType,
+    ) => {
+      event.dataTransfer.setData('application/reactflow', nodeType);
+      // Serialize the entire node configuration as JSON
+      event.dataTransfer.setData('node/config', JSON.stringify(nodeData));
       event.dataTransfer.effectAllowed = 'move';
-      console.log('Drag started with pin config:', pinData); // Debug log
+      console.log('Drag started with node type:', nodeType, 'config:', nodeData); // Debug log
     },
     [],
   );
@@ -151,14 +169,20 @@ export const MapView = (): ReactElement => {
       event.preventDefault();
 
       const reactFlowBounds = event.currentTarget.getBoundingClientRect();
-      const type = event.dataTransfer.getData('application/reactflow');
-      const pinConfigJson = event.dataTransfer.getData('pin/config');
+      const nodeType = event.dataTransfer.getData('application/reactflow') as
+        | 'pin'
+        | 'spoiler';
+      const nodeConfigJson = event.dataTransfer.getData('node/config');
 
-      console.log('Drop event - type:', type, 'config JSON:', pinConfigJson); // Debug log
+      console.log('Drop event - type:', nodeType, 'config JSON:', nodeConfigJson); // Debug log
 
-      // Check if the dropped element is a pin from our toolbar
-      if (typeof type === 'undefined' || !type || type !== 'pin') {
-        console.log('Not a pin drop, ignoring');
+      // Check if the dropped element is a valid node type from our toolbar
+      if (
+        typeof nodeType === 'undefined' ||
+        !nodeType ||
+        (nodeType !== 'pin' && nodeType !== 'spoiler')
+      ) {
+        console.log('Not a valid node drop, ignoring');
         return;
       }
 
@@ -167,23 +191,27 @@ export const MapView = (): ReactElement => {
         y: event.clientY - reactFlowBounds.top,
       });
 
-      if (pinConfigJson) {
+      if (nodeConfigJson) {
         try {
-          const pinConfig = JSON.parse(pinConfigJson) as PinNodeDataType;
-          console.log('Parsed pin config:', pinConfig);
+          const nodeConfig = JSON.parse(nodeConfigJson) as
+            | PinNodeDataType
+            | SpoilerNodeDataType;
+          console.log('Parsed node config:', nodeConfig);
           console.log(
-            'Adding pin node at position:',
+            'Adding node at position:',
             position,
-            'with config:',
-            pinConfig,
+            'with type:',
+            nodeType,
+            'and config:',
+            nodeConfig,
           );
-          addNode(position, 'pin', pinConfig);
+          addNode(position, nodeType, nodeConfig);
         } catch (error) {
-          console.error('Failed to parse pin configuration:', error);
-          console.error('Raw config JSON:', pinConfigJson);
+          console.error('Failed to parse node configuration:', error);
+          console.error('Raw config JSON:', nodeConfigJson);
         }
       } else {
-        console.log('No pin config found in dataTransfer');
+        console.log('No node config found in dataTransfer');
       }
     },
     [screenToFlowPosition, addNode],
@@ -230,8 +258,8 @@ export const MapView = (): ReactElement => {
       />
       <Background color="#c4c4c4" gap={50} variant={BackgroundVariant.Cross} />
       <SelectedPinInfo />
-      {/* Toolbar for dragging pins */}
-      {accessLevel === 'staff' && <PinsToolbar onDragStart={handleToolbarDragStart} />}
+      {/* Toolbar for dragging pins and spoilers */}
+      {accessLevel === 'staff' && <NodesToolbar onDragStart={handleToolbarDragStart} />}
     </div>
   );
 };

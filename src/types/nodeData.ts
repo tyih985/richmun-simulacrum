@@ -12,6 +12,7 @@ export type PinNodeDataType = {
 export type SpoilerNodeDataType = {
   color?: string;
   text?: string;
+  visibilityFactions?: string[];
   // needs to be resizable
   height?: number
   width?: number
@@ -19,7 +20,7 @@ export type SpoilerNodeDataType = {
 
 export type PostableNodeType = Partial<PinNodeDataType | SpoilerNodeDataType> & {
   id?: string
-  type: 'pin'
+  type: 'pin' | 'spoiler'
   position: XYPosition;
 };
 
