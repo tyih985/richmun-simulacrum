@@ -20,7 +20,7 @@ import { useFlowState } from '@store/useReactFlow';
 import { useSelectedMapPins } from '@hooks/useSelectedMapPins';
 import { NodeEditor } from '@components/NodeEditor';
 import { useMapNodes } from '@hooks/useMapNodes';
-import { mapNodesMutations } from '@mutations/mapNodes';
+import { mapNodesMutations } from '@mutations/mapNodeMutation';
 import { PinNodeDataType, PostablePinNodeType } from '@types';
 import { useCommitteeAccess } from '@hooks/useCommitteeAccess';
 

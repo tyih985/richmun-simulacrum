@@ -8,7 +8,7 @@ export const FJCC_COMMITTEE_MAP_KEY_3 = 'zaun-tech-tree';
 export const FJCC_COMMITTEE_MAP_KEY_4 = 'piltover-tech-tree';
 
 interface AccessCategoriesType extends Record<string, unknown> {
-  name: string
+  name: string;
 
   staff: string[];
   delegates: string[];
@@ -27,7 +27,7 @@ export const COMMITTEE_DATA_MAP: Record<string, AccessCategoriesType> = {
     staff: ['director@richmun.ca', 'fjcc@richmun.ca'],
     delegates: ['alexkim.347@gmail.com'],
     visibiltyFactions: {
-      Pilover: [],
+      Piltover: ['alexkim.347@gmail.com'],
       Zaun: [],
     },
   },
@@ -54,10 +54,18 @@ export const getCommittees = (email: string): string[] => {
     .map(([committee]) => committee);
 };
 
+export const getAllCommitteeFactions = (committeeKey: string): string[] => {
+  const committee = COMMITTEE_DATA_MAP[committeeKey];
+  if (!committee || !committee.visibiltyFactions) return [];
+
+  return Object.keys(committee.visibiltyFactions).concat(['everyone', 'staff-only']);
+};
+
 export const getCommitteeFactions = (committeeKey: string, email: string): string[] => {
   const committee = COMMITTEE_DATA_MAP[committeeKey];
   if (!committee || !committee.visibiltyFactions) return [];
 
+  console.log('getCommitteeFactions', committee, email);
   return Object.entries(committee.visibiltyFactions)
     .filter(([_, emails]) => emails.includes(email))
     .map(([faction]) => faction);

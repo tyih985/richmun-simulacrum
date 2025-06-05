@@ -1,10 +1,22 @@
 import { useCommitteeAccess } from '@hooks/useCommitteeAccess';
 import { Routes, Route, useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { Stack, Button, Center, Title, Select } from '@mantine/core';
+import {
+  Stack,
+  Button,
+  Center,
+  Title,
+  Select,
+  MultiSelect,
+  Group,
+  Text,
+  Flex,
+} from '@mantine/core';
 import { COMMITTEE_DATA_MAP } from '@lib/mapPrototypeKeys';
 import { IconArrowRight } from '@tabler/icons-react';
 import { useEffect } from 'react';
 import { MapView } from './MapView';
+import { useMapMeta } from '@hooks/useMapMeta';
+import { mapMetaMutations } from '@mutations/mapMetaMutation';
 
 export const CommitteeRoutes = () => {
   return (
@@ -45,12 +57,28 @@ const CommitteeSelectPage = () => {
 
 const CommitteeContentPage = () => {
   const { committeeId } = useParams();
-  const { availableCommittees, availableMaps, setSelectedCommittee } =
-    useCommitteeAccess();
+  const {
+    availableCommittees,
+    availableMaps,
+    setSelectedCommittee,
+    accessLevel,
+    allFactions,
+  } = useCommitteeAccess();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const mapKey = searchParams.get('map_key');
+
+  // Get current map metadata
+  const mapMeta = useMapMeta({
+    committeeId: committeeId || '',
+    mapId: mapKey || '',
+  });
+
+  // Get mutation functions
+  const { updateVisibilityFactions } = mapMetaMutations({
+    // enable: accessLevel === 'staff',
+  });
 
   useEffect(() => {
     // Check if committeeId is missing or not in available committees
@@ -88,6 +116,20 @@ const CommitteeContentPage = () => {
     if (newMapKey) setSearchParams({ map_key: newMapKey });
   };
 
+  const handleVisibilityFactionsChange = async (newFactions: string[]) => {
+    if (!committeeId || !mapKey) return;
+
+    try {
+      await updateVisibilityFactions(committeeId, mapKey, newFactions);
+    } catch (error) {
+      console.error('Failed to update visibility factions:', error);
+      // You might want to add toast notification here
+    }
+  };
+
+  // Only show visibility controls to staff members
+  const canEditVisibility = true // accessLevel === 'staff';
+
   return (
     <div style={{ position: 'relative', height: '100vh', width: '100vw' }}>
       <div
@@ -98,12 +140,36 @@ const CommitteeContentPage = () => {
           zIndex: 1000,
         }}
       >
-        <Select
-          value={mapKey}
-          onChange={handleMapChange}
-          data={availableMaps.map((map) => ({ value: map, label: map }))}
-          style={{ minWidth: 200 }}
-        />
+        <Flex gap="sm">
+          <Select
+            value={mapKey}
+            onChange={handleMapChange}
+            data={availableMaps.map((map) => ({ value: map, label: map }))}
+            style={{ minWidth: 200 }}
+            label="Select Map"
+          />
+
+          {canEditVisibility && (
+            <div>
+              <Text size="sm" fw={500} mb={5}>
+                Map Visibility
+              </Text>
+              <MultiSelect
+                value={mapMeta.visibilityFactions || []}
+                onChange={handleVisibilityFactionsChange}
+                data={allFactions.map((faction) => ({
+                  value: faction,
+                  label: faction,
+                }))}
+                placeholder="Select factions that can see this map"
+                searchable
+                clearable
+                style={{ minWidth: 250 }}
+                description="Leave empty to make visible to everyone"
+              />
+            </div>
+          )}
+        </Flex>
       </div>
 
       <MapView />

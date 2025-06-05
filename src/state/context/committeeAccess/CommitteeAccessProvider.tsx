@@ -1,6 +1,7 @@
 import React, { ReactNode, useEffect, useMemo, useState } from 'react';
 import { CommitteeAccessContext } from './CommitteeAccessContext';
 import { useSession } from '@hooks/useSession';
+import { useMapsMeta } from '@hooks/useMapMeta';
 import {
   getCommittees,
   getCommitteeAccessLevel,
@@ -12,70 +13,138 @@ import {
   FJCC_COMMITTEE_MAP_KEY_3,
   FJCC_COMMITTEE_MAP_KEY_4,
   getCommitteeFactions,
+  getAllCommitteeFactions,
 } from '@lib/mapPrototypeKeys';
 
 interface CommitteeAccessProviderProps {
   children: ReactNode;
 }
 
+// Helper function to filter maps based on user factions
+const filterAvailableMaps = (
+  allMaps: string[],
+  mapsMetadata: Record<string, { visibilityFactions?: string[] }>,
+  userFactions: string[]
+): string[] => {
+  return allMaps.filter(mapId => {
+    const meta = mapsMetadata[mapId];
+    
+    // If no visibility factions defined, map is available to everyone
+    if (!meta?.visibilityFactions || meta.visibilityFactions.length === 0) {
+      return true;
+    }
+    
+    // Check if user has any of the required factions
+    return meta.visibilityFactions.some(faction => 
+      userFactions.includes(faction) || faction === 'everyone'
+    );
+  });
+};
+
 export const CommitteeAccessProvider: React.FC<CommitteeAccessProviderProps> = ({
   children,
 }) => {
   const { sessionUser, isLoggedIn } = useSession();
   const [selectedCommittee, setSelectedCommittee] = useState<string | null>(null);
-  // const { committeeId } = useParams<{ committeeId?: string }>(); // this will never match path value :(
 
-  const contextValue = useMemo(() => {
-    console.log('re-evaluating contextValue')
-    // If user is not logged in or no email available, return default values
-    if (!isLoggedIn || !sessionUser?.email) {
-      return {
-        availableMaps: [],
-        selectedCommittee: null,
-        accessLevel: false as const,
-        visibiltyFactions: [],
-        availableCommittees: [] as string[],
-        setSelectedCommittee
-      };
-    }
-
-    const userEmail = sessionUser.email;
-    const availableCommittees = getCommittees(userEmail) || [] as string[]
-    // Determine selected committee based on URL parameter
-
-    // Get available maps for the selected committee only
-    let availableMaps: string[] = [];
+  // Get all potential maps for the selected committee
+  const allMaps = useMemo(() => {
     if (selectedCommittee === ECC_COMMITTEE_KEY) {
-      availableMaps = [ECC_COMMITTEE_MAP_KEY];
+      return [ECC_COMMITTEE_MAP_KEY];
     } else if (selectedCommittee === FJCC_COMMITTEE_KEY) {
-      availableMaps = [
+      return [
         FJCC_COMMITTEE_MAP_KEY_1,
         FJCC_COMMITTEE_MAP_KEY_2,
         FJCC_COMMITTEE_MAP_KEY_3,
         FJCC_COMMITTEE_MAP_KEY_4,
       ];
     }
+    return [];
+  }, [selectedCommittee]);
 
-    // Get access level for the selected committee
+  // Get metadata for all maps using the new hook
+  const mapsMetadata = useMapsMeta({
+    committeeId: selectedCommittee || '',
+    mapIds: allMaps,
+  });
+
+  // Calculate user access data
+  const userAccessData = useMemo(() => {
+    if (!isLoggedIn || !sessionUser?.email) {
+      return {
+        availableCommittees: [] as string[],
+        userFactions: [] as string[],
+        allFactions: [] as string[],
+        accessLevel: false as const,
+      };
+    }
+
+    const userEmail = sessionUser.email;
+    const availableCommittees = getCommittees(userEmail) || ([] as string[]);
+    
     const accessLevel = selectedCommittee
       ? getCommitteeAccessLevel(selectedCommittee, userEmail)
       : false;
 
-    // For now, return empty visibility factions - this can be expanded based on requirements
-    const visibiltyFactions: string[] =
+    const allFactions = getAllCommitteeFactions(selectedCommittee || '').concat(
+      accessLevel === 'staff' ? ['staff-only'] : [],
+    );
+    
+    const userFactions: string[] = (
       userEmail && selectedCommittee
         ? getCommitteeFactions(selectedCommittee, userEmail)
-        : [];
+        : []
+    ).concat(accessLevel === 'staff' ? ['staff-only'] : []);
+
+    return {
+      availableCommittees,
+      userFactions,
+      allFactions,
+      accessLevel,
+    };
+  }, [isLoggedIn, sessionUser, selectedCommittee]);
+
+  // Filter available maps based on user factions and map visibility
+  const availableMaps = useMemo(() => {
+    if (!isLoggedIn || !sessionUser?.email) {
+      return [];
+    }
+    
+    return filterAvailableMaps(allMaps, mapsMetadata, userAccessData.userFactions);
+  }, [allMaps, mapsMetadata, userAccessData.userFactions, isLoggedIn, sessionUser]);
+
+  // Final context value
+  const contextValue = useMemo(() => {
+    console.log('re-evaluating contextValue');
+    
+    if (!isLoggedIn || !sessionUser?.email) {
+      return {
+        availableMaps: [],
+        selectedCommittee: null,
+        accessLevel: false as const,
+        availableCommittees: [] as string[],
+        userFactions: [] as string[],
+        allFactions: [] as string[],
+        setSelectedCommittee,
+      };
+    }
 
     return {
       availableMaps,
       selectedCommittee,
-      accessLevel,
-      visibiltyFactions,
-      availableCommittees,
-      setSelectedCommittee
+      accessLevel: userAccessData.accessLevel,
+      availableCommittees: userAccessData.availableCommittees,
+      userFactions: userAccessData.userFactions,
+      allFactions: userAccessData.allFactions,
+      setSelectedCommittee,
     };
-  }, [isLoggedIn, sessionUser, selectedCommittee]);
+  }, [
+    isLoggedIn,
+    sessionUser,
+    availableMaps,
+    selectedCommittee,
+    userAccessData,
+  ]);
 
   useEffect(() => {
     console.log('Committee Access data: ', contextValue);
