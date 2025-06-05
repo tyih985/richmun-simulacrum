@@ -11,16 +11,6 @@ import { auth } from '@packages/firebase/firebaseAuth';
 
 import { SessionContext } from './sessionContext';
 
-export type Session = {
-  isChecking: boolean;
-  isLoggedIn: boolean;
-  isEulaSigned?: boolean;
-  sessionUser?: User | null;
-  sessionLocalPersistence: boolean;
-  logout: () => Promise<void>;
-  refreshUser: () => void;
-  toggleSessionLocalPersistence: () => void;
-};
 
 export const SessionProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const queryClient = useQueryClient();

@@ -1,18 +1,19 @@
 import { createContext } from 'react';
 import { User } from 'firebase/auth';
 
-export type Session = {
+export type SessionType = {
   isChecking: boolean;
   isLoggedIn: boolean;
   isEulaSigned?: boolean;
   sessionUser?: User | null;
   sessionLocalPersistence: boolean;
+  
   logout: () => Promise<void>;
   refreshUser: () => void;
   toggleSessionLocalPersistence: () => void;
 };
 
-const defaultSession: Session = {
+const defaultSession: SessionType = {
   isChecking: true,
   isLoggedIn: false,
   sessionUser: null,
@@ -22,4 +23,4 @@ const defaultSession: Session = {
   toggleSessionLocalPersistence: () => {},
 };
 
-export const SessionContext = createContext<Session>(defaultSession);
+export const SessionContext = createContext<SessionType>(defaultSession);
