@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Paper,
   TextInput,
@@ -31,6 +31,32 @@ export const SelectedPinInfo: React.FC = () => {
   const [isUpdating, setIsUpdating] = useState<Record<string, boolean>>({});
 
   const { updateNode } = mapNodesMutations();
+
+  // Reset editing state when pins become unselected
+  useEffect(() => {
+    const selectedPinIds = new Set(selectedPins.map(pin => pin.id));
+    
+    setEditingPins(prev => {
+      const filtered = Object.fromEntries(
+        Object.entries(prev).filter(([pinId]) => selectedPinIds.has(pinId))
+      );
+      return filtered;
+    });
+    
+    setEditingVisibility(prev => {
+      const filtered = Object.fromEntries(
+        Object.entries(prev).filter(([pinId]) => selectedPinIds.has(pinId))
+      );
+      return filtered;
+    });
+    
+    setIsUpdating(prev => {
+      const filtered = Object.fromEntries(
+        Object.entries(prev).filter(([pinId]) => selectedPinIds.has(pinId))
+      );
+      return filtered;
+    });
+  }, [selectedPins]);
 
   if (selectedPins.length === 0) {
     return null;
