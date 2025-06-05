@@ -11,8 +11,9 @@ import {
   Pill,
   ActionIcon,
   Flex,
+  Modal,
 } from '@mantine/core';
-import { IconPencil } from '@tabler/icons-react';
+import { IconPencil, IconTrash } from '@tabler/icons-react';
 import { ViewportPortal, useViewport } from '@xyflow/react';
 import { useSelectedMapPins } from '@hooks/useSelectedMapPins';
 import { useCommitteeAccess } from '@hooks/useCommitteeAccess';
@@ -29,30 +30,33 @@ export const SelectedPinInfo: React.FC = () => {
     {},
   );
   const [isUpdating, setIsUpdating] = useState<Record<string, boolean>>({});
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [pinToDelete, setPinToDelete] = useState<any>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  const { updateNode } = mapNodesMutations();
+  const { updateNode, deleteNode } = mapNodesMutations();
 
   // Reset editing state when pins become unselected
   useEffect(() => {
-    const selectedPinIds = new Set(selectedPins.map(pin => pin.id));
-    
-    setEditingPins(prev => {
+    const selectedPinIds = new Set(selectedPins.map((pin) => pin.id));
+
+    setEditingPins((prev) => {
       const filtered = Object.fromEntries(
-        Object.entries(prev).filter(([pinId]) => selectedPinIds.has(pinId))
+        Object.entries(prev).filter(([pinId]) => selectedPinIds.has(pinId)),
       );
       return filtered;
     });
-    
-    setEditingVisibility(prev => {
+
+    setEditingVisibility((prev) => {
       const filtered = Object.fromEntries(
-        Object.entries(prev).filter(([pinId]) => selectedPinIds.has(pinId))
+        Object.entries(prev).filter(([pinId]) => selectedPinIds.has(pinId)),
       );
       return filtered;
     });
-    
-    setIsUpdating(prev => {
+
+    setIsUpdating((prev) => {
       const filtered = Object.fromEntries(
-        Object.entries(prev).filter(([pinId]) => selectedPinIds.has(pinId))
+        Object.entries(prev).filter(([pinId]) => selectedPinIds.has(pinId)),
       );
       return filtered;
     });
@@ -139,10 +143,86 @@ export const SelectedPinInfo: React.FC = () => {
     }));
   };
 
+  const handleDeleteClick = (pin: any) => {
+    setPinToDelete(pin);
+    setDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!selectedCommittee || !pinToDelete) return;
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    const mapId = urlParams.get('map_key');
+    if (!mapId) return;
+
+    setIsDeleting(true);
+
+    try {
+      await deleteNode(selectedCommittee, mapId, pinToDelete.id);
+      
+      // Clean up any editing state for this pin
+      setEditingPins((prev) => {
+        const newState = { ...prev };
+        delete newState[pinToDelete.id];
+        return newState;
+      });
+      setEditingVisibility((prev) => {
+        const newState = { ...prev };
+        delete newState[pinToDelete.id];
+        return newState;
+      });
+      setIsUpdating((prev) => {
+        const newState = { ...prev };
+        delete newState[pinToDelete.id];
+        return newState;
+      });
+
+      setDeleteModalOpen(false);
+      setPinToDelete(null);
+    } catch (error) {
+      console.error('Failed to delete pin:', error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteModalOpen(false);
+    setPinToDelete(null);
+  };
+
   const isStaff = accessLevel === 'staff';
 
   return (
     <>
+      <Modal
+        opened={deleteModalOpen}
+        onClose={handleDeleteCancel}
+        title="Delete Pin"
+        centered
+      >
+        <Text mb="md">
+          Are you sure you want to delete this pin? This action cannot be undone.
+        </Text>
+        <Group justify="flex-end">
+          <Button
+            variant="subtle"
+            onClick={handleDeleteCancel}
+            disabled={isDeleting}
+          >
+            Cancel
+          </Button>
+          <Button
+            color="red"
+            onClick={handleDeleteConfirm}
+            loading={isDeleting}
+            disabled={isDeleting}
+          >
+            Delete
+          </Button>
+        </Group>
+      </Modal>
+
       {selectedPins.map((pin) => {
         const isEditing = pin.id in editingPins;
         const pinText = (pin.data?.text as string) || '';
@@ -201,24 +281,36 @@ export const SelectedPinInfo: React.FC = () => {
                         autosize
                         minRows={2}
                       />
-                      <Group gap="sm">
+                      <Flex justify="space-between">
                         <Button
-                          size="sm"
-                          onClick={() => handleSave(pin)}
-                          loading={isUpdating[pin.id]}
+                          size="xs"
+                          variant="white"
+                          color="red"
+                          onClick={() => handleDeleteClick(pin)}
                           disabled={isUpdating[pin.id]}
                         >
-                          Save
+                          <IconTrash size={16} />
                         </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleCancel(pin.id)}
-                          disabled={isUpdating[pin.id]}
-                        >
-                          Cancel
-                        </Button>
-                      </Group>
+                        <Flex>
+                          <Button
+                            size="xs"
+                            variant="white"
+                            onClick={() => handleCancel(pin.id)}
+                            disabled={isUpdating[pin.id]}
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            size="xs"
+                            variant="outline"
+                            onClick={() => handleSave(pin)}
+                            loading={isUpdating[pin.id]}
+                            disabled={isUpdating[pin.id]}
+                          >
+                            Save
+                          </Button>
+                        </Flex>
+                      </Flex>
                     </div>
                   ) : (
                     <div>
