@@ -1,6 +1,7 @@
 import React, { useState, memo } from 'react';
 import { Panel } from '@xyflow/react';
 import { PinNodeDataType } from '@types';
+import { Text} from '@mantine/core'
 
 // Define different pin configurations
 const PIN_CONFIGURATIONS: Array<{
@@ -92,7 +93,7 @@ export const PinsToolbar = memo(({ onDragStart }: ToolbarProps) => {
     <Panel
       position="bottom-center"
       style={{
-        transform: `translate(-50%, ${isHovered ? '0' : 'calc(100% - 50px)'})`,
+        transform: `translate(-50%, ${isHovered ? '0' : 'calc(100% - 60px)'})`,
         transition: 'transform 0.1s ease-in-out',
         zIndex: 1000,
         bottom: 0,
@@ -129,6 +130,9 @@ export const PinsToolbar = memo(({ onDragStart }: ToolbarProps) => {
         />
         
         {/* Toolbar content */}
+          <Text size="sm" color="dimmed">
+            Drag pins onto map:
+          </Text>
         <div
           style={{
             display: 'flex',
@@ -138,17 +142,6 @@ export const PinsToolbar = memo(({ onDragStart }: ToolbarProps) => {
             justifyContent: 'center',
           }}
         >
-          <span
-            style={{
-              fontSize: '14px',
-              fontWeight: '500',
-              color: '#374151',
-              marginRight: '8px',
-              flexShrink: 0,
-            }}
-          >
-            Drag pins to map:
-          </span>
           
           {PIN_CONFIGURATIONS.map((pinConfig) => (
             <div
