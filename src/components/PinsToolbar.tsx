@@ -94,7 +94,7 @@ const PinPreview: React.FC<{ data: PinNodeDataType; previewSize?: number }> = ({
   );
 };
 
-export const Toolbar = memo(({ onDragStart }: ToolbarProps) => {
+export const PinsToolbar = memo(({ onDragStart }: ToolbarProps) => {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
@@ -197,4 +197,4 @@ export const Toolbar = memo(({ onDragStart }: ToolbarProps) => {
   );
 });
 
-Toolbar.displayName = 'Toolbar';
+PinsToolbar.displayName = 'Toolbar';

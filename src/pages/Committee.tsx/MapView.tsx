@@ -15,7 +15,7 @@ import { useParams, useSearchParams } from 'react-router-dom';
 
 import { MapBackgroundNode } from '@components/MapBackgroundNode';
 import { PinNode } from '@components/PinNode';
-import { Toolbar } from '@components/Toolbar';
+import { PinsToolbar } from '@components/PinsToolbar';
 import { useFlowState } from '@store/useReactFlow';
 import { useSelectedMapPins } from '@hooks/useSelectedMapPins';
 import { NodeEditor } from '@components/NodeEditor';
@@ -221,7 +221,7 @@ export const MapView = (): ReactElement => {
       <Background color="#c4c4c4" gap={50} variant={BackgroundVariant.Cross} />
 
       {/* Toolbar for dragging pins */}
-      {accessLevel === 'staff' && <Toolbar onDragStart={handleToolbarDragStart} />}
+      {accessLevel === 'staff' && <PinsToolbar onDragStart={handleToolbarDragStart} />}
 
       {selectedMapPins.length > 0 && (
         <Panel position="bottom-center" style={{ marginBottom: '100px' }}>
