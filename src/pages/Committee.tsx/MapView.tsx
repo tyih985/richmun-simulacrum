@@ -23,7 +23,7 @@ import { useMapNodes } from '@hooks/useMapNodes';
 import { mapNodesMutations } from '@mutations/mapNodeMutation';
 import { PinNodeDataType, SpoilerNodeDataType, PostableNodeType } from '@types';
 import { useCommitteeAccess } from '@hooks/useCommitteeAccess';
-import { SelectedPinInfo } from '@components/SelectedPinInfo';
+import { SelectedNodeInfo } from '@components/SelectedNodeInfo';
 
 const ViewPortPadding = 200;
 const DOUBLE_CLICK_THRESHOLD = 300;
@@ -257,7 +257,7 @@ export const MapView = (): ReactElement => {
         // ]}
       />
       <Background color="#c4c4c4" gap={50} variant={BackgroundVariant.Cross} />
-      <SelectedPinInfo />
+      <SelectedNodeInfo />
       {/* Toolbar for dragging pins and spoilers */}
       {accessLevel === 'staff' && <NodesToolbar onDragStart={handleToolbarDragStart} />}
     </div>

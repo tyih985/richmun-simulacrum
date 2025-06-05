@@ -22,7 +22,7 @@ import { mapNodesMutations } from '@mutations/mapNodeMutation';
 
 const OFFSET = 80;
 
-export const SelectedPinInfo: React.FC = () => {
+export const SelectedNodeInfo: React.FC = () => {
   const selectedPins = useSelectedMapPins();
   const { zoom } = useViewport();
   const { accessLevel, selectedCommittee, allFactions } = useCommitteeAccess();
@@ -292,7 +292,7 @@ export const SelectedPinInfo: React.FC = () => {
                 shadow="md"
                 p="md"
                 style={{
-                  width: 260,
+                  width: 280,
                   backgroundColor: 'rgba(255, 255, 255, 0.95)',
                   backdropFilter: 'blur(4px)',
                 }}
@@ -310,9 +310,8 @@ export const SelectedPinInfo: React.FC = () => {
                             disabled: !mapVisibleFactions.includes(faction),
                           }))}
                           label="Visible to Factions"
-                          placeholder="Select who can see this"
+                          // placeholder="Select who can see this"
                           searchable
-                          clearable
                           description="Only factions that can see this map are available"
                           style={{ marginBottom: '8px' }}
                           size="sm"
