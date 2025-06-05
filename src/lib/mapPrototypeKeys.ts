@@ -8,6 +8,8 @@ export const FJCC_COMMITTEE_MAP_KEY_3 = 'zaun-tech-tree';
 export const FJCC_COMMITTEE_MAP_KEY_4 = 'piltover-tech-tree';
 
 interface AccessCategoriesType extends Record<string, unknown> {
+  name: string
+
   staff: string[];
   delegates: string[];
   visibiltyFactions?: Record<string, string[]>;
@@ -16,10 +18,12 @@ interface AccessCategoriesType extends Record<string, unknown> {
 
 export const COMMITTEE_DATA_MAP: Record<string, AccessCategoriesType> = {
   [ECC_COMMITTEE_KEY]: {
+    name: 'ECC',
     staff: ['director@richmun.ca', 'ecc@richmun.ca'],
     delegates: ['alexkim.347@gmail.com'],
   },
   [FJCC_COMMITTEE_KEY]: {
+    name: 'FJCC',
     staff: ['director@richmun.ca', 'fjcc@richmun.ca'],
     delegates: ['alexkim.347@gmail.com'],
     visibiltyFactions: {
