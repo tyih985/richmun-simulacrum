@@ -53,6 +53,7 @@ export const mapNodesMutations = ({
   ) => {
     if (enable === false) return Promise.resolve(undefined);
     const path = committeeMapNodePath(committeeId, mapId, nodeId);
+    console.log('updateNode', { path, data})
     return updateFirestoreDocument(path, data);
   };
 

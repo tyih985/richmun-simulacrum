@@ -22,7 +22,7 @@ import { useMapNodes } from '@hooks/useMapNodes';
 import { mapNodesMutations } from '@mutations/mapNodeMutation';
 import { PinNodeDataType, PostablePinNodeType } from '@types';
 import { useCommitteeAccess } from '@hooks/useCommitteeAccess';
-import { SelectedPinInfo } from '@components/selectedPinInfo';
+import { SelectedPinInfo } from '@components/SelectedPinInfo';
 
 const ViewPortPadding = 200;
 const DOUBLE_CLICK_THRESHOLD = 300;
@@ -68,6 +68,7 @@ export const MapView = (): ReactElement => {
     );
 
   useEffect(() => {
+    console.log('syncing nodes', incomingNodes)
     syncNodes(incomingNodes);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [incomingNodes]);
