@@ -11,6 +11,7 @@ interface AccessCategoriesType extends Record<string, unknown> {
   staff: string[];
   delegates: string[];
   visibiltyFactions?: Record<string, string[]>
+  // hard coded options for "everyone", "staff-only"
 };
 
 export const COMMITTEE_DATA_MAP: Record<string, AccessCategoriesType> = {

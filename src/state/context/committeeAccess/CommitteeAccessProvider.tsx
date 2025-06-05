@@ -1,4 +1,4 @@
-import React, { ReactNode, useMemo } from 'react';
+import React, { ReactNode, useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { CommitteeAccessContext } from './CommitteeAccessContext';
 import { useSession } from '@hooks/useSession';
@@ -81,6 +81,10 @@ export const CommitteeAccessProvider: React.FC<CommitteeAccessProviderProps> = (
       visibiltyFactions,
     };
   }, [sessionUser, isLoggedIn, committeeId]);
+
+  useEffect(()=> {
+    console.log('Committee Access data: ', contextValue)
+  }, [contextValue])
 
   return (
     <CommitteeAccessContext.Provider value={contextValue}>
