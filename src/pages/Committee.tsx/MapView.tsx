@@ -7,6 +7,8 @@ import {
   XYPosition,
   Node,
   type OnNodeDrag,
+  Background,
+  BackgroundVariant,
 } from '@xyflow/react';
 import { useShallow } from 'zustand/react/shallow';
 import { useParams, useSearchParams } from 'react-router-dom';
@@ -152,6 +154,7 @@ export const MapView = (): ReactElement => {
         //   [1000 + ViewPortPadding, 1000 + ViewPortPadding],
         // ]}
       />
+      <Background color="#c4c4c4" gap={50} variant={BackgroundVariant.Cross}/>
       {selectedMapPins.length > 0 && (
         <Panel position="bottom-center">
           <NodeEditor onPublish={(data) => console.log(data)} />
