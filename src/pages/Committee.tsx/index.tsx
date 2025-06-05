@@ -90,21 +90,15 @@ const CommitteeContentPage = () => {
 
   return (
     <div style={{ position: 'relative', height: '100vh', width: '100vw' }}>
-      {/* Map selector overlay */}
       <div
         style={{
           position: 'absolute',
           top: 20,
           left: 20,
           zIndex: 1000,
-          backgroundColor: 'white',
-          padding: '10px',
-          borderRadius: '8px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
         }}
       >
         <Select
-          label="Select Map"
           value={mapKey}
           onChange={handleMapChange}
           data={availableMaps.map((map) => ({ value: map, label: map }))}
@@ -112,7 +106,6 @@ const CommitteeContentPage = () => {
         />
       </div>
 
-      {/* Map View Component */}
       <MapView />
     </div>
   );
