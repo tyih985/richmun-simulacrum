@@ -20,7 +20,7 @@ import { useFlowState } from '@store/useReactFlow';
 import { useSelectedMapPins } from '@hooks/useSelectedMapPins';
 import { useMapNodes } from '@hooks/useMapNodes';
 import { mapNodesMutations } from '@mutations/mapNodeMutation';
-import { PinNodeDataType, PostablePinNodeType } from '@types';
+import { PinNodeDataType, PostableNodeType } from '@types';
 import { useCommitteeAccess } from '@hooks/useCommitteeAccess';
 import { SelectedPinInfo } from '@components/SelectedPinInfo';
 
@@ -86,7 +86,7 @@ export const MapView = (): ReactElement => {
     (position: XYPosition, nodeType = 'pin', nodeData?: PinNodeDataType) => {
       if (!committeeId || !mapKey) return;
 
-      const newNode: PostablePinNodeType = {
+      const newNode: PostableNodeType = {
         type: 'pin', // nodeType,
         position,
         ...(nodeData || {}), // Ensure data is always present

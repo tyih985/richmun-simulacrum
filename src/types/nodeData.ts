@@ -9,7 +9,15 @@ export type PinNodeDataType = {
   size?: number; // not supported right now, but technically in the future
 };
 
-export type PostablePinNodeType = Partial<PinNodeDataType> & {
+export type SpoilerNodeDataType = {
+  color?: string;
+  text?: string;
+  // needs to be resizable
+  height?: number
+  width?: number
+}
+
+export type PostableNodeType = Partial<PinNodeDataType | SpoilerNodeDataType> & {
   id?: string
   type: 'pin'
   position: XYPosition;

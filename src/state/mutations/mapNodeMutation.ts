@@ -5,20 +5,20 @@ import {
   deleteFirestoreDocument,
 } from '@packages/firestoreAsQuery';
 import { committeeMapNodePath } from '@packages/firestorePaths';
-import { PostablePinNodeType } from '@types';
+import { PostableNodeType } from '@types';
 import { generateNodeId } from '@packages/generateIds';
 
 type MapNodesMutationsType = {
   createNode: (
     committeeId: string,
     mapId: string,
-    data: PostablePinNodeType,
+    data: PostableNodeType,
   ) => Promise<any>;
   updateNode: (
     committeeId: string,
     mapId: string,
     nodeId: string,
-    data: PostablePinNodeType,
+    data: PostableNodeType,
   ) => Promise<any>;
   deleteNode: (committeeId: string, mapId: string, nodeId: string) => Promise<any>;
   updateNodePosition: (
@@ -38,7 +38,7 @@ type OptionsType =
 export const mapNodesMutations = ({
   enable = true,
 }: OptionsType = {}): MapNodesMutationsType => {
-  const createNode = (committeeId: string, mapId: string, data: PostablePinNodeType) => {
+  const createNode = (committeeId: string, mapId: string, data: PostableNodeType) => {
     if (enable === false) return Promise.resolve(undefined);
     const newNodeId = generateNodeId();
     const path = committeeMapNodePath(committeeId, mapId, newNodeId);
@@ -49,7 +49,7 @@ export const mapNodesMutations = ({
     committeeId: string,
     mapId: string,
     nodeId: string,
-    data: PostablePinNodeType,
+    data: PostableNodeType,
   ) => {
     if (enable === false) return Promise.resolve(undefined);
     const path = committeeMapNodePath(committeeId, mapId, nodeId);

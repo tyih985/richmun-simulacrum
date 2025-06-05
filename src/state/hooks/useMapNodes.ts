@@ -7,7 +7,7 @@ import {
   committeeMapBackgroundNodesPath,
 } from '@packages/firestorePaths';
 
-import { PinNodeDataType, PostableBackgroundNode, PostablePinNodeType } from '@types';
+import { PinNodeDataType, PostableBackgroundNode, PostableNodeType } from '@types';
 
 type MapNodesResult = {
   nodes: Node[];
@@ -23,7 +23,7 @@ export const useMapNodes = (
 ): MapNodesResult => {
   const { enabled = true, sortBy = false } = options;
 
-  const nodesQuery = useFirestoreCollectionQuery<PostablePinNodeType>(
+  const nodesQuery = useFirestoreCollectionQuery<PostableNodeType>(
     committeeId && mapId ? committeeMapNodesPath(committeeId, mapId) : '',
     {
       enabled: !!committeeId && !!mapId && enabled,
