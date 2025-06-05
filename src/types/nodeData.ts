@@ -11,7 +11,7 @@ export type PinNodeDataType = {
 
 export type PostablePinNodeType = Partial<PinNodeDataType> & {
   id?: string
-  type: 'pin' | 'draft';
+  type: 'pin'
   position: XYPosition;
 };
 

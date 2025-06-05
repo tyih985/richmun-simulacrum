@@ -40,6 +40,7 @@ export const PinNode = memo(
               }}
             />
           ) : (
+            // there is a bug where this will not be centered on bouncing
             <div
               style={{
                 width: 0,

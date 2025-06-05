@@ -50,6 +50,7 @@ export const useFlowState = create<FlowState>((set) => ({
         return {
           ...oldNode,
           ...node,
+          type: node.type === 'draft' ? 'pin' : node.type, // removing drafts
           selected: state._selectedNodesLock.includes(node.id),
         };
       });

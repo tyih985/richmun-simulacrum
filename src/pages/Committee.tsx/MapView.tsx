@@ -14,7 +14,6 @@ import { useShallow } from 'zustand/react/shallow';
 import { useParams, useSearchParams } from 'react-router-dom';
 
 import { MapBackgroundNode } from '@components/MapBackgroundNode';
-import { DraftNode } from '@components/DraftNode';
 import { PinNode } from '@components/PinNode';
 import { Toolbar } from '@components/Toolbar';
 import { useFlowState } from '@store/useReactFlow';
@@ -41,7 +40,6 @@ export const MapView = (): ReactElement => {
 
   const nodeTypes = {
     background: MapBackgroundNode,
-    draft: DraftNode,
     pin: PinNode,
   };
 
@@ -75,15 +73,15 @@ export const MapView = (): ReactElement => {
   }, [incomingNodes]);
 
   const addNode = useCallback(
-    (position: XYPosition, nodeType: 'draft' | 'pin' = 'draft', nodeData?: PinNodeDataType) => {
+    (position: XYPosition, nodeType = 'pin', nodeData?: PinNodeDataType) => {
       if (!committeeId || !mapKey) return;
 
       const newNode: PostablePinNodeType = {
-        type: nodeType,
+        type: 'pin', // nodeType,
         position,
         ...(nodeData || {}), // Ensure data is always present
       };
-      
+
       console.log('Creating node with full structure:', newNode); // Debug log
       createNode(committeeId, mapKey, newNode);
     },
@@ -126,13 +124,16 @@ export const MapView = (): ReactElement => {
   );
 
   // Handle drag start from toolbar - now accepts full pin configuration
-  const handleToolbarDragStart = useCallback((event: React.DragEvent, pinData: PinNodeDataType) => {
-    event.dataTransfer.setData('application/reactflow', 'pin');
-    // Serialize the entire pin configuration as JSON
-    event.dataTransfer.setData('pin/config', JSON.stringify(pinData));
-    event.dataTransfer.effectAllowed = 'move';
-    console.log('Drag started with pin config:', pinData); // Debug log
-  }, []);
+  const handleToolbarDragStart = useCallback(
+    (event: React.DragEvent, pinData: PinNodeDataType) => {
+      event.dataTransfer.setData('application/reactflow', 'pin');
+      // Serialize the entire pin configuration as JSON
+      event.dataTransfer.setData('pin/config', JSON.stringify(pinData));
+      event.dataTransfer.effectAllowed = 'move';
+      console.log('Drag started with pin config:', pinData); // Debug log
+    },
+    [],
+  );
 
   // Handle drop on pane
   const onDrop = useCallback(
@@ -160,7 +161,12 @@ export const MapView = (): ReactElement => {
         try {
           const pinConfig = JSON.parse(pinConfigJson) as PinNodeDataType;
           console.log('Parsed pin config:', pinConfig);
-          console.log('Adding pin node at position:', position, 'with config:', pinConfig);
+          console.log(
+            'Adding pin node at position:',
+            position,
+            'with config:',
+            pinConfig,
+          );
           addNode(position, 'pin', pinConfig);
         } catch (error) {
           console.error('Failed to parse pin configuration:', error);
@@ -213,12 +219,10 @@ export const MapView = (): ReactElement => {
         // ]}
       />
       <Background color="#c4c4c4" gap={50} variant={BackgroundVariant.Cross} />
-      
+
       {/* Toolbar for dragging pins */}
-      {accessLevel === 'staff' && (
-        <Toolbar onDragStart={handleToolbarDragStart} />
-      )}
-      
+      {accessLevel === 'staff' && <Toolbar onDragStart={handleToolbarDragStart} />}
+
       {selectedMapPins.length > 0 && (
         <Panel position="bottom-center" style={{ marginBottom: '100px' }}>
           <NodeEditor onPublish={(data) => console.log(data)} />
@@ -229,94 +233,6 @@ export const MapView = (): ReactElement => {
 };
 
 export default MapView;
-
-const NODES = [
-  {
-    type: 'background',
-    id: '1',
-    data: {
-      mapUrl:
-        'https://cdn.discordapp.com/attachments/1367630288792064000/1372650083627045118/IMG_4489.webp?ex=682ecbc2&is=682d7a42&hm=a348de612108e5993058251f3b1b06be595bcceca4877ef1ea3c26eabd2e3ec7',
-      height: 1000,
-    },
-    position: {
-      x: 0,
-      y: 0,
-    },
-    // these props should be enforced on the type
-    draggable: false,
-    selectable: false,
-  },
-  {
-    type: 'draft',
-    id: '2',
-    data: {},
-    position: {
-      x: 500,
-      y: 500,
-    },
-  },
-  // Sample Pin Node with color
-  {
-    type: 'pin',
-    id: '3',
-    data: {
-      color: '#FF5733',
-    },
-    position: {
-      x: 300,
-      y: 300,
-    },
-  },
-  // Sample Pin Node with different color and size
-  {
-    type: 'pin',
-    id: '4',
-    data: {
-      color: '#3366FF',
-    },
-    position: {
-      x: 400,
-      y: 400,
-    },
-  },
-  // Sample Pin Node with icon
-  {
-    type: 'pin',
-    id: '5',
-    data: {
-      iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png',
-    },
-    position: {
-      x: 600,
-      y: 300,
-    },
-  },
-  // Sample Pin Node with different icon
-  {
-    type: 'pin',
-    id: '6',
-    data: {
-      iconUrl: 'https://cdn-icons-png.flaticon.com/512/3448/3448513.png',
-    },
-    position: {
-      x: 700,
-      y: 400,
-    },
-  },
-  // Sample Pin Node with just color (no label)
-  {
-    type: 'pin',
-    id: '7',
-    data: {
-      color: '#33CC33',
-    },
-    position: {
-      x: 350,
-      y: 600,
-    },
-  },
-];
 
 export function getClientCoordinates(
   e: Event | MouseEvent | React.MouseEvent<Element> | TouchEvent | PointerEvent,

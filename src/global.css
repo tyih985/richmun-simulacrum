@@ -21,7 +21,6 @@ body {
 
 .bouncing-pin {
   position: absolute;
-  top: 0;
-  left: 0;
+  transform: translate(-50%, -50%);
   animation: bounce 1s ease-in-out infinite;
 }
