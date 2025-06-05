@@ -18,11 +18,11 @@ import { PinNode } from '@components/PinNode';
 import { PinsToolbar } from '@components/PinsToolbar';
 import { useFlowState } from '@store/useReactFlow';
 import { useSelectedMapPins } from '@hooks/useSelectedMapPins';
-import { NodeEditor } from '@components/NodeEditor';
 import { useMapNodes } from '@hooks/useMapNodes';
 import { mapNodesMutations } from '@mutations/mapNodeMutation';
 import { PinNodeDataType, PostablePinNodeType } from '@types';
 import { useCommitteeAccess } from '@hooks/useCommitteeAccess';
+import { SelectedPinInfo } from '@components/selectedPinInfo';
 
 const ViewPortPadding = 200;
 const DOUBLE_CLICK_THRESHOLD = 300;
@@ -219,15 +219,9 @@ export const MapView = (): ReactElement => {
         // ]}
       />
       <Background color="#c4c4c4" gap={50} variant={BackgroundVariant.Cross} />
-
+      <SelectedPinInfo />
       {/* Toolbar for dragging pins */}
       {accessLevel === 'staff' && <PinsToolbar onDragStart={handleToolbarDragStart} />}
-
-      {selectedMapPins.length > 0 && (
-        <Panel position="bottom-center" style={{ marginBottom: '100px' }}>
-          <NodeEditor onPublish={(data) => console.log(data)} />
-        </Panel>
-      )}
     </div>
   );
 };
