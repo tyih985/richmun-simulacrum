@@ -13,7 +13,9 @@ import {
 interface FlowState {
   nodes: Node[];
   edges: Edge[];
+  userFactions: string[];
 
+  setUserFactions: (factions: string[]) => void;
   syncNodes: (nodes: Node[]) => void;
   syncEdges: (edges: Edge[]) => void;
   onNodesChange: (changes: NodeChange[]) => void;
@@ -24,6 +26,23 @@ interface FlowState {
   _selectedNodesLock: string[];
   _selectedEdgesLock: string[];
 }
+
+/**
+ * Helper function to filter nodes based on user factions
+ */
+const filterNodesByFactions = (nodes: Node[], userFactions: string[]): Node[] => {
+  return nodes.filter((node) => {
+    const visibilityFactions = node.data?.visibilityFactions;
+    
+    // If no visibilityFactions field, assume 'staff-only'
+    if (!visibilityFactions || !Array.isArray(visibilityFactions)) {
+      return userFactions.includes('staff-only');
+    }
+    
+    // Check if user has any matching faction
+    return visibilityFactions.some(faction => userFactions.includes(faction));
+  });
+};
 
 /**
  * This store is a singleton for exclusive interaction with ReactFlow
@@ -39,8 +58,17 @@ interface FlowState {
 export const useFlowState = create<FlowState>((set) => ({
   nodes: [],
   edges: [],
+  userFactions: [],
   _selectedNodesLock: [],
   _selectedEdgesLock: [],
+
+  setUserFactions: (factions: string[]) => {
+    set((state: FlowState): Pick<FlowState, 'userFactions'> => {
+      return {
+        userFactions: factions,
+      };
+    });
+  },
 
   syncNodes: (nodes: Node[]) => {
     set((state: FlowState): Pick<FlowState, 'nodes'> => {
@@ -55,8 +83,11 @@ export const useFlowState = create<FlowState>((set) => ({
         };
       });
 
+      // Filter nodes based on current user factions
+      const filteredNodes = filterNodesByFactions(syncedNodes, state.userFactions);
+
       return {
-        nodes: syncedNodes,
+        nodes: filteredNodes,
       };
     });
   },

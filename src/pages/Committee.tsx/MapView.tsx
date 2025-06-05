@@ -32,7 +32,7 @@ const nodeOrigin: NodeOrigin = [0.5, 1];
 export const MapView = (): ReactElement => {
   const { committeeId: urlCommitteeId } = useParams();
   const [searchParams] = useSearchParams();
-  const { availableCommittees, availableMaps, accessLevel } = useCommitteeAccess();
+  const { availableCommittees, availableMaps, accessLevel, userFactions } = useCommitteeAccess();
 
   // Use props if provided, otherwise fall back to URL parameters
   const committeeId = urlCommitteeId;
@@ -55,7 +55,7 @@ export const MapView = (): ReactElement => {
     mapKey || '',
   );
 
-  const { nodes, edges, syncNodes, syncEdges, onNodesChange, onEdgesChange } =
+  const { nodes, edges, syncNodes, syncEdges, onNodesChange, onEdgesChange, setUserFactions } =
     useFlowState(
       useShallow((state) => ({
         nodes: state.nodes,
@@ -64,8 +64,17 @@ export const MapView = (): ReactElement => {
         syncEdges: state.syncEdges,
         onNodesChange: accessLevel === 'staff' ? state.onNodesChange : undefined,
         onEdgesChange: accessLevel === 'staff' ? state.onEdgesChange : undefined,
+        setUserFactions: state.setUserFactions,
       })),
     );
+
+  // Set user factions when they change
+  useEffect(() => {
+    if (userFactions) {
+      console.log('Setting user factions:', userFactions);
+      setUserFactions(userFactions);
+    }
+  }, [userFactions, setUserFactions]);
 
   useEffect(() => {
     console.log('syncing nodes', incomingNodes)
