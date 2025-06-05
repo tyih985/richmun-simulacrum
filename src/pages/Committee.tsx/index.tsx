@@ -3,6 +3,7 @@ import { Routes, Route, useParams, useNavigate } from 'react-router-dom';
 import { Stack, Button, Center, Title } from '@mantine/core';
 import { COMMITTEE_DATA_MAP } from '@lib/mapPrototypeKeys';
 import { IconArrowRight } from '@tabler/icons-react';
+import { useEffect } from 'react';
 
 export const CommitteeRoutes = () => {
   return (
@@ -42,6 +43,20 @@ const CommitteeSelectPage = () => {
 
 const CommitteeContentPage = () => {
   const { committeeId } = useParams();
+  const { availableCommittees } = useCommitteeAccess();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Check if committeeId is missing or not in available committees
+    if (!committeeId || !availableCommittees.includes(committeeId)) {
+      navigate('/c/', { replace: true });
+    }
+  }, [committeeId, availableCommittees, navigate]);
+
+  // Don't render content if validation fails
+  if (!committeeId || !availableCommittees.includes(committeeId)) {
+    return null;
+  }
 
   return (
     <div>
