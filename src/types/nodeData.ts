@@ -5,7 +5,7 @@ export type PinNodeDataType = {
   color?: string;
   text?: string;
   coverImageUrl?: string;
-  visibilityRules?: string[]; // factions (or users)
+  visibilityFactions?: string[];
   size?: number; // not supported right now, but technically in the future
 };
 

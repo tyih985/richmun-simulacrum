@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from 'react';
-import { Paper, TextInput, Button, Group, Textarea } from '@mantine/core';
+import { Paper, Button, Group, Textarea, MultiSelect, Text, Pill } from '@mantine/core';
 import { ViewportPortal } from '@xyflow/react';
 import { useSelectedMapPins } from '../state/hooks/useSelectedMapPins';
 import { useCommitteeAccess } from '../state/hooks/useCommitteeAccess';
@@ -12,8 +12,9 @@ const OFFSET = 80;
 export const SelectedPinInfo: React.FC = () => {
   const selectedPins = useSelectedMapPins();
   const { zoom } = useViewport();
-  const { accessLevel, selectedCommittee } = useCommitteeAccess();
+  const { accessLevel, selectedCommittee, allFactions } = useCommitteeAccess();
   const [editingPins, setEditingPins] = useState<Record<string, string>>({});
+  const [editingVisibility, setEditingVisibility] = useState<Record<string, string[]>>({});
   const [isUpdating, setIsUpdating] = useState<Record<string, boolean>>({});
   
   const { updateNode } = mapNodesMutations();
@@ -22,10 +23,14 @@ export const SelectedPinInfo: React.FC = () => {
     return null;
   }
 
-  const handleEdit = (pinId: string, currentText: string) => {
+  const handleEdit = (pinId: string, currentText: string, currentVisibility: string[] = []) => {
     setEditingPins(prev => ({
       ...prev,
       [pinId]: currentText || ''
+    }));
+    setEditingVisibility(prev => ({
+      ...prev,
+      [pinId]: currentVisibility
     }));
   };
 
@@ -40,11 +45,12 @@ export const SelectedPinInfo: React.FC = () => {
     try {
       await updateNode(
         selectedCommittee,
-        mapId, // You'll need to pass the mapId - see note below
+        mapId,
         pin.id,
         {
           ...pin.data,
           text: editingPins[pin.id],
+          visibilityFactions: editingVisibility[pin.id],
           type: 'pin',
           position: pin.position
         }
@@ -52,6 +58,11 @@ export const SelectedPinInfo: React.FC = () => {
       
       // Remove from editing state after successful save
       setEditingPins(prev => {
+        const newState = { ...prev };
+        delete newState[pin.id];
+        return newState;
+      });
+      setEditingVisibility(prev => {
         const newState = { ...prev };
         delete newState[pin.id];
         return newState;
@@ -69,10 +80,22 @@ export const SelectedPinInfo: React.FC = () => {
       delete newState[pinId];
       return newState;
     });
+    setEditingVisibility(prev => {
+      const newState = { ...prev };
+      delete newState[pinId];
+      return newState;
+    });
   };
 
   const handleTextChange = (pinId: string, value: string) => {
     setEditingPins(prev => ({
+      ...prev,
+      [pinId]: value
+    }));
+  };
+
+  const handleVisibilityChange = (pinId: string, value: string[]) => {
+    setEditingVisibility(prev => ({
       ...prev,
       [pinId]: value
     }));
@@ -85,7 +108,9 @@ export const SelectedPinInfo: React.FC = () => {
       {selectedPins.map((pin) => {
         const isEditing = pin.id in editingPins;
         const pinText = (pin.data?.text as string) || '';
+        const pinVisibility = (pin.data?.visibilityFactions as string[]) || [];
         const displayText = isEditing ? editingPins[pin.id] : pinText;
+        const displayVisibility = isEditing ? editingVisibility[pin.id] : pinVisibility;
 
         return (
           <ViewportPortal key={pin.id}>
@@ -95,7 +120,7 @@ export const SelectedPinInfo: React.FC = () => {
                 left: pin.position.x - OFFSET + 100 / zoom,
                 top: pin.position.y + 50 / zoom,
                 transform: `translate(0%, -50%) scale(${1 / zoom})`,
-                pointerEvents: 'auto', // Changed from 'none' to allow interaction
+                pointerEvents: 'auto',
                 zIndex: 1000,
               }}
             >
@@ -121,6 +146,23 @@ export const SelectedPinInfo: React.FC = () => {
                         autosize
                         minRows={2}
                       />
+                      {isStaff && (
+                        <MultiSelect
+                          value={displayVisibility}
+                          onChange={(value) => handleVisibilityChange(pin.id, value)}
+                          data={allFactions.map((faction) => ({
+                            value: faction,
+                            label: faction,
+                          }))}
+                          label="Visible to Factions"
+                          placeholder="Select factions that can see this pin"
+                          searchable
+                          clearable
+                          description="Leave empty to make visible to staff only"
+                          style={{ marginBottom: '8px' }}
+                          size="xs"
+                        />
+                      )}
                       <Group gap="xs">
                         <Button
                           size="xs"
@@ -146,10 +188,32 @@ export const SelectedPinInfo: React.FC = () => {
                         {pinText || 'No description'}
                       </div>
                       {isStaff && (
+                        <div style={{ marginBottom: '8px' }}>
+                          {pinVisibility.length > 0 ? (
+                            <div>
+                              <Text size="xs" c="dimmed" style={{ marginBottom: '4px' }}>
+                                Visible to:
+                              </Text>
+                              <Pill.Group>
+                                {pinVisibility.map((faction) => (
+                                  <Pill key={faction} size="xs">
+                                    {faction}
+                                  </Pill>
+                                ))}
+                              </Pill.Group>
+                            </div>
+                          ) : (
+                            <Text size="xs" c="dimmed">
+                              Visible to: Staff only
+                            </Text>
+                          )}
+                        </div>
+                      )}
+                      {isStaff && (
                         <Button
                           size="xs"
                           variant="light"
-                          onClick={() => handleEdit(pin.id, pinText)}
+                          onClick={() => handleEdit(pin.id, pinText, pinVisibility)}
                         >
                           Edit
                         </Button>

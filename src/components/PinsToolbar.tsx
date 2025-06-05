@@ -101,7 +101,7 @@ export const PinsToolbar = memo(({ onDragStart }: ToolbarProps) => {
     <Panel
       position="bottom-center"
       style={{
-        transform: `translate(-50%, ${isHovered ? '0' : '60px'})`,
+        transform: `translate(-50%, ${isHovered ? '0' : 'calc(100% - 50px)'})`,
         transition: 'transform 0.3s ease-in-out',
         zIndex: 1000,
         bottom: 0,
