@@ -1,4 +1,5 @@
-  import { Routes, Route, useParams } from 'react-router-dom'
+  import { useCommitteeAccess } from '@hooks/useCommitteeAccess';
+import { Routes, Route, useParams } from 'react-router-dom'
 
   export const CommitteeRoutes = () => {
       return (
@@ -10,10 +11,12 @@
   }
 
   const CommitteeSelectPage = () => {
+    const { availableCommittees } = useCommitteeAccess();
       return (
           <div>
               <h1>Select a Committee</h1>
               {/* Your committee selection/list content here */}
+              {availableCommittees}
           </div>
       )
   }

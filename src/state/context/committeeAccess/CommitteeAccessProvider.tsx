@@ -33,21 +33,21 @@ export const CommitteeAccessProvider: React.FC<CommitteeAccessProviderProps> = (
         selectedCommittee: null,
         accessLevel: false as const,
         visibiltyFactions: [],
+        availableCommittees: [] as string[],
       };
     }
 
     const userEmail = sessionUser.email;
-    const userCommittees = getCommittees(userEmail);
-
+    const availableCommittees = getCommittees(userEmail) || [] as string[]
     // Determine selected committee based on URL parameter
     let selectedCommittee: string | null = null;
 
-    if (committeeId && userCommittees.includes(committeeId)) {
+    if (committeeId && availableCommittees.includes(committeeId)) {
       // URL parameter is valid and user has access
       selectedCommittee = committeeId;
-    } else if (userCommittees.length > 0) {
+    } else if (availableCommittees.length > 0) {
       // Fallback to first available committee
-      selectedCommittee = userCommittees[0];
+      selectedCommittee = availableCommittees[0];
     }
 
     // Get available maps for the selected committee only
@@ -79,12 +79,13 @@ export const CommitteeAccessProvider: React.FC<CommitteeAccessProviderProps> = (
       selectedCommittee,
       accessLevel,
       visibiltyFactions,
+      availableCommittees,
     };
   }, [sessionUser, isLoggedIn, committeeId]);
 
-  useEffect(()=> {
-    console.log('Committee Access data: ', contextValue)
-  }, [contextValue])
+  useEffect(() => {
+    console.log('Committee Access data: ', contextValue);
+  }, [contextValue]);
 
   return (
     <CommitteeAccessContext.Provider value={contextValue}>

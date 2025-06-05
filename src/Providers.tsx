@@ -7,6 +7,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ConfigProvider } from '@context/config';
 import { ThemeProvider } from '@context/customTheme';
 import { SessionProvider } from '@context/session';
+import { CommitteeAccessProvider } from '@context/committeeAccess';
 
 type ProvidersProps = {
   children: ReactNode;
@@ -28,15 +29,17 @@ export const Providers: FC<ProvidersProps> = ({ children }: ProvidersProps) => (
       <BrowserRouter>
         <ThemeProvider>
           <SessionProvider>
-            <Notifications
-              position="top-right"
-              zIndex={1000}
-              limit={5}
-              autoClose={3000}
-            />
-            <ReactFlowProvider>
-              <Suspense>{children}</Suspense>
-            </ReactFlowProvider>
+            <CommitteeAccessProvider>
+              <Notifications
+                position="top-right"
+                zIndex={1000}
+                limit={5}
+                autoClose={3000}
+              />
+              <ReactFlowProvider>
+                <Suspense>{children}</Suspense>
+              </ReactFlowProvider>
+            </CommitteeAccessProvider>
           </SessionProvider>
         </ThemeProvider>
       </BrowserRouter>

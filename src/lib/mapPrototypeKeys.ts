@@ -10,9 +10,9 @@ export const FJCC_COMMITTEE_MAP_KEY_4 = 'piltover-tech-tree';
 interface AccessCategoriesType extends Record<string, unknown> {
   staff: string[];
   delegates: string[];
-  visibiltyFactions?: Record<string, string[]>
+  visibiltyFactions?: Record<string, string[]>;
   // hard coded options for "everyone", "staff-only"
-};
+}
 
 export const COMMITTEE_DATA_MAP: Record<string, AccessCategoriesType> = {
   [ECC_COMMITTEE_KEY]: {
@@ -23,9 +23,9 @@ export const COMMITTEE_DATA_MAP: Record<string, AccessCategoriesType> = {
     staff: ['director@richmun.ca', 'fjcc@richmun.ca'],
     delegates: ['alexkim.347@gmail.com'],
     visibiltyFactions: {
-      'Pilover': [],
-      'Zaun': [],
-    }
+      Pilover: [],
+      Zaun: [],
+    },
   },
 };
 
@@ -50,10 +50,7 @@ export const getCommittees = (email: string): string[] => {
     .map(([committee]) => committee);
 };
 
-export const getCommitteeFactions = (
-  committeeKey: string,
-  email: string,
-): string[] => {
+export const getCommitteeFactions = (committeeKey: string, email: string): string[] => {
   const committee = COMMITTEE_DATA_MAP[committeeKey];
   if (!committee || !committee.visibiltyFactions) return [];
 
