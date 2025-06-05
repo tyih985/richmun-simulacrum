@@ -12,13 +12,16 @@ import {
   FJCC_COMMITTEE_MAP_KEY_2,
   FJCC_COMMITTEE_MAP_KEY_3,
   FJCC_COMMITTEE_MAP_KEY_4,
+  getCommitteeFactions,
 } from '@lib/mapPrototypeKeys';
 
 interface CommitteeAccessProviderProps {
   children: ReactNode;
 }
 
-export const CommitteeAccessProvider: React.FC<CommitteeAccessProviderProps> = ({ children }) => {
+export const CommitteeAccessProvider: React.FC<CommitteeAccessProviderProps> = ({
+  children,
+}) => {
   const { sessionUser, isLoggedIn } = useSession();
   const { committeeId } = useParams<{ committeeId?: string }>();
 
@@ -38,7 +41,7 @@ export const CommitteeAccessProvider: React.FC<CommitteeAccessProviderProps> = (
 
     // Determine selected committee based on URL parameter
     let selectedCommittee: string | null = null;
-    
+
     if (committeeId && userCommittees.includes(committeeId)) {
       // URL parameter is valid and user has access
       selectedCommittee = committeeId;
@@ -61,12 +64,15 @@ export const CommitteeAccessProvider: React.FC<CommitteeAccessProviderProps> = (
     }
 
     // Get access level for the selected committee
-    const accessLevel = selectedCommittee 
+    const accessLevel = selectedCommittee
       ? getCommitteeAccessLevel(selectedCommittee, userEmail)
       : false;
 
     // For now, return empty visibility factions - this can be expanded based on requirements
-    const visibiltyFactions: string[] = [];
+    const visibiltyFactions: string[] =
+      userEmail && selectedCommittee
+        ? getCommitteeFactions(selectedCommittee, userEmail)
+        : [];
 
     return {
       availableMaps,
