@@ -17,6 +17,7 @@ import { IconPencil, IconTrash } from '@tabler/icons-react';
 import { ViewportPortal, useViewport } from '@xyflow/react';
 import { useSelectedMapPins } from '@hooks/useSelectedMapPins';
 import { useCommitteeAccess } from '@hooks/useCommitteeAccess';
+import { useMapMeta } from '@hooks/useMapMeta';
 import { mapNodesMutations } from '@mutations/mapNodeMutation';
 
 const OFFSET = 80;
@@ -35,6 +36,14 @@ export const SelectedPinInfo: React.FC = () => {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const { updateNode, deleteNode } = mapNodesMutations();
+
+  // Get map metadata for visibility restrictions
+  const urlParams = new URLSearchParams(window.location.search);
+  const mapId = urlParams.get('map_key');
+  const mapMeta = useMapMeta({
+    committeeId: selectedCommittee || '',
+    mapId: mapId || '',
+  });
 
   // Reset editing state when pins become unselected
   useEffect(() => {
@@ -193,6 +202,9 @@ export const SelectedPinInfo: React.FC = () => {
 
   const isStaff = accessLevel === 'staff';
 
+  // Get map's visible factions to determine which factions should be enabled
+  const mapVisibleFactions = Array.from(new Set(mapMeta.visibilityFactions || []).add('staff-only').add('everyone'));
+
   return (
     <>
       <Modal
@@ -228,7 +240,7 @@ export const SelectedPinInfo: React.FC = () => {
         const pinText = (pin.data?.text as string) || '';
         const pinVisibility = (pin.data?.visibilityFactions as string[]) || [];
         const displayText = isEditing ? editingPins[pin.id] : pinText;
-        const displayVisibility = isEditing ? editingVisibility[pin.id] : pinVisibility;
+        const displayVisibility = (isEditing ? editingVisibility[pin.id] : pinVisibility)
 
         return (
           <ViewportPortal key={pin.id}>
@@ -256,17 +268,18 @@ export const SelectedPinInfo: React.FC = () => {
                     <div>
                       {isStaff && (
                         <MultiSelect
-                          value={displayVisibility}
+                          value={displayVisibility.length > 0 ? displayVisibility : ['staff-only']}
                           onChange={(value) => handleVisibilityChange(pin.id, value)}
                           data={allFactions.map((faction) => ({
                             value: faction,
                             label: faction,
+                            disabled: !mapVisibleFactions.includes(faction),
                           }))}
                           label="Visible to Factions"
                           placeholder="Select who can see this"
                           searchable
                           clearable
-                          description="Leave empty to make visible to staff only"
+                          description="Only factions that can see this map are available"
                           style={{ marginBottom: '8px' }}
                           size="sm"
                         />
