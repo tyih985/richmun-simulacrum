@@ -92,17 +92,21 @@ export const SelectedPinInfo: React.FC = () => {
 
   const handleSave = async (pin: any) => {
     if (!selectedCommittee) return;
-    // get map ID from url search params
     const urlParams = new URLSearchParams(window.location.search);
     const mapId = urlParams.get('map_key');
     if (!mapId) return;
     setIsUpdating((prev) => ({ ...prev, [pin.id]: true }));
 
     try {
+      // If visibility is empty, default to staff-only when saving
+      const visibilityToSave = editingVisibility[pin.id]?.length > 0 
+        ? editingVisibility[pin.id] 
+        : ['staff-only'];
+      
       await updateNode(selectedCommittee, mapId, pin.id, {
         ...pin.data,
         text: editingPins[pin.id],
-        visibilityFactions: editingVisibility[pin.id],
+        visibilityFactions: visibilityToSave,
         type: 'pin',
         position: pin.position,
       });
@@ -146,9 +150,39 @@ export const SelectedPinInfo: React.FC = () => {
   };
 
   const handleVisibilityChange = (pinId: string, value: string[]) => {
+    const previousValue = editingVisibility[pinId] || [];
+    
+    // Handle the case where MultiSelect shows ['staff-only'] as default but state is empty
+    const actualPreviousValue = previousValue.length === 0 ? [] : previousValue;
+    
+    // Find what was added or removed
+    const added = value.filter(v => !actualPreviousValue.includes(v));
+    const removed = actualPreviousValue.filter(v => !value.includes(v));
+    
+    let newValue = [...value];
+    
+    // Special case: if previous was empty and we're adding multiple including staff-only,
+    // it means user clicked on a regular faction (staff-only was just the display default)
+    if (actualPreviousValue.length === 0 && added.length > 1 && added.includes('staff-only')) {
+      // Remove staff-only from the added items and use only the user's actual selection
+      const userSelection = added.filter(f => f !== 'staff-only');
+      newValue = userSelection;
+    }
+    // If 'everyone' or 'staff-only' was explicitly added (and it's the only addition), remove all other factions
+    else if (added.length === 1 && (added.includes('everyone') || added.includes('staff-only'))) {
+      newValue = added;
+    }
+    // If a regular faction was added and 'everyone' or 'staff-only' exists, remove them
+    else if (added.length > 0) {
+      const hasSpecialFaction = newValue.includes('everyone') || newValue.includes('staff-only');
+      if (hasSpecialFaction) {
+        newValue = newValue.filter(f => f !== 'everyone' && f !== 'staff-only');
+      }
+    }
+    
     setEditingVisibility((prev) => ({
       ...prev,
-      [pinId]: value,
+      [pinId]: newValue,
     }));
   };
 
