@@ -58,7 +58,7 @@ export const getAllCommitteeFactions = (committeeKey: string): string[] => {
   const committee = COMMITTEE_DATA_MAP[committeeKey];
   if (!committee || !committee.visibiltyFactions) return [];
 
-  return Object.keys(committee.visibiltyFactions).concat(['everyone', 'staff-only']);
+  return Object.keys(committee.visibiltyFactions).concat(['everyone']);
 };
 
 export const getCommitteeFactions = (committeeKey: string, email: string): string[] => {
@@ -68,5 +68,6 @@ export const getCommitteeFactions = (committeeKey: string, email: string): strin
   console.log('getCommitteeFactions', committee, email);
   return Object.entries(committee.visibiltyFactions)
     .filter(([_, emails]) => emails.includes(email))
-    .map(([faction]) => faction);
+    .map(([faction]) => faction)
+    .concat(['everyone']);
 };
