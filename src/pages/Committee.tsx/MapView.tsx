@@ -16,6 +16,7 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import { MapBackgroundNode } from '@components/MapBackgroundNode';
 import { DraftNode } from '@components/DraftNode';
 import { PinNode } from '@components/PinNode';
+import { Toolbar } from '@components/Toolbar';
 import { useFlowState } from '@store/useReactFlow';
 import { useSelectedMapPins } from '@hooks/useSelectedMapPins';
 import { NodeEditor } from '@components/NodeEditor';
@@ -74,13 +75,16 @@ export const MapView = (): ReactElement => {
   }, [incomingNodes]);
 
   const addNode = useCallback(
-    (position: XYPosition) => {
+    (position: XYPosition, nodeType: 'draft' | 'pin' = 'draft', nodeData?: PinNodeDataType) => {
       if (!committeeId || !mapKey) return;
 
       const newNode: PostablePinNodeType = {
-        type: 'draft',
+        type: nodeType,
         position,
+        ...(nodeData || {}), // Ensure data is always present
       };
+      
+      console.log('Creating node with full structure:', newNode); // Debug log
       createNode(committeeId, mapKey, newNode);
     },
     [createNode, committeeId, mapKey],
@@ -105,7 +109,7 @@ export const MapView = (): ReactElement => {
       const timeSinceLastClick = currentTime - lastClickTimeRef.current;
       lastClickTimeRef.current = currentTime;
       if (timeSinceLastClick < DOUBLE_CLICK_THRESHOLD) {
-        addNode(position);
+        addNode(position, 'draft');
       }
     },
     [addNode, screenToFlowPosition, committeeId, mapKey],
@@ -120,6 +124,59 @@ export const MapView = (): ReactElement => {
     },
     [updateNodePosition, committeeId, mapKey],
   );
+
+  // Handle drag start from toolbar - now accepts full pin configuration
+  const handleToolbarDragStart = useCallback((event: React.DragEvent, pinData: PinNodeDataType) => {
+    event.dataTransfer.setData('application/reactflow', 'pin');
+    // Serialize the entire pin configuration as JSON
+    event.dataTransfer.setData('pin/config', JSON.stringify(pinData));
+    event.dataTransfer.effectAllowed = 'move';
+    console.log('Drag started with pin config:', pinData); // Debug log
+  }, []);
+
+  // Handle drop on pane
+  const onDrop = useCallback(
+    (event: React.DragEvent) => {
+      event.preventDefault();
+
+      const reactFlowBounds = event.currentTarget.getBoundingClientRect();
+      const type = event.dataTransfer.getData('application/reactflow');
+      const pinConfigJson = event.dataTransfer.getData('pin/config');
+
+      console.log('Drop event - type:', type, 'config JSON:', pinConfigJson); // Debug log
+
+      // Check if the dropped element is a pin from our toolbar
+      if (typeof type === 'undefined' || !type || type !== 'pin') {
+        console.log('Not a pin drop, ignoring');
+        return;
+      }
+
+      const position = screenToFlowPosition({
+        x: event.clientX - reactFlowBounds.left,
+        y: event.clientY - reactFlowBounds.top,
+      });
+
+      if (pinConfigJson) {
+        try {
+          const pinConfig = JSON.parse(pinConfigJson) as PinNodeDataType;
+          console.log('Parsed pin config:', pinConfig);
+          console.log('Adding pin node at position:', position, 'with config:', pinConfig);
+          addNode(position, 'pin', pinConfig);
+        } catch (error) {
+          console.error('Failed to parse pin configuration:', error);
+          console.error('Raw config JSON:', pinConfigJson);
+        }
+      } else {
+        console.log('No pin config found in dataTransfer');
+      }
+    },
+    [screenToFlowPosition, addNode],
+  );
+
+  const onDragOver = useCallback((event: React.DragEvent) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+  }, []);
 
   // Don't render if we don't have the required parameters
   if (!committeeId || !mapKey) {
@@ -141,6 +198,8 @@ export const MapView = (): ReactElement => {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onPaneClick={paneClick}
+        onDrop={onDrop}
+        onDragOver={onDragOver}
         maxZoom={20}
         zoomOnDoubleClick={false}
         onNodeDragStop={onNodeDragStop}
@@ -154,8 +213,14 @@ export const MapView = (): ReactElement => {
         // ]}
       />
       <Background color="#c4c4c4" gap={50} variant={BackgroundVariant.Cross} />
+      
+      {/* Toolbar for dragging pins */}
+      {accessLevel === 'staff' && (
+        <Toolbar onDragStart={handleToolbarDragStart} />
+      )}
+      
       {selectedMapPins.length > 0 && (
-        <Panel position="bottom-center">
+        <Panel position="bottom-center" style={{ marginBottom: '100px' }}>
           <NodeEditor onPublish={(data) => console.log(data)} />
         </Panel>
       )}
