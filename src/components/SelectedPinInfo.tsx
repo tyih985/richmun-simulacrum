@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from 'react';
 import { Paper, Button, Group, Textarea, MultiSelect, Text, Pill } from '@mantine/core';
-import { ViewportPortal } from '@xyflow/react';
-import { useSelectedMapPins } from '../state/hooks/useSelectedMapPins';
-import { useCommitteeAccess } from '../state/hooks/useCommitteeAccess';
-import { useViewport } from '@xyflow/react';
-import { mapNodesMutations } from '../state/mutations/mapNodeMutation';
+import { ViewportPortal, useViewport } from '@xyflow/react';
+
+import { useSelectedMapPins } from '@hooks/useSelectedMapPins';
+import { useCommitteeAccess } from '@hooks/useCommitteeAccess';
+import { mapNodesMutations } from '@mutations/mapNodeMutation';
 
 const OFFSET = 80;
 
@@ -14,23 +14,29 @@ export const SelectedPinInfo: React.FC = () => {
   const { zoom } = useViewport();
   const { accessLevel, selectedCommittee, allFactions } = useCommitteeAccess();
   const [editingPins, setEditingPins] = useState<Record<string, string>>({});
-  const [editingVisibility, setEditingVisibility] = useState<Record<string, string[]>>({});
+  const [editingVisibility, setEditingVisibility] = useState<Record<string, string[]>>(
+    {},
+  );
   const [isUpdating, setIsUpdating] = useState<Record<string, boolean>>({});
-  
+
   const { updateNode } = mapNodesMutations();
 
   if (selectedPins.length === 0) {
     return null;
   }
 
-  const handleEdit = (pinId: string, currentText: string, currentVisibility: string[] = []) => {
-    setEditingPins(prev => ({
+  const handleEdit = (
+    pinId: string,
+    currentText: string,
+    currentVisibility: string[] = [],
+  ) => {
+    setEditingPins((prev) => ({
       ...prev,
-      [pinId]: currentText || ''
+      [pinId]: currentText || '',
     }));
-    setEditingVisibility(prev => ({
+    setEditingVisibility((prev) => ({
       ...prev,
-      [pinId]: currentVisibility
+      [pinId]: currentVisibility,
     }));
   };
 
@@ -40,29 +46,24 @@ export const SelectedPinInfo: React.FC = () => {
     const urlParams = new URLSearchParams(window.location.search);
     const mapId = urlParams.get('map_key');
     if (!mapId) return;
-    setIsUpdating(prev => ({ ...prev, [pin.id]: true }));
-    
+    setIsUpdating((prev) => ({ ...prev, [pin.id]: true }));
+
     try {
-      await updateNode(
-        selectedCommittee,
-        mapId,
-        pin.id,
-        {
-          ...pin.data,
-          text: editingPins[pin.id],
-          visibilityFactions: editingVisibility[pin.id],
-          type: 'pin',
-          position: pin.position
-        }
-      );
-      
+      await updateNode(selectedCommittee, mapId, pin.id, {
+        ...pin.data,
+        text: editingPins[pin.id],
+        visibilityFactions: editingVisibility[pin.id],
+        type: 'pin',
+        position: pin.position,
+      });
+
       // Remove from editing state after successful save
-      setEditingPins(prev => {
+      setEditingPins((prev) => {
         const newState = { ...prev };
         delete newState[pin.id];
         return newState;
       });
-      setEditingVisibility(prev => {
+      setEditingVisibility((prev) => {
         const newState = { ...prev };
         delete newState[pin.id];
         return newState;
@@ -70,17 +71,17 @@ export const SelectedPinInfo: React.FC = () => {
     } catch (error) {
       console.error('Failed to update pin:', error);
     } finally {
-      setIsUpdating(prev => ({ ...prev, [pin.id]: false }));
+      setIsUpdating((prev) => ({ ...prev, [pin.id]: false }));
     }
   };
 
   const handleCancel = (pinId: string) => {
-    setEditingPins(prev => {
+    setEditingPins((prev) => {
       const newState = { ...prev };
       delete newState[pinId];
       return newState;
     });
-    setEditingVisibility(prev => {
+    setEditingVisibility((prev) => {
       const newState = { ...prev };
       delete newState[pinId];
       return newState;
@@ -88,16 +89,16 @@ export const SelectedPinInfo: React.FC = () => {
   };
 
   const handleTextChange = (pinId: string, value: string) => {
-    setEditingPins(prev => ({
+    setEditingPins((prev) => ({
       ...prev,
-      [pinId]: value
+      [pinId]: value,
     }));
   };
 
   const handleVisibilityChange = (pinId: string, value: string[]) => {
-    setEditingVisibility(prev => ({
+    setEditingVisibility((prev) => ({
       ...prev,
-      [pinId]: value
+      [pinId]: value,
     }));
   };
 
@@ -138,7 +139,7 @@ export const SelectedPinInfo: React.FC = () => {
                     <div>
                       <Textarea
                         value={displayText}
-                        onChange={(event) => 
+                        onChange={(event) =>
                           handleTextChange(pin.id, event.currentTarget?.value || '')
                         }
                         placeholder="Enter pin description..."
@@ -166,7 +167,7 @@ export const SelectedPinInfo: React.FC = () => {
                       <Group gap="xs">
                         <Button
                           size="xs"
-                          onClick={() => handleSave(pin)} 
+                          onClick={() => handleSave(pin)}
                           loading={isUpdating[pin.id]}
                           disabled={isUpdating[pin.id]}
                         >
