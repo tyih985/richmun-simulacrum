@@ -1,8 +1,9 @@
 import { createContext } from "react";
 
 type CommitteeAccessContextType = {
-    availableMaps: Record<string, string[]> // Committee ID : [map1, map2]
-    accessLevel: 'view' | 'edit'
+    availableMaps: string[] // Just an array of map keys for the selected committee
+    selectedCommittee: string | null
+    accessLevel: 'staff' | 'delegate' | false
     visibiltyFactions: string[]
 }
 
