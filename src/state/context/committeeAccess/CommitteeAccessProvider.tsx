@@ -1,5 +1,4 @@
-import React, { ReactNode, useEffect, useMemo } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { ReactNode, useEffect, useMemo, useState } from 'react';
 import { CommitteeAccessContext } from './CommitteeAccessContext';
 import { useSession } from '@hooks/useSession';
 import {
@@ -23,9 +22,11 @@ export const CommitteeAccessProvider: React.FC<CommitteeAccessProviderProps> = (
   children,
 }) => {
   const { sessionUser, isLoggedIn } = useSession();
-  const { committeeId } = useParams<{ committeeId?: string }>();
+  const [selectedCommittee, setSelectedCommittee] = useState<string | null>(null);
+  // const { committeeId } = useParams<{ committeeId?: string }>(); // this will never match path value :(
 
   const contextValue = useMemo(() => {
+    console.log('re-evaluating contextValue')
     // If user is not logged in or no email available, return default values
     if (!isLoggedIn || !sessionUser?.email) {
       return {
@@ -34,21 +35,13 @@ export const CommitteeAccessProvider: React.FC<CommitteeAccessProviderProps> = (
         accessLevel: false as const,
         visibiltyFactions: [],
         availableCommittees: [] as string[],
+        setSelectedCommittee
       };
     }
 
     const userEmail = sessionUser.email;
     const availableCommittees = getCommittees(userEmail) || [] as string[]
     // Determine selected committee based on URL parameter
-    let selectedCommittee: string | null = null;
-
-    if (committeeId && availableCommittees.includes(committeeId)) {
-      // URL parameter is valid and user has access
-      selectedCommittee = committeeId;
-    } else if (availableCommittees.length > 0) {
-      // Fallback to first available committee
-      selectedCommittee = availableCommittees[0];
-    }
 
     // Get available maps for the selected committee only
     let availableMaps: string[] = [];
@@ -80,8 +73,9 @@ export const CommitteeAccessProvider: React.FC<CommitteeAccessProviderProps> = (
       accessLevel,
       visibiltyFactions,
       availableCommittees,
+      setSelectedCommittee
     };
-  }, [sessionUser, isLoggedIn, committeeId]);
+  }, [isLoggedIn, sessionUser, selectedCommittee]);
 
   useEffect(() => {
     console.log('Committee Access data: ', contextValue);

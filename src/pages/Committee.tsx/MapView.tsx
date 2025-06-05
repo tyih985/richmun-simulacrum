@@ -9,6 +9,7 @@ import {
   type OnNodeDrag,
 } from '@xyflow/react';
 import { useShallow } from 'zustand/react/shallow';
+import { useParams, useSearchParams } from 'react-router-dom';
 
 import { MapBackgroundNode } from '@components/MapBackgroundNode';
 import { DraftNode } from '@components/DraftNode';
@@ -19,30 +20,37 @@ import { NodeEditor } from '@components/NodeEditor';
 import { useMapNodes } from '@hooks/useMapNodes';
 import { mapNodesMutations } from '@mutations/mapNodes';
 import { PinNodeDataType, PostablePinNodeType } from '@types';
+import { useCommitteeAccess } from '@hooks/useCommitteeAccess';
 
 const ViewPortPadding = 200;
 const DOUBLE_CLICK_THRESHOLD = 300;
 
 const nodeOrigin: NodeOrigin = [0.5, 1];
 
-interface MapViewProps {
-  committeeId: string;
-  mapKey: string;
-}
 
-export const MapView = ({ committeeId, mapKey }: MapViewProps): ReactElement => {
+export const MapView = (): ReactElement => {
+  const { committeeId: urlCommitteeId } = useParams();
+  const [searchParams] = useSearchParams();
+  const { availableCommittees, availableMaps } = useCommitteeAccess();
+  
+  // Use props if provided, otherwise fall back to URL parameters
+  const committeeId = urlCommitteeId;
+  const mapKey = searchParams.get('map_key');
+
   const nodeTypes = {
     background: MapBackgroundNode,
     draft: DraftNode,
     pin: PinNode,
   };
+  
   const { createNode, updateNodePosition } = mapNodesMutations();
   const selectedMapPins = useSelectedMapPins();
   const { screenToFlowPosition } = useReactFlow();
   const lastClickTimeRef = useRef<number>(0);
+  
   const { nodes: incomingNodes, isLoading } = useMapNodes(
-    committeeId,
-    mapKey,
+    committeeId || '',
+    mapKey || '',
   );
 
   const { nodes, edges, syncNodes, syncEdges, onNodesChange, onEdgesChange } =
@@ -63,6 +71,8 @@ export const MapView = ({ committeeId, mapKey }: MapViewProps): ReactElement => 
   }, [incomingNodes]);
 
   const addNode = useCallback((position: XYPosition) => {
+    if (!committeeId || !mapKey) return;
+    
     const newNode: PostablePinNodeType = {
       type: 'draft',
       position,
@@ -72,6 +82,8 @@ export const MapView = ({ committeeId, mapKey }: MapViewProps): ReactElement => 
 
   const paneClick = useCallback(
     (event: React.MouseEvent) => {
+      if (!committeeId || !mapKey) return;
+      
       const currentTime = new Date().getTime();
       const clickCoordinates = {
         x: event.clientX,
@@ -90,11 +102,13 @@ export const MapView = ({ committeeId, mapKey }: MapViewProps): ReactElement => 
         addNode(position);
       }
     },
-    [addNode, screenToFlowPosition],
+    [addNode, screenToFlowPosition, committeeId, mapKey],
   );
 
   const onNodeDragStop = useCallback<OnNodeDrag<Node>>(
     (_, node) => {
+      if (!committeeId || !mapKey) return;
+      
       console.log('onNodeDragStop');
       updateNodePosition(
         committeeId,
@@ -105,6 +119,16 @@ export const MapView = ({ committeeId, mapKey }: MapViewProps): ReactElement => 
     },
     [updateNodePosition, committeeId, mapKey],
   );
+
+  // Don't render if we don't have the required parameters
+  if (!committeeId || !mapKey) {
+    return <div>Loading...</div>;
+  }
+
+  // Validate that the user has access to this committee and map
+  if (!availableCommittees.includes(committeeId) || !availableMaps.includes(mapKey)) {
+    return <div>Access denied or invalid parameters</div>;
+  }
 
   return (
     <div style={{ height: '100vh', width: '100vw' }}>
@@ -226,6 +250,7 @@ const NODES = [
     },
   },
 ];
+
 export function getClientCoordinates(
   e: Event | MouseEvent | React.MouseEvent<Element> | TouchEvent | PointerEvent,
 ): { x: number; y: number } {

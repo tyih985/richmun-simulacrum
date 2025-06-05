@@ -6,6 +6,7 @@ type CommitteeAccessContextType = {
     selectedCommittee: string | null
     accessLevel: 'staff' | 'delegate' | false
     visibiltyFactions: string[]
+    setSelectedCommittee: (committeeId: string | null) => void
 }
 
 export const CommitteeAccessContext = createContext<CommitteeAccessContextType>(

@@ -1,9 +1,10 @@
 import { useCommitteeAccess } from '@hooks/useCommitteeAccess';
-import { Routes, Route, useParams, useNavigate } from 'react-router-dom';
-import { Stack, Button, Center, Title } from '@mantine/core';
+import { Routes, Route, useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import { Stack, Button, Center, Title, Select } from '@mantine/core';
 import { COMMITTEE_DATA_MAP } from '@lib/mapPrototypeKeys';
 import { IconArrowRight } from '@tabler/icons-react';
 import { useEffect } from 'react';
+import { MapView } from './MapView';
 
 export const CommitteeRoutes = () => {
   return (
@@ -15,10 +16,11 @@ export const CommitteeRoutes = () => {
 };
 
 const CommitteeSelectPage = () => {
-  const { availableCommittees } = useCommitteeAccess();
+  const { availableCommittees, setSelectedCommittee } = useCommitteeAccess();
   const navigate = useNavigate();
 
   const handleCommitteeSelect = (committeeId: string) => {
+    setSelectedCommittee(committeeId);
     navigate(`/c/${committeeId}`);
   };
 
@@ -30,7 +32,7 @@ const CommitteeSelectPage = () => {
           <Button
             key={committeeId}
             variant="subtle"
-            rightSection={<IconArrowRight/>}
+            rightSection={<IconArrowRight />}
             onClick={() => handleCommitteeSelect(committeeId)}
           >
             {COMMITTEE_DATA_MAP[committeeId]?.name}
@@ -43,27 +45,75 @@ const CommitteeSelectPage = () => {
 
 const CommitteeContentPage = () => {
   const { committeeId } = useParams();
-  const { availableCommittees } = useCommitteeAccess();
+  const { availableCommittees, availableMaps, setSelectedCommittee } =
+    useCommitteeAccess();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const mapKey = searchParams.get('map_key');
 
   useEffect(() => {
     // Check if committeeId is missing or not in available committees
     if (!committeeId || !availableCommittees.includes(committeeId)) {
       navigate('/c/', { replace: true });
+      return;
+    } else {
+      setSelectedCommittee(committeeId);
     }
-  }, [committeeId, availableCommittees, navigate]);
+
+    // If no map_key is specified and there are available maps, set the first one
+    // also check if the mapKey is valid
+    if (!mapKey || (mapKey && !availableMaps.includes(mapKey))) {
+      setSearchParams({ map_key: availableMaps[0] });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    committeeId,
+    availableCommittees,
+    navigate,
+    mapKey,
+    availableMaps,
+    setSearchParams,
+  ]);
 
   // Don't render content if validation fails
   if (!committeeId || !availableCommittees.includes(committeeId)) {
     return null;
   }
 
+  // Don't render if we don't have a valid map key yet
+  if (!mapKey || !availableMaps.includes(mapKey)) return null;
+
+  const handleMapChange = (newMapKey: string | null) => {
+    if (newMapKey) setSearchParams({ map_key: newMapKey });
+  };
+
   return (
-    <div>
-      <h1>Committee: {committeeId}</h1>
-      {/* Your specific committee content here 
-        * probably need to update the map component to allow for dynamic map key selection
-      */}
+    <div style={{ position: 'relative', height: '100vh', width: '100vw' }}>
+      {/* Map selector overlay */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 20,
+          left: 20,
+          zIndex: 1000,
+          backgroundColor: 'white',
+          padding: '10px',
+          borderRadius: '8px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+        }}
+      >
+        <Select
+          label="Select Map"
+          value={mapKey}
+          onChange={handleMapChange}
+          data={availableMaps.map((map) => ({ value: map, label: map }))}
+          style={{ minWidth: 200 }}
+        />
+      </div>
+
+      {/* Map View Component */}
+      <MapView />
     </div>
   );
 };
