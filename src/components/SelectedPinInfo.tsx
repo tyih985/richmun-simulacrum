@@ -1,8 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from 'react';
-import { Paper, Button, Group, Textarea, MultiSelect, Text, Pill } from '@mantine/core';
+import {
+  Paper,
+  TextInput,
+  Button,
+  Group,
+  Textarea,
+  MultiSelect,
+  Text,
+  Pill,
+  ActionIcon,
+  Flex,
+} from '@mantine/core';
+import { IconPencil } from '@tabler/icons-react';
 import { ViewportPortal, useViewport } from '@xyflow/react';
-
 import { useSelectedMapPins } from '@hooks/useSelectedMapPins';
 import { useCommitteeAccess } from '@hooks/useCommitteeAccess';
 import { mapNodesMutations } from '@mutations/mapNodeMutation';
@@ -129,7 +140,7 @@ export const SelectedPinInfo: React.FC = () => {
                 shadow="md"
                 p="md"
                 style={{
-                  minWidth: 200,
+                  width: 260,
                   backgroundColor: 'rgba(255, 255, 255, 0.95)',
                   backdropFilter: 'blur(4px)',
                 }}
@@ -137,6 +148,23 @@ export const SelectedPinInfo: React.FC = () => {
                 <div style={{ fontSize: '14px', lineHeight: 1.4 }}>
                   {isEditing ? (
                     <div>
+                      {isStaff && (
+                        <MultiSelect
+                          value={displayVisibility}
+                          onChange={(value) => handleVisibilityChange(pin.id, value)}
+                          data={allFactions.map((faction) => ({
+                            value: faction,
+                            label: faction,
+                          }))}
+                          label="Visible to Factions"
+                          placeholder="Select who can see this"
+                          searchable
+                          clearable
+                          description="Leave empty to make visible to staff only"
+                          style={{ marginBottom: '8px' }}
+                          size="sm"
+                        />
+                      )}
                       <Textarea
                         value={displayText}
                         onChange={(event) =>
@@ -147,26 +175,9 @@ export const SelectedPinInfo: React.FC = () => {
                         autosize
                         minRows={2}
                       />
-                      {isStaff && (
-                        <MultiSelect
-                          value={displayVisibility}
-                          onChange={(value) => handleVisibilityChange(pin.id, value)}
-                          data={allFactions.map((faction) => ({
-                            value: faction,
-                            label: faction,
-                          }))}
-                          label="Visible to Factions"
-                          placeholder="Select factions that can see this pin"
-                          searchable
-                          clearable
-                          description="Leave empty to make visible to staff only"
-                          style={{ marginBottom: '8px' }}
-                          size="xs"
-                        />
-                      )}
-                      <Group gap="xs">
+                      <Group gap="sm">
                         <Button
-                          size="xs"
+                          size="sm"
                           onClick={() => handleSave(pin)}
                           loading={isUpdating[pin.id]}
                           disabled={isUpdating[pin.id]}
@@ -174,7 +185,7 @@ export const SelectedPinInfo: React.FC = () => {
                           Save
                         </Button>
                         <Button
-                          size="xs"
+                          size="sm"
                           variant="outline"
                           onClick={() => handleCancel(pin.id)}
                           disabled={isUpdating[pin.id]}
@@ -185,40 +196,37 @@ export const SelectedPinInfo: React.FC = () => {
                     </div>
                   ) : (
                     <div>
-                      <div style={{ marginBottom: '8px', minHeight: '20px' }}>
+                      {isStaff && (
+                        <Flex
+                          justify="space-between"
+                          align="center"
+                          style={{ marginBottom: '8px' }}
+                        >
+                          <Group gap="sm">
+                            {pinVisibility.length > 0 ? (
+                              pinVisibility.map((faction) => (
+                                <Pill key={faction} size="sm">
+                                  {faction}
+                                </Pill>
+                              ))
+                            ) : (
+                              <Pill size="sm" c="dimmed">
+                                Staff only
+                              </Pill>
+                            )}
+                          </Group>
+                          <ActionIcon
+                            size="sm"
+                            variant="subtle"
+                            onClick={() => handleEdit(pin.id, pinText, pinVisibility)}
+                          >
+                            <IconPencil />
+                          </ActionIcon>
+                        </Flex>
+                      )}
+                      <div style={{ minHeight: '20px' }}>
                         {pinText || 'No description'}
                       </div>
-                      {isStaff && (
-                        <div style={{ marginBottom: '8px' }}>
-                          {pinVisibility.length > 0 ? (
-                            <div>
-                              <Text size="xs" c="dimmed" style={{ marginBottom: '4px' }}>
-                                Visible to:
-                              </Text>
-                              <Pill.Group>
-                                {pinVisibility.map((faction) => (
-                                  <Pill key={faction} size="xs">
-                                    {faction}
-                                  </Pill>
-                                ))}
-                              </Pill.Group>
-                            </div>
-                          ) : (
-                            <Text size="xs" c="dimmed">
-                              Visible to: Staff only
-                            </Text>
-                          )}
-                        </div>
-                      )}
-                      {isStaff && (
-                        <Button
-                          size="xs"
-                          variant="light"
-                          onClick={() => handleEdit(pin.id, pinText, pinVisibility)}
-                        >
-                          Edit
-                        </Button>
-                      )}
                     </div>
                   )}
                 </div>

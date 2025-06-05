@@ -8,16 +8,7 @@ const PIN_CONFIGURATIONS: Array<{
   name: string;
   data: PinNodeDataType;
 }> = [
-  { id: 'red-pin', name: 'Red Pin', data: { color: '#FF5733' } },
-  { id: 'blue-pin', name: 'Blue Pin', data: { color: '#3366FF' } },
-  { id: 'green-pin', name: 'Green Pin', data: { color: '#33CC33' } },
-  { id: 'purple-pin', name: 'Purple Pin', data: { color: '#9933FF' } },
-  { id: 'orange-pin', name: 'Orange Pin', data: { color: '#FF8C33' } },
-  { id: 'pink-pin', name: 'Pink Pin', data: { color: '#FF33B8' } },
-  { id: 'yellow-pin', name: 'Yellow Pin', data: { color: '#FFD700' } },
-  { id: 'teal-pin', name: 'Teal Pin', data: { color: '#33FFCC' } },
-  // Example of pins with icons
-  { 
+ { 
     id: 'star-icon', 
     name: 'Star Icon', 
     data: { 
@@ -38,7 +29,7 @@ const PIN_CONFIGURATIONS: Array<{
     id: 'large-red', 
     name: 'Large Red Pin', 
     data: { 
-      color: '#FF5733',
+      color: '#000000',
       size: 60
     } 
   },
@@ -102,9 +93,10 @@ export const PinsToolbar = memo(({ onDragStart }: ToolbarProps) => {
       position="bottom-center"
       style={{
         transform: `translate(-50%, ${isHovered ? '0' : 'calc(100% - 50px)'})`,
-        transition: 'transform 0.3s ease-in-out',
+        transition: 'transform 0.1s ease-in-out',
         zIndex: 1000,
         bottom: 0,
+        margin: 0,
       }}
     >
       <div
