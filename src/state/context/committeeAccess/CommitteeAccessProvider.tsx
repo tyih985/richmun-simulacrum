@@ -107,12 +107,20 @@ export const CommitteeAccessProvider: React.FC<CommitteeAccessProviderProps> = (
 
   // Filter available maps based on user factions and map visibility
   const availableMaps = useMemo(() => {
-    if (!isLoggedIn || !sessionUser?.email) {
+    if (!selectedCommittee || userAccessData.accessLevel === false) {
       return [];
     }
 
-    return filterAvailableMaps(allMaps, mapsMetadata, userAccessData.userFactions);
-  }, [allMaps, mapsMetadata, userAccessData.userFactions, isLoggedIn, sessionUser]);
+    return allMaps.filter((mapId) => {
+      const mapMeta = mapsMetadata[mapId];
+      const { visibilityFactions = [] } = mapMeta || {};
+      if (userAccessData.accessLevel === 'staff') return true;
+      if (!visibilityFactions.length) return false;
+      return visibilityFactions.some(faction => 
+        userAccessData.userFactions.includes(faction)
+      );
+    });
+  }, [selectedCommittee, allMaps, mapsMetadata, userAccessData]);
 
   // Final context value
   const contextValue = useMemo(() => {

@@ -1,7 +1,7 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { Select, MultiSelect, Text, Flex, Avatar, Menu } from '@mantine/core';
-import { IconLogout } from '@tabler/icons-react';
+import { Select, MultiSelect, Text, Flex, Avatar, Menu, Modal, ActionIcon } from '@mantine/core';
+import { IconLogout, IconEye } from '@tabler/icons-react';
 
 import { useCommitteeAccess } from '@hooks/useCommitteeAccess';
 import { useMapMeta } from '@hooks/useMapMeta';
@@ -22,6 +22,7 @@ export const MapPage = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { logout, sessionUser } = useSession();
+  const [visibilityModalOpen, setVisibilityModalOpen] = useState(false);
 
   const mapKey = searchParams.get('map_key');
 
@@ -105,7 +106,7 @@ export const MapPage = () => {
           zIndex: 1000,
         }}
       >
-        <Flex gap="sm">
+        <Flex gap="sm" align="end">
           <Select
             value={mapKey}
             onChange={handleMapChange}
@@ -113,29 +114,21 @@ export const MapPage = () => {
             style={{ minWidth: 200 }}
             label="Select Map"
           />
-
+          
           {canEditVisibility && (
-            <div>
-              <Text size="sm" fw={500} mb={5}>
-                Map Visibility
-              </Text>
-              <MultiSelect
-                value={mapMeta.visibilityFactions || []}
-                onChange={handleVisibilityFactionsChange}
-                data={allFactions.map((faction) => ({
-                  value: faction,
-                  label: faction,
-                }))}
-                placeholder="Select factions that can see this map"
-                searchable
-                clearable
-                style={{ minWidth: 250 }}
-                description="Leave empty to make visible to everyone"
-              />
-            </div>
+            <ActionIcon
+              variant="light"
+              color="blue"
+              size="lg"
+              onClick={() => setVisibilityModalOpen(true)}
+              title="Manage map visibility"
+            >
+              <IconEye size={18} />
+            </ActionIcon>
           )}
         </Flex>
       </div>
+
       <div
         style={{
           position: 'absolute',
@@ -176,8 +169,35 @@ export const MapPage = () => {
         </Menu>
       </div>
 
+      {/* Visibility Modal */}
+      <Modal
+        opened={visibilityModalOpen}
+        onClose={() => setVisibilityModalOpen(false)}
+        title="Map Visibility Settings"
+        size="md"
+        centered
+      >
+        <div>
+          <Text size="sm" mb="xs">
+            Current Map: <strong>{mapKey}</strong>
+          </Text>
+          <MultiSelect
+            value={mapMeta.visibilityFactions || []}
+            onChange={handleVisibilityFactionsChange}
+            data={allFactions.map((faction) => ({
+              value: faction,
+              label: faction,
+            }))}
+            label="Visible to Factions"
+            placeholder="Select factions that can see this map"
+            searchable
+            clearable
+            description="Leave empty to make visible to staff only"
+          />
+        </div>
+      </Modal>
+
       <MapView />
     </div>
   );
-
 };
