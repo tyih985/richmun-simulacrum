@@ -3,7 +3,6 @@ import { Debugger } from './Debugger';
 import { useSession } from '@hooks/useSession';
 import { Loader } from '@mantine/core';
 import { Branding } from './Branding';
-import { MapRouter } from './Map';
 import { AuthRoutes } from './Auth';
 import { CommitteeRoutes } from './Committee.tsx';
 
@@ -38,8 +37,7 @@ export const RootRoutes = () => {
       <Routes>
         {stableAccessRoutes}
         <Route path="/c/*" element={<CommitteeRoutes />} />
-        <Route path="/map/*" element={<MapRouter />} />
-        <Route path="/*" element={<Navigate to="/map" />} />
+        <Route path="/*" element={<Navigate to="/c" />} />
       </Routes>
     );
 

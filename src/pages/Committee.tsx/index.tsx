@@ -61,7 +61,9 @@ const CommitteeContentPage = () => {
   return (
     <div>
       <h1>Committee: {committeeId}</h1>
-      {/* Your specific committee content here */}
+      {/* Your specific committee content here 
+        * probably need to update the map component to allow for dynamic map key selection
+      */}
     </div>
   );
 };
