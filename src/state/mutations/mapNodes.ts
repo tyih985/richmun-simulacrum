@@ -29,9 +29,17 @@ type MapNodesMutationsType = {
   ) => Promise<any>;
 };
 
-export const mapNodesMutations = (): MapNodesMutationsType => {
+type OptionsType =
+  | {
+      enable?: boolean;
+    }
+  | undefined;
+
+export const mapNodesMutations = ({
+  enable = true,
+}: OptionsType = {}): MapNodesMutationsType => {
   const createNode = (committeeId: string, mapId: string, data: PostablePinNodeType) => {
-    console.log('createNode', committeeId, mapId, data);
+    if (enable === false) return Promise.resolve(undefined);
     const newNodeId = generateNodeId();
     const path = committeeMapNodePath(committeeId, mapId, newNodeId);
     return createFirestoreDocument(path, data);
@@ -43,11 +51,13 @@ export const mapNodesMutations = (): MapNodesMutationsType => {
     nodeId: string,
     data: PostablePinNodeType,
   ) => {
+    if (enable === false) return Promise.resolve(undefined);
     const path = committeeMapNodePath(committeeId, mapId, nodeId);
     return updateFirestoreDocument(path, data);
   };
 
   const deleteNode = (committeeId: string, mapId: string, nodeId: string) => {
+    if (enable === false) return Promise.resolve(undefined);
     const path = committeeMapNodePath(committeeId, mapId, nodeId);
     return deleteFirestoreDocument(path);
   };
@@ -59,6 +69,7 @@ export const mapNodesMutations = (): MapNodesMutationsType => {
     nodeId: string,
     position: { x: number; y: number },
   ) => {
+    if (enable === false) return Promise.resolve(undefined);
     const path = committeeMapNodePath(committeeId, mapId, nodeId);
     return updateFirestoreDocument(path, { position });
   };

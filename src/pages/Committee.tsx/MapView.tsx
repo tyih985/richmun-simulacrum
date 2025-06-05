@@ -29,12 +29,11 @@ const DOUBLE_CLICK_THRESHOLD = 300;
 
 const nodeOrigin: NodeOrigin = [0.5, 1];
 
-
 export const MapView = (): ReactElement => {
   const { committeeId: urlCommitteeId } = useParams();
   const [searchParams] = useSearchParams();
-  const { availableCommittees, availableMaps } = useCommitteeAccess();
-  
+  const { availableCommittees, availableMaps, accessLevel } = useCommitteeAccess();
+
   // Use props if provided, otherwise fall back to URL parameters
   const committeeId = urlCommitteeId;
   const mapKey = searchParams.get('map_key');
@@ -44,12 +43,14 @@ export const MapView = (): ReactElement => {
     draft: DraftNode,
     pin: PinNode,
   };
-  
-  const { createNode, updateNodePosition } = mapNodesMutations();
+
+  const { createNode, updateNodePosition } = mapNodesMutations({
+    enable: accessLevel === 'staff',
+  });
   const selectedMapPins = useSelectedMapPins();
   const { screenToFlowPosition } = useReactFlow();
   const lastClickTimeRef = useRef<number>(0);
-  
+
   const { nodes: incomingNodes, isLoading } = useMapNodes(
     committeeId || '',
     mapKey || '',
@@ -62,8 +63,8 @@ export const MapView = (): ReactElement => {
         edges: state.edges,
         syncNodes: state.syncNodes,
         syncEdges: state.syncEdges,
-        onNodesChange: state.onNodesChange,
-        onEdgesChange: state.onEdgesChange,
+        onNodesChange: accessLevel === 'staff' ? state.onNodesChange : undefined,
+        onEdgesChange: accessLevel === 'staff' ? state.onEdgesChange : undefined,
       })),
     );
 
@@ -72,20 +73,23 @@ export const MapView = (): ReactElement => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [incomingNodes]);
 
-  const addNode = useCallback((position: XYPosition) => {
-    if (!committeeId || !mapKey) return;
-    
-    const newNode: PostablePinNodeType = {
-      type: 'draft',
-      position,
-    };
-    createNode(committeeId, mapKey, newNode);
-  }, [createNode, committeeId, mapKey]);
+  const addNode = useCallback(
+    (position: XYPosition) => {
+      if (!committeeId || !mapKey) return;
+
+      const newNode: PostablePinNodeType = {
+        type: 'draft',
+        position,
+      };
+      createNode(committeeId, mapKey, newNode);
+    },
+    [createNode, committeeId, mapKey],
+  );
 
   const paneClick = useCallback(
     (event: React.MouseEvent) => {
       if (!committeeId || !mapKey) return;
-      
+
       const currentTime = new Date().getTime();
       const clickCoordinates = {
         x: event.clientX,
@@ -110,14 +114,9 @@ export const MapView = (): ReactElement => {
   const onNodeDragStop = useCallback<OnNodeDrag<Node>>(
     (_, node) => {
       if (!committeeId || !mapKey) return;
-      
+
       console.log('onNodeDragStop');
-      updateNodePosition(
-        committeeId,
-        mapKey,
-        node.id,
-        node.position,
-      );
+      updateNodePosition(committeeId, mapKey, node.id, node.position);
     },
     [updateNodePosition, committeeId, mapKey],
   );
@@ -154,7 +153,7 @@ export const MapView = (): ReactElement => {
         //   [1000 + ViewPortPadding, 1000 + ViewPortPadding],
         // ]}
       />
-      <Background color="#c4c4c4" gap={50} variant={BackgroundVariant.Cross}/>
+      <Background color="#c4c4c4" gap={50} variant={BackgroundVariant.Cross} />
       {selectedMapPins.length > 0 && (
         <Panel position="bottom-center">
           <NodeEditor onPublish={(data) => console.log(data)} />
