@@ -1,17 +1,59 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
-import Homepage from './debugger';
-import BrandingPage from './branding';
-import { SummaryPage } from './summary';
-import { Login } from './login';
+import { Debugger } from './Debugger';
+import { useSession } from '@hooks/useSession';
+import { Loader } from '@mantine/core';
+import { Branding } from './Branding';
+import { AuthRoutes } from './Auth';
+import { CommitteeRoutes } from './Committee.tsx';
 
 export const RootRoutes = () => {
+  const { isChecking, isLoggedIn } = useSession();
+
+  if (isChecking)
+    return (
+      <Routes>
+        {stableAccessRoutes}
+        <Route
+          path="/*"
+          element={
+            <Loader
+              variant="dots"
+              size="lg"
+              color="blue"
+              style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+              }}
+            />
+          }
+        />
+      </Routes>
+    );
+
+  if (isLoggedIn)
+    return (
+      <Routes>
+        {stableAccessRoutes}
+        <Route path="/c/*" element={<CommitteeRoutes />} />
+        <Route path="/*" element={<Navigate to="/c" />} />
+      </Routes>
+    );
+
   return (
     <Routes>
-      <Route path='/' element={<SummaryPage/>}/>
-      <Route path="/debugger" element={<Homepage />} />
-      <Route path="/branding" element={<BrandingPage />} />
-      <Route path="/login" element={<Login />} />
-      <Route path='/*' element={<Navigate to='/'/>}/>
+      <Route path="/auth/*" element={<AuthRoutes />} />
+      {stableAccessRoutes}
+      <Route path="/*" element={<Navigate to="/auth/login" />} />
     </Routes>
   );
 };
+
+// need to add a branding page
+const stableAccessRoutes = (
+  <>
+    <Route path="/debugger" element={<Debugger />} />
+    <Route path="/branding" element={<Branding />} />
+  </>
+);

@@ -17,9 +17,12 @@ export const useServiceWorker = () => {
   }, []);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      navigator.serviceWorker.getRegistration().then((reg) => reg?.update());
-    }, 1 * 60 * 1000); // every N minutes
+    const interval = setInterval(
+      () => {
+        navigator.serviceWorker.getRegistration().then((reg) => reg?.update());
+      },
+      1 * 60 * 1000,
+    ); // every N minutes
     return () => clearInterval(interval);
   }, []);
 

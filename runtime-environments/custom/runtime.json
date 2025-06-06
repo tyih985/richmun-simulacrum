@@ -3,13 +3,13 @@
   "long_name": "An Example Custom Branded Template",
   "subtitle": "",
   "description": "this is a separate configuration to demonstrate the white-labeled set-up of the boilerplate",
-  
+
   "support_email": "alexkim.347@gmail.com",
   "site_title": "Custom Deployment Boilerplate",
   "favicon_url": "",
   "logo_url": "",
   "logo_mono_url": "",
-  
+
   "default_mode": "dark",
   "theme_colors": {
     "primaryColor": "#3889C7"

@@ -69,26 +69,48 @@ export const generateMantineTheme = (
       'custom theme is using a dangerously set global color override for the default background color.',
     );
 
+  const userScale = runtimeTheme.borderRadiusScale ?? {};
+  // const rawScale = { ...DEFAULT_THEME_SIZES.radius, ...userScale };
+  // const radiusScale = Object.fromEntries(
+  //   Object.entries(rawScale).map(([key, val]) => [
+  //     key,
+  //     typeof val === 'number' ? `${val}px` : val,
+  //   ]),
+  // ) as typeof DEFAULT_THEME_SIZES.radius;
+
   const theme: MantineThemeOverride = {
     ...DEFAULT_THEME_SIZES,
 
-    primaryColor: 'primary', // only the key
+    // radius: rawScale,
+    ...(userScale ? { radius: userScale } : {}),
+
+    defaultRadius: runtimeTheme.defaultBorderRadius ?? 'sm',
+
+    primaryColor: 'primary',
     primaryShade:
       (runtimeTheme.theme_colors.primaryShade as
         | MantineColorShade
-        | MantinePrimaryShade) ?? 6, // Default to shade 6
-    defaultRadius: runtimeTheme.defaultBorderRadius ?? 'sm',
+        | MantinePrimaryShade) ?? 6,
+
     fontFamily: `${runtimeTheme.fontFamily ?? DEFAULT_BODY_FONT}, sans-serif`,
     fontFamilyMonospace: `${DEFAULT_MONOSPACE_FONT}, monospace`,
     headings: {
-      fontFamily: `${runtimeTheme.headings?.fontFamily ?? DEFAULT_HEADER_FONT}, sans-serif`,
+      fontFamily: `${
+        runtimeTheme.headings?.fontFamily ?? DEFAULT_HEADER_FONT
+      }, sans-serif`,
       fontWeight: runtimeTheme.headings?.fontWeight ?? '700',
     },
+
     colors: {
       ...colors,
     },
-    ...(runtimeTheme.replaceGlobalBlack && { black: runtimeTheme.replaceGlobalBlack }),
-    ...(runtimeTheme.replaceGlobalWhite && { black: runtimeTheme.replaceGlobalWhite }),
+
+    ...(runtimeTheme.replaceGlobalBlack && {
+      black: runtimeTheme.replaceGlobalBlack,
+    }),
+    ...(runtimeTheme.replaceGlobalWhite && {
+      white: runtimeTheme.replaceGlobalWhite,
+    }),
 
     defaultGradient: {
       from: 'primary',

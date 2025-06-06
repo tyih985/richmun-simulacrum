@@ -2,6 +2,9 @@
 /public/*
 !/public/.gitkeep
 !/public/demo
+!/public/bg
+!/public/*.png
+
 
 # use PNPM instead
 package-lock.json

@@ -1,0 +1,80 @@
+{
+  "committees": [
+    {
+      "id": "ecc",
+      "visibility_groups": [
+        {
+          "id": "delegates",
+          "name": "delegates"
+        }
+      ],
+      "delegates": [
+        {
+          "id": "uid#1",
+          "delegation": "delegate 1",
+          "visibility_groups": ["delegates"]
+        },
+        {
+          "id": "uid#1",
+          "delegation": "delegate 1",
+          "visibility_groups": ["delegates"]
+        }
+      ],
+      "staff": [
+        {
+          "id": "uid#s1",
+          "role": "Assistant Director"
+        }
+      ],
+      "maps": [
+        {
+          "id": "floorplan",
+          "name": "floorplan",
+          "background_nodes": [],
+          "nodes": []
+        }
+      ]
+    },
+    {
+      "id": "fjcc",
+      "visibility_groups": [
+        {
+          "name": "zaun"
+        },
+        {
+          "name": "piltover"
+        }
+      ],
+      "delegates": [
+        {
+          "id": "uid#1",
+          "delegation": "delegate 1",
+          "visibility_groups": ["zaun"]
+        },
+        {
+          "id": "uid#1",
+          "delegation": "delegate 1",
+          "visibility_groups": ["piltover"]
+        }
+      ],
+      "staff": [
+        {
+          "id": "uid#s1",
+          "role": "Assistant Director"
+        }
+      ],
+      "maps": [
+        {
+          "name": "main map",
+          "background_nodes": [],
+          "nodes": []
+        },
+        {
+          "name": "zaun underground",
+          "background_nodes": [],
+          "nodes": []
+        }
+      ]
+    }
+  ]
+}

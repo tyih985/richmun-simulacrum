@@ -19,7 +19,6 @@ type imageMtd = {
 
 // need to use values from the runtime env
 export const generateManifestFields = (config: RuntimeEnvironmentConfig) => {
-
   const icons: imageMtd[] = [];
   const screenshots: imageMtd[] = [];
 
@@ -104,7 +103,6 @@ export default defineConfig(({ mode }) => {
 
         '@context': path.resolve(__dirname, 'src/state/context'),
         '@mutations': path.resolve(__dirname, 'src/state/mutations'),
-        '@providers': path.resolve(__dirname, 'src/state/providers'),
         '@store': path.resolve(__dirname, 'src/state/store'),
         '@hooks': path.resolve(__dirname, 'src/state/hooks'),
 
