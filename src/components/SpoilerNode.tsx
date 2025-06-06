@@ -8,8 +8,8 @@ import { useParams } from 'react-router-dom';
 
 const DEFAULT_WIDTH = 200;
 const DEFAULT_HEIGHT = 150;
-const MIN_WIDTH = 100;
-const MIN_HEIGHT = 50;
+const MIN_WIDTH = 80;
+const MIN_HEIGHT = 30;
 const DEBOUNCE_DELAY = 500; // 500ms delay
 
 export const SpoilerNode = memo(
