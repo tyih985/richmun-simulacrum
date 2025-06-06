@@ -46,6 +46,7 @@ export const CommitteeAccessProvider: React.FC<CommitteeAccessProviderProps> = (
 }) => {
   const { sessionUser, isLoggedIn } = useSession();
   const [selectedCommittee, setSelectedCommittee] = useState<string | null>(null);
+  const [isImpersonating, setIsImpersonating] = useState<string[]>([]);
 
   // Get all potential maps for the selected committee
   const allMaps = useMemo(() => {
@@ -76,22 +77,28 @@ export const CommitteeAccessProvider: React.FC<CommitteeAccessProviderProps> = (
         userFactions: [] as string[],
         allFactions: [] as string[],
         accessLevel: false as const,
+        originalAccessLevel: false as const,
       };
     }
 
     const userEmail = sessionUser.email;
     const availableCommittees = getCommittees(userEmail) || ([] as string[]);
 
-    const accessLevel = selectedCommittee
+    const originalAccessLevel = selectedCommittee
       ? getCommitteeAccessLevel(selectedCommittee, userEmail)
       : false;
 
     const allFactions = getAllCommitteeFactions(selectedCommittee || '').concat(
-      accessLevel === 'staff' ? ['staff-only'] : [],
+      originalAccessLevel === 'staff' ? ['staff-only'] : [],
     );
 
-    const userFactions: string[] =
-      accessLevel === 'staff'
+    // Handle impersonation
+    const isCurrentlyImpersonating = isImpersonating.length > 0;
+    const accessLevel = isCurrentlyImpersonating ? 'delegate' : originalAccessLevel;
+
+    const userFactions: string[] = isCurrentlyImpersonating
+      ? isImpersonating
+      : originalAccessLevel === 'staff'
         ? allFactions
         : userEmail && selectedCommittee
           ? getUserCommitteeFactions(selectedCommittee, userEmail)
@@ -102,8 +109,9 @@ export const CommitteeAccessProvider: React.FC<CommitteeAccessProviderProps> = (
       userFactions,
       allFactions,
       accessLevel,
+      originalAccessLevel,
     };
-  }, [isLoggedIn, sessionUser, selectedCommittee]);
+  }, [isLoggedIn, sessionUser, selectedCommittee, isImpersonating]);
 
   // Filter available maps based on user factions and map visibility
   const availableMaps = useMemo(() => {
@@ -115,17 +123,28 @@ export const CommitteeAccessProvider: React.FC<CommitteeAccessProviderProps> = (
     return allMaps.filter((mapId) => {
       const mapMeta = mapsMetadata[mapId];
       const { visibilityFactions = [] } = mapMeta || {};
-      if (userAccessData.accessLevel === 'staff') return true;
+      if (userAccessData.originalAccessLevel === 'staff' && isImpersonating.length === 0) return true;
       if (!visibilityFactions.length) return false;
       return visibilityFactions.some(faction => 
         userAccessData.userFactions.includes(faction)
       );
     });
-  }, [selectedCommittee, allMaps, mapsMetadata, userAccessData]);
+  }, [selectedCommittee, allMaps, mapsMetadata, userAccessData, isImpersonating]);
 
   // Final context value
   const contextValue = useMemo(() => {
     console.log('re-evaluating contextValue');
+
+    const setImpersonatedFactions = (factionIds: string[]) => {
+      // Only allow staff to impersonate
+      if (userAccessData.originalAccessLevel === 'staff') {
+        setIsImpersonating(factionIds);
+      }
+    };
+
+    const cancelImpersonation = () => {
+      setIsImpersonating([]);
+    };
 
     if (!isLoggedIn || !sessionUser?.email) {
       return {
@@ -136,6 +155,9 @@ export const CommitteeAccessProvider: React.FC<CommitteeAccessProviderProps> = (
         userFactions: [] as string[],
         allFactions: [] as string[],
         setSelectedCommittee,
+        isImpersonating: [] as string[],
+        setImpersonatedFactions,
+        cancelImpersonation,
       };
     }
 
@@ -147,8 +169,11 @@ export const CommitteeAccessProvider: React.FC<CommitteeAccessProviderProps> = (
       userFactions: userAccessData.userFactions,
       allFactions: userAccessData.allFactions,
       setSelectedCommittee,
+      isImpersonating,
+      setImpersonatedFactions,
+      cancelImpersonation,
     };
-  }, [isLoggedIn, sessionUser, availableMaps, selectedCommittee, userAccessData]);
+  }, [isLoggedIn, sessionUser?.email, availableMaps, selectedCommittee, userAccessData, isImpersonating, setIsImpersonating]);
 
   useEffect(() => {
     console.log('Committee Access data: ', contextValue);

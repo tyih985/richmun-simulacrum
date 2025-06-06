@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { Select, MultiSelect, Text, Flex, Avatar, Menu, Modal, ActionIcon } from '@mantine/core';
-import { IconLogout, IconEye } from '@tabler/icons-react';
+import { Select, MultiSelect, Text, Flex, Avatar, Menu, Modal, ActionIcon, Button, Alert } from '@mantine/core';
+import { IconLogout, IconEye, IconUserCheck, IconX } from '@tabler/icons-react';
 
 import { useCommitteeAccess } from '@hooks/useCommitteeAccess';
 import { useMapMeta } from '@hooks/useMapMeta';
@@ -18,11 +18,16 @@ export const MapPage = () => {
     setSelectedCommittee,
     accessLevel,
     allFactions,
+    isImpersonating,
+    setImpersonatedFactions,
+    cancelImpersonation,
   } = useCommitteeAccess();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { logout, sessionUser } = useSession();
   const [visibilityModalOpen, setVisibilityModalOpen] = useState(false);
+  const [impersonationModalOpen, setImpersonationModalOpen] = useState(false);
+  const [selectedImpersonationFaction, setSelectedImpersonationFaction] = useState<string | null>(null);
 
   const mapKey = searchParams.get('map_key');
 
@@ -93,15 +98,56 @@ export const MapPage = () => {
     }
   };
 
-  // Only show visibility controls to staff members
+  const handleStartImpersonation = () => {
+    if (selectedImpersonationFaction) {
+      setImpersonatedFactions([selectedImpersonationFaction]);
+      setImpersonationModalOpen(false);
+      setSelectedImpersonationFaction(null);
+    }
+  };
+
+  const handleCancelImpersonation = () => {
+    cancelImpersonation();
+  };
+
+  // Only show visibility controls to staff members (when not impersonating)
   const canEditVisibility = accessLevel === 'staff';
+  
+  // Only show impersonation option to staff members (when not already impersonating)
+  const canImpersonate = accessLevel === 'staff' && isImpersonating.length === 0;
+
+  // Get available factions for impersonation (exclude staff-only)
+  const impersonationFactions = allFactions.filter(faction => faction !== 'staff-only');
 
   return (
     <div style={{ position: 'relative', height: '100vh', width: '100vw', overflow: 'hidden' }}>
+      {/* Impersonation Banner */}
+      {isImpersonating.length > 0 && (
+        <Alert
+          color="orange"
+          style={{
+            position: 'absolute',
+            top: 10,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 1001,
+            minWidth: 300,
+            maxWidth: 500,
+          }}
+          icon={<IconUserCheck size={16} />}
+          withCloseButton
+          onClose={handleCancelImpersonation}
+        >
+          <Text size="sm">
+            <strong>Impersonating:</strong> {isImpersonating.join(', ')}
+          </Text>
+        </Alert>
+      )}
+
       <div
         style={{
           position: 'absolute',
-          top: 20,
+          top: isImpersonating.length > 0 ? 70 : 20, // Adjust for banner
           left: 20,
           zIndex: 1000,
         }}
@@ -132,7 +178,7 @@ export const MapPage = () => {
       <div
         style={{
           position: 'absolute',
-          top: 20,
+          top: isImpersonating.length > 0 ? 70 : 20, // Adjust for banner
           right: 20,
           zIndex: 1000,
         }}
@@ -162,6 +208,19 @@ export const MapPage = () => {
               </Menu.Item>
             )}
             <Menu.Divider />
+            
+            {canImpersonate && (
+              <>
+                <Menu.Item 
+                  leftSection={<IconUserCheck size={14} />} 
+                  onClick={() => setImpersonationModalOpen(true)}
+                >
+                  Impersonate Faction
+                </Menu.Item>
+                <Menu.Divider />
+              </>
+            )}
+            
             <Menu.Item leftSection={<IconLogout size={14} />} onClick={handleLogout}>
               Logout
             </Menu.Item>
@@ -194,6 +253,55 @@ export const MapPage = () => {
             clearable
             description="Leave empty to make visible to staff only"
           />
+        </div>
+      </Modal>
+
+      {/* Impersonation Modal */}
+      <Modal
+        opened={impersonationModalOpen}
+        onClose={() => {
+          setImpersonationModalOpen(false);
+          setSelectedImpersonationFaction(null);
+        }}
+        title="Impersonate Faction"
+        size="md"
+        centered
+      >
+        <div>
+          <Text size="sm" mb="md" c="dimmed">
+            Select a faction to impersonate. This will change your view to match what that faction can see.
+          </Text>
+          
+          <Select
+            value={selectedImpersonationFaction}
+            onChange={setSelectedImpersonationFaction}
+            data={impersonationFactions.map((faction) => ({
+              value: faction,
+              label: faction,
+            }))}
+            label="Select Faction"
+            placeholder="Choose a faction to impersonate"
+            searchable
+            mb="md"
+          />
+          
+          <Flex justify="flex-end" gap="sm">
+            <Button 
+              variant="subtle" 
+              onClick={() => {
+                setImpersonationModalOpen(false);
+                setSelectedImpersonationFaction(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleStartImpersonation}
+              disabled={!selectedImpersonationFaction}
+            >
+              Start Impersonation
+            </Button>
+          </Flex>
         </div>
       </Modal>
 
