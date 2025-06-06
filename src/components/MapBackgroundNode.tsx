@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import { Handle, NodeProps, Position, Node } from '@xyflow/react';
 
 type MapBackgroundProps = {
-  mapUrl: string;
+  url: string;
   height?: number;
   width?: number;
 };
@@ -12,16 +12,19 @@ export const MapBackgroundNode = memo(({ data }: NodeProps<Node<MapBackgroundPro
   const {
     height,
     width,
-    mapUrl = 'https://media.istockphoto.com/id/1308342070/vector/city-map-navigation-location-map-with-city-street-roads-gps-navigator-vector-illustration.jpg?s=612x612&w=0&k=20&c=ZddvO4teNrq8_MsG2vszU_V44ykmJqc9anrJvgXpGSM=',
+    url = 'https://media.istockphoto.com/id/1308342070/vector/city-map-navigation-location-map-with-city-street-roads-gps-navigator-vector-illustration.jpg?s=612x612&w=0&k=20&c=ZddvO4teNrq8_MsG2vszU_V44ykmJqc9anrJvgXpGSM=',
   } = data;
+
+  console.log('rendering background node', { url, height, width });
 
   return (
     <>
       <img
-        src={mapUrl}
+        src={url}
         alt="Map"
-        height={height}
-        width={width}
+        style={{
+          zIndex: -99999,
+        }}
       />
     </>
   );

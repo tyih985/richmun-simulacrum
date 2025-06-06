@@ -1,4 +1,4 @@
-import { ReactElement, useCallback, useEffect, useRef } from 'react';
+import { ReactElement, useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   NodeOrigin,
   Panel,
@@ -24,6 +24,7 @@ import { mapNodesMutations } from '@mutations/mapNodeMutation';
 import { PinNodeDataType, SpoilerNodeDataType, PostableNodeType } from '@types';
 import { useCommitteeAccess } from '@hooks/useCommitteeAccess';
 import { SelectedNodeInfo } from '@components/SelectedNodeInfo';
+import { BACKGROUND_NODES } from '@lib/mapPrototypeKeys';
 
 const ViewPortPadding = 200;
 const DOUBLE_CLICK_THRESHOLD = 300;
@@ -86,9 +87,21 @@ export const MapView = (): ReactElement => {
     }
   }, [userFactions, setUserFactions]);
 
+  const backgroundNodes = useMemo(() => {
+    return mapKey && BACKGROUND_NODES[mapKey] ? [BACKGROUND_NODES[mapKey]] : [];
+  }, [mapKey]);
+
   useEffect(() => {
-    console.log('syncing nodes', incomingNodes);
-    syncNodes(incomingNodes);
+    console.log('syncing nodes', {
+      incomingNodes,
+      background: backgroundNodes
+    });
+
+    syncNodes(
+      incomingNodes.concat(
+       backgroundNodes
+      ),
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [incomingNodes]);
 

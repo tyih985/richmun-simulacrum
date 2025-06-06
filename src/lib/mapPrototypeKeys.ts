@@ -1,3 +1,5 @@
+import { Node } from '@xyflow/react';
+
 export const ECC_COMMITTEE_KEY = 'richmun-x-ecc';
 export const ECC_COMMITTEE_MAP_KEY = 'floorplan';
 
@@ -6,6 +8,49 @@ export const FJCC_COMMITTEE_MAP_KEY_1 = 'main';
 export const FJCC_COMMITTEE_MAP_KEY_2 = 'underground';
 export const FJCC_COMMITTEE_MAP_KEY_3 = 'zaun-tech-tree';
 export const FJCC_COMMITTEE_MAP_KEY_4 = 'piltover-tech-tree';
+
+export const BACKGROUND_NODES: Record<string, Node> = {
+  [FJCC_COMMITTEE_MAP_KEY_1]: {
+    id: 'main-background',
+    position: { x: 0, y: 0 },
+    data: {
+      url: '/bg/surface.jpg',
+    },
+    type: 'background',
+    selectable: false,
+    draggable: false,
+  },
+  [FJCC_COMMITTEE_MAP_KEY_2]: {
+    id: 'underground-background',
+    position: { x: 0, y: 0 },
+    data: {
+      url: '/bg/underground.jpg',
+    },
+    type: 'background',
+    selectable: false,
+    draggable: false,
+  },
+  [FJCC_COMMITTEE_MAP_KEY_3]: {
+    id: 'zaun-tech-tree-background',
+    position: { x: 0, y: 0 },
+    data: {
+      url: '/bg/Zaun-tech-tree.jpg',
+    },
+    type: 'background',
+    selectable: false,
+    draggable: false,
+  },
+  [FJCC_COMMITTEE_MAP_KEY_4]: {
+    id: 'piltover-tech-tree-background',
+    position: { x: 0, y: 0 },
+    data: {
+      url: '/bg/Piltover-tech-tree.jpg',
+    },
+    type: 'background',
+    selectable: false,
+    draggable: false,
+  },
+};
 
 interface AccessCategoriesType extends Record<string, unknown> {
   name: string;
@@ -61,7 +106,10 @@ export const getAllCommitteeFactions = (committeeKey: string): string[] => {
   return Object.keys(committee.visibiltyFactions).concat(['everyone']);
 };
 
-export const getUserCommitteeFactions = (committeeKey: string, email: string): string[] => {
+export const getUserCommitteeFactions = (
+  committeeKey: string,
+  email: string,
+): string[] => {
   const committee = COMMITTEE_DATA_MAP[committeeKey];
   if (!committee || !committee.visibiltyFactions) return [];
 
