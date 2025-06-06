@@ -30,6 +30,7 @@ export const Login = (): ReactElement => {
   useEffect(() => {
     const completeEmailLinkSignIn = async () => {
       if (isSignInWithEmailLink(auth, window.location.href)) {
+        setLoading(true)
         let email = window.localStorage.getItem('emailForSignIn');
 
         if (!email) {
@@ -112,7 +113,8 @@ export const Login = (): ReactElement => {
         </Flex>
         <Space h="xs" />
         <Alert color="green" title="Check your email!">
-          We've sent a sign-in link to {form.values.email}. Click the link to sign in.
+          We've sent a sign-in link to {form.values.email}.{" "}
+          Check your spam folder if you don't see it.
         </Alert>
 
         <Button
