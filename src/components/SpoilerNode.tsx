@@ -45,7 +45,7 @@ export const SpoilerNode = memo(
       async (newWidth: number, newHeight: number, position: { x: number; y: number }) => {
         try {
           const urlParams = new URLSearchParams(window.location.search);
-          const mapId = urlParams.get('map_key') ?? ''
+          const mapId = urlParams.get('map_key') ?? '';
           const updateData: PostableNodeType = {
             id,
             type: 'spoiler',
@@ -106,6 +106,9 @@ export const SpoilerNode = memo(
       visibilityFactions.length === 0 ||
       visibilityFactions.some((faction) => userFactions.includes(faction));
 
+    console.log('spoiler node', { hasVisibilityAccess });
+
+    // Render the node
     return (
       <>
         <div
@@ -155,7 +158,7 @@ export const SpoilerNode = memo(
                 fontStyle: 'italic',
               }}
             >
-              Hidden Content
+              {/* Hidden Content */}
             </span>
           )}
         </div>

@@ -32,6 +32,11 @@ interface FlowState {
  */
 const filterNodesByFactions = (nodes: Node[], userFactions: string[]): Node[] => {
   return nodes.filter((node) => {
+    // Always show spoiler nodes - they handle their own visibility internally
+    if (node.type === 'spoiler') {
+      return true;
+    }
+
     const visibilityFactions = node.data?.visibilityFactions;
     
     // If no visibilityFactions field, assume 'staff-only'
