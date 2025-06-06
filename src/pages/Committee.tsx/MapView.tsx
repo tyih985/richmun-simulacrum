@@ -294,16 +294,13 @@ export const MapView = (): ReactElement => {
         onDrop={onDrop}
         onDragOver={onDragOver}
         maxZoom={20}
+         minZoom={0.1}
         zoomOnDoubleClick={false}
         onNodeDragStop={onNodeDragStop}
         fitView
         snapToGrid
         snapGrid={[0.1, 0.1]}
         draggable={true}
-        // translateExtent={[
-        //   [0 - ViewPortPadding, 0 - ViewPortPadding],
-        //   [1000 + ViewPortPadding, 1000 + ViewPortPadding],
-        // ]}
       />
       <Background color="#c4c4c4" gap={50} variant={BackgroundVariant.Cross} />
       <SelectedNodeInfo />
