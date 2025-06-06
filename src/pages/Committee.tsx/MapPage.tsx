@@ -97,7 +97,7 @@ export const MapPage = () => {
   const canEditVisibility = accessLevel === 'staff';
 
   return (
-    <div style={{ position: 'relative', height: '100vh', width: '100vw' }}>
+    <div style={{ position: 'relative', height: '100vh', width: '100vw', overflow: 'hidden' }}>
       <div
         style={{
           position: 'absolute',

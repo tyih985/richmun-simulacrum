@@ -282,7 +282,7 @@ export const MapView = (): ReactElement => {
   }
 
   return (
-    <div style={{ height: '100vh', width: '100vw' }}>
+    <div style={{ height: '100vh', width: '100vw', overflow: 'hidden' }}>
       <ReactFlow
         nodeOrigin={nodeOrigin}
         nodes={[...backgroundNodes, ...nodes]}
