@@ -147,7 +147,7 @@ export const MapPage = () => {
       <div
         style={{
           position: 'absolute',
-          top: isImpersonating.length > 0 ? 70 : 20, // Adjust for banner
+          top: 20, 
           left: 20,
           zIndex: 1000,
         }}
@@ -178,7 +178,7 @@ export const MapPage = () => {
       <div
         style={{
           position: 'absolute',
-          top: isImpersonating.length > 0 ? 70 : 20, // Adjust for banner
+          top: 20, 
           right: 20,
           zIndex: 1000,
         }}
