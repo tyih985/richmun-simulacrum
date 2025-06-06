@@ -1,104 +1,193 @@
-import { ReactElement, useState } from 'react';
+import { ReactElement, useState, useEffect } from 'react';
 import { useForm } from '@mantine/form';
+import { Button, Stack, Image, Space, TextInput, Text, Alert, Flex } from '@mantine/core';
 import {
-  TextInput,
-  Button,
-  Stack,
-  Title,
-  Text,
-  Group,
-  Flex,
-  Image,
-  SimpleGrid,
-  PasswordInput,
-  Divider,
-  Paper,
-  Anchor,
-  Center,
-  Container,
-  BackgroundImage,
-} from '@mantine/core';
-import {
-  signInWithEmailAndPassword,
   GoogleAuthProvider,
   signInWithPopup,
+  sendSignInLinkToEmail,
+  signInWithEmailLink,
+  isSignInWithEmailLink,
 } from 'firebase/auth';
 
 import { auth } from '@packages/firebase/firebaseAuth';
-import { Outlet } from 'react-router-dom';
 
 export const Login = (): ReactElement => {
+  const [showEmailForm, setShowEmailForm] = useState(false);
+  const [emailLinkSent, setEmailLinkSent] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const form = useForm({
     initialValues: {
       email: '',
-      password: '',
+    },
+    validate: {
+      email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Invalid email'),
     },
   });
+
+  // Handle email link completion when user returns from clicking the link
+  useEffect(() => {
+    const completeEmailLinkSignIn = async () => {
+      if (isSignInWithEmailLink(auth, window.location.href)) {
+        let email = window.localStorage.getItem('emailForSignIn');
+
+        if (!email) {
+          // If missing, prompt user for email
+          email = window.prompt('Please provide your email for confirmation');
+        }
+
+        if (email) {
+          try {
+            await signInWithEmailLink(auth, email, window.location.href);
+            window.localStorage.removeItem('emailForSignIn');
+            // User is now signed in
+          } catch (error) {
+            console.error('Error completing email link sign-in:', error);
+            setError('Failed to complete email sign-in. Please try again.');
+          }
+        }
+      }
+    };
+
+    completeEmailLinkSignIn();
+  }, []);
 
   const handleGoogleSignInOrSignUp = async () => {
     const provider = new GoogleAuthProvider();
     try {
+      setLoading(true);
+      setError(null);
       await signInWithPopup(auth, provider);
-      // If the user is signing in for the first time, Firebase will automatically create a new account
-      // Handle successful sign in/sign up
     } catch (error) {
       console.error('Error with Google sign-in/sign-up:', error);
+      setError('Failed to sign in with Google. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleSignIn = async (values: { email: string; password: string }) => {
-    const { email, password } = values;
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-      window.localStorage.setItem('emailForSignIn', email);
-      // Handle sending sign-in link
-    } catch (error) {
-      console.error('Error signing in:', error);
+  const handleEmailLinkSignIn = async () => {
+    if (!form.validate().hasErrors) {
+      const email =
+        form.values.email ?? window.localStorage.getItem('emailForSignIn') ?? '';
+
+      const actionCodeSettings = {
+        url: window.location.href, // User returns to this same login page
+        handleCodeInApp: true,
+      };
+
+      try {
+        setLoading(true);
+        setError(null);
+        console.log('Sending email link with email:', email);
+        await sendSignInLinkToEmail(auth, email, actionCodeSettings);
+
+        // Save email locally to complete sign-in later
+        window.localStorage.setItem('emailForSignIn', email);
+
+        setEmailLinkSent(true);
+      } catch (error) {
+        console.error('Error sending email link:', error);
+        setError('Failed to send email link. Please check your email address.');
+      } finally {
+        setLoading(false);
+      }
     }
   };
+
+  const handleBackToLogin = () => {
+    setEmailLinkSent(false);
+    setShowEmailForm(false);
+    setError(null);
+    form.reset();
+  };
+
+  // Show success state after email is sent
+  if (emailLinkSent) {
+    return (
+      <Stack align="stretch" justify="center" p="sm" w={'420px'}>
+        <Flex justify="center">
+          <Image w="200px" src={'/richmun-logo.png'} />
+        </Flex>
+        <Space h="xs" />
+        <Alert color="green" title="Check your email!">
+          We've sent a sign-in link to {form.values.email}. Click the link to sign in.
+        </Alert>
+
+        <Button
+          variant="subtle"
+          radius="lg"
+          onClick={handleEmailLinkSignIn}
+          loading={loading}
+        >
+          Send again
+        </Button>
+      </Stack>
+    );
+  }
 
   return (
-    <Stack align="stretch" justify="center" p="xl">
-      <Title>Welcome Back!</Title>
-      <form onSubmit={form.onSubmit(handleSignIn)}>
-        <Stack gap="sm">
-          <TextInput
+    <Stack align="stretch" justify="center" p="sm" w={'320px'}>
+      <Flex justify="center">
+        <Image w="200px" src={'/richmun-logo.png'} />
+      </Flex>
+      <Space h="xs" />
+
+      {error && (
+        <Alert color="red" onClose={() => setError(null)} withCloseButton>
+          {error}
+        </Alert>
+      )}
+
+      {!showEmailForm ? (
+        // Initial state: Show both main options
+        <>
+          <Button
             radius="lg"
-            label="Email"
-            placeholder="Enter your email"
-            {...form.getInputProps('email')}
-            required
-          />
-          <PasswordInput
-            radius="lg"
-            label="Password"
-            placeholder="Enter your password"
-            {...form.getInputProps('password')}
-            required
-          />
-          <Flex direction="row" justify="flex-end">
-            <Anchor href="/forgot-password" size="xs" target="_self" underline="hover">
-              Forgot password?
-            </Anchor>
-          </Flex>
-          <Button fullWidth radius="lg" type="submit">
-            Sign In
+            onClick={handleGoogleSignInOrSignUp}
+            loading={loading}
+            size="md"
+          >
+            Sign in with Google
           </Button>
-        </Stack>
-      </form>
 
-      <Divider my="md" label="Or sign in with" labelPosition="center" />
+          <Button
+            radius="lg"
+            variant="light"
+            onClick={() => setShowEmailForm(true)}
+            size="md"
+          >
+            Email me a login link
+          </Button>
+        </>
+      ) : (
+        // Email form state: Show email input and send button
+        <form onSubmit={form.onSubmit(handleEmailLinkSignIn)}>
+          <Stack align="stretch" justify="center" p="sm" w={'320px'}>
+            <TextInput
+              radius="lg"
+              label="Email"
+              placeholder="Enter your email"
+              {...form.getInputProps('email')}
+              autoFocus
+            />
 
-      <Button radius="lg" onClick={handleGoogleSignInOrSignUp}>
-        {'Google'}
-      </Button>
-      <Text size="xs" ta="center">
-        {' '}
-        Don't have an account?{' '}
-        <Anchor href="/sign-up" size="xs" target="_self" underline="hover">
-          Sign up
-        </Anchor>
-      </Text>
+            <Button
+              radius="lg"
+              onClick={handleEmailLinkSignIn}
+              loading={loading}
+              size="md"
+            >
+              Send login link
+            </Button>
+
+            <Button variant="subtle" onClick={handleBackToLogin} size="sm">
+              Back to login options
+            </Button>
+          </Stack>
+        </form>
+      )}
     </Stack>
   );
 };
