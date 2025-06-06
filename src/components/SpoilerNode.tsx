@@ -16,7 +16,6 @@ export const SpoilerNode = memo(
   ({ data, selected, id }: NodeProps<Node<SpoilerNodeDataType>>) => {
     const {
       color = '#fff',
-      text = 'hidden',
       visibilityFactions = [],
       width: initialWidth = DEFAULT_WIDTH,
       height: initialHeight = DEFAULT_HEIGHT,
@@ -109,7 +108,7 @@ export const SpoilerNode = memo(
     console.log('spoiler node', { hasVisibilityAccess });
 
     // Get border color - use grey if main color is white
-    const borderColor = getBorderColor(color);
+    const borderColor = getContrastColor(color);
 
     // Render the node
     return (
@@ -119,7 +118,9 @@ export const SpoilerNode = memo(
             width: `${currentWidth}px`,
             height: `${currentHeight}px`,
             backgroundColor: hasVisibilityAccess ? 'transparent' : color,
-            border: hasVisibilityAccess ? `2px dashed ${borderColor}` : `2px solid ${borderColor}`,
+            border: hasVisibilityAccess
+              ? `2px dashed ${borderColor}`
+              : `2px solid ${borderColor}`,
             borderRadius: '8px',
             display: 'flex',
             alignItems: 'center',
@@ -137,7 +138,6 @@ export const SpoilerNode = memo(
               style={{
                 color: getContrastColor(color),
                 fontSize: Math.min(14, currentWidth / 15, currentHeight / 10),
-                fontWeight: 'bold',
                 textAlign: 'center',
                 padding: '8px',
                 wordBreak: 'break-word',
@@ -146,7 +146,7 @@ export const SpoilerNode = memo(
                 overflow: 'hidden',
               }}
             >
-              {text}
+              {data.text}
             </span>
           )}
 
@@ -192,32 +192,19 @@ export const SpoilerNode = memo(
   },
 );
 
-// Helper function to determine contrasting text color
-function getContrastColor(hexColor: string): string {
-  // Remove # if present
-  const color = hexColor.replace('#', '');
-
-  // Convert to RGB
-  const r = parseInt(color.substr(0, 2), 16);
-  const g = parseInt(color.substr(2, 2), 16);
-  const b = parseInt(color.substr(4, 2), 16);
-
-  // Calculate luminance
-  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-
-  // Return black or white based on luminance
-  return luminance > 0.5 ? '#000000' : '#FFFFFF';
-}
-
 // Helper function to determine border color - use grey for white colors
-function getBorderColor(hexColor: string): string {
+function getContrastColor(hexColor: string): string {
   const normalizedColor = hexColor.toLowerCase().replace('#', '');
-  
+
   // Check if color is white or very close to white
-  if (normalizedColor === 'fff' || normalizedColor === 'ffffff' || normalizedColor === 'white') {
+  if (
+    normalizedColor === 'fff' ||
+    normalizedColor === 'ffffff' ||
+    normalizedColor === 'white'
+  ) {
     return '#666666'; // Grey color for white backgrounds
   }
-  
+
   // For all other colors, use the original color
   return hexColor;
 }
