@@ -12,7 +12,7 @@ import {
   FJCC_COMMITTEE_MAP_KEY_2,
   FJCC_COMMITTEE_MAP_KEY_3,
   FJCC_COMMITTEE_MAP_KEY_4,
-  getCommitteeFactions,
+  getUserCommitteeFactions,
   getAllCommitteeFactions,
 } from '@lib/mapPrototypeKeys';
 
@@ -94,7 +94,7 @@ export const CommitteeAccessProvider: React.FC<CommitteeAccessProviderProps> = (
       accessLevel === 'staff'
         ? allFactions
         : userEmail && selectedCommittee
-          ? getCommitteeFactions(selectedCommittee, userEmail)
+          ? getUserCommitteeFactions(selectedCommittee, userEmail)
           : [];
 
     return {
@@ -107,6 +107,7 @@ export const CommitteeAccessProvider: React.FC<CommitteeAccessProviderProps> = (
 
   // Filter available maps based on user factions and map visibility
   const availableMaps = useMemo(() => {
+    // this function might be broken
     if (!selectedCommittee || userAccessData.accessLevel === false) {
       return [];
     }

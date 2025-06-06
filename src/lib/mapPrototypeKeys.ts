@@ -61,7 +61,7 @@ export const getAllCommitteeFactions = (committeeKey: string): string[] => {
   return Object.keys(committee.visibiltyFactions).concat(['everyone']);
 };
 
-export const getCommitteeFactions = (committeeKey: string, email: string): string[] => {
+export const getUserCommitteeFactions = (committeeKey: string, email: string): string[] => {
   const committee = COMMITTEE_DATA_MAP[committeeKey];
   if (!committee || !committee.visibiltyFactions) return [];
 
