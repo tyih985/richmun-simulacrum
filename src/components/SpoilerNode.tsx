@@ -105,8 +105,6 @@ export const SpoilerNode = memo(
       visibilityFactions.length === 0 ||
       visibilityFactions.some((faction) => userFactions.includes(faction));
 
-    console.log('spoiler node', { hasVisibilityAccess });
-
     // Get border color - use grey if main color is white
     const borderColor = getContrastColor(color);
 
