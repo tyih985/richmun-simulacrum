@@ -21,7 +21,7 @@ export const SpoilerNode = memo(
       height: initialHeight = DEFAULT_HEIGHT,
     } = data;
 
-    const { userFactions } = useCommitteeAccess();
+    const { userFactions, accessLevel } = useCommitteeAccess();
 
     const { committeeId = '' } = useParams();
 
@@ -102,12 +102,13 @@ export const SpoilerNode = memo(
 
     // Check if user has visibility access
     const hasVisibilityAccess =
-      visibilityFactions.length === 0 ||
+      visibilityFactions.length === 0 ? accessLevel === 'staff' :
       visibilityFactions.some((faction) => userFactions.includes(faction));
 
     // Get border color - use grey if main color is white
     const borderColor = getContrastColor(color);
 
+    console.log('hasVisibilityAccess', {hasVisibilityAccess, visibilityFactions, userFactions})
     // Render the node
     return (
       <>
