@@ -41,11 +41,14 @@ export const MapView = (): ReactElement => {
   const committeeId = urlCommitteeId;
   const mapKey = searchParams.get('map_key');
 
-  const nodeTypes = {
-    background: MapBackgroundNode,
-    pin: PinNode,
-    spoiler: SpoilerNode,
-  };
+  const nodeTypes = useMemo(
+    () => ({
+      background: MapBackgroundNode,
+      pin: PinNode,
+      spoiler: SpoilerNode,
+    }),
+    [],
+  );
 
   const { createNode, updateNodePosition } = mapNodesMutations({
     enable: accessLevel === 'staff',
@@ -94,14 +97,10 @@ export const MapView = (): ReactElement => {
   useEffect(() => {
     console.log('syncing nodes', {
       incomingNodes,
-      background: backgroundNodes
+      background: backgroundNodes,
     });
 
-    syncNodes(
-      incomingNodes.concat(
-       backgroundNodes
-      ),
-    );
+    syncNodes(incomingNodes.concat(backgroundNodes));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [incomingNodes]);
 
