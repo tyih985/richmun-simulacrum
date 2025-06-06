@@ -99,15 +99,15 @@ export const SelectedNodeInfo: React.FC = () => {
 
     try {
       // If visibility is empty, default to staff-only when saving
-      const visibilityToSave = editingVisibility[pin.id]?.length > 0 
-        ? editingVisibility[pin.id] 
-        : ['staff-only'];
-      
+      const visibilityToSave =
+        editingVisibility[pin.id]?.length > 0
+          ? editingVisibility[pin.id]
+          : ['staff-only'];
+
       await updateNode(selectedCommittee, mapId, pin.id, {
         ...pin.data,
         text: editingPins[pin.id],
         visibilityFactions: visibilityToSave,
-        type: 'pin',
         position: pin.position,
       });
 
@@ -151,35 +151,43 @@ export const SelectedNodeInfo: React.FC = () => {
 
   const handleVisibilityChange = (pinId: string, value: string[]) => {
     const previousValue = editingVisibility[pinId] || [];
-    
+
     // Handle the case where MultiSelect shows ['staff-only'] as default but state is empty
     const actualPreviousValue = previousValue.length === 0 ? [] : previousValue;
-    
+
     // Find what was added or removed
-    const added = value.filter(v => !actualPreviousValue.includes(v));
-    const removed = actualPreviousValue.filter(v => !value.includes(v));
-    
+    const added = value.filter((v) => !actualPreviousValue.includes(v));
+    const removed = actualPreviousValue.filter((v) => !value.includes(v));
+
     let newValue = [...value];
-    
+
     // Special case: if previous was empty and we're adding multiple including staff-only,
     // it means user clicked on a regular faction (staff-only was just the display default)
-    if (actualPreviousValue.length === 0 && added.length > 1 && added.includes('staff-only')) {
+    if (
+      actualPreviousValue.length === 0 &&
+      added.length > 1 &&
+      added.includes('staff-only')
+    ) {
       // Remove staff-only from the added items and use only the user's actual selection
-      const userSelection = added.filter(f => f !== 'staff-only');
+      const userSelection = added.filter((f) => f !== 'staff-only');
       newValue = userSelection;
     }
     // If 'everyone' or 'staff-only' was explicitly added (and it's the only addition), remove all other factions
-    else if (added.length === 1 && (added.includes('everyone') || added.includes('staff-only'))) {
+    else if (
+      added.length === 1 &&
+      (added.includes('everyone') || added.includes('staff-only'))
+    ) {
       newValue = added;
     }
     // If a regular faction was added and 'everyone' or 'staff-only' exists, remove them
     else if (added.length > 0) {
-      const hasSpecialFaction = newValue.includes('everyone') || newValue.includes('staff-only');
+      const hasSpecialFaction =
+        newValue.includes('everyone') || newValue.includes('staff-only');
       if (hasSpecialFaction) {
-        newValue = newValue.filter(f => f !== 'everyone' && f !== 'staff-only');
+        newValue = newValue.filter((f) => f !== 'everyone' && f !== 'staff-only');
       }
     }
-    
+
     setEditingVisibility((prev) => ({
       ...prev,
       [pinId]: newValue,
@@ -193,7 +201,7 @@ export const SelectedNodeInfo: React.FC = () => {
 
   const handleDeleteConfirm = async () => {
     if (!selectedCommittee || !pinToDelete) return;
-    
+
     const urlParams = new URLSearchParams(window.location.search);
     const mapId = urlParams.get('map_key');
     if (!mapId) return;
@@ -202,7 +210,7 @@ export const SelectedNodeInfo: React.FC = () => {
 
     try {
       await deleteNode(selectedCommittee, mapId, pinToDelete.id);
-      
+
       // Clean up any editing state for this pin
       setEditingPins((prev) => {
         const newState = { ...prev };
@@ -237,7 +245,9 @@ export const SelectedNodeInfo: React.FC = () => {
   const isStaff = accessLevel === 'staff';
 
   // Get map's visible factions to determine which factions should be enabled
-  const mapVisibleFactions = Array.from(new Set(mapMeta.visibilityFactions || []).add('staff-only').add('everyone'));
+  const mapVisibleFactions = Array.from(
+    new Set(mapMeta.visibilityFactions || []).add('staff-only').add('everyone'),
+  );
 
   return (
     <>
@@ -251,11 +261,7 @@ export const SelectedNodeInfo: React.FC = () => {
           Are you sure you want to delete this pin? This action cannot be undone.
         </Text>
         <Group justify="flex-end">
-          <Button
-            variant="subtle"
-            onClick={handleDeleteCancel}
-            disabled={isDeleting}
-          >
+          <Button variant="subtle" onClick={handleDeleteCancel} disabled={isDeleting}>
             Cancel
           </Button>
           <Button
@@ -274,7 +280,7 @@ export const SelectedNodeInfo: React.FC = () => {
         const pinText = (pin.data?.text as string) || '';
         const pinVisibility = (pin.data?.visibilityFactions as string[]) || [];
         const displayText = isEditing ? editingPins[pin.id] : pinText;
-        const displayVisibility = (isEditing ? editingVisibility[pin.id] : pinVisibility)
+        const displayVisibility = isEditing ? editingVisibility[pin.id] : pinVisibility;
 
         return (
           <ViewportPortal key={pin.id}>
@@ -302,7 +308,11 @@ export const SelectedNodeInfo: React.FC = () => {
                     <div>
                       {isStaff && (
                         <MultiSelect
-                          value={displayVisibility.length > 0 ? displayVisibility : ['staff-only']}
+                          value={
+                            displayVisibility.length > 0
+                              ? displayVisibility
+                              : ['staff-only']
+                          }
                           onChange={(value) => handleVisibilityChange(pin.id, value)}
                           data={allFactions.map((faction) => ({
                             value: faction,
