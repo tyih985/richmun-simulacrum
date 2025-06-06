@@ -19,13 +19,7 @@ export const MapBackgroundNode = memo(({ data }: NodeProps<Node<MapBackgroundPro
 
   return (
     <>
-      <img
-        src={url}
-        alt="Map"
-        style={{
-          zIndex: -99999,
-        }}
-      />
+      <img src={url} alt="Map" />
     </>
   );
 });
