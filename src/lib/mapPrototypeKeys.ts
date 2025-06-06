@@ -34,7 +34,7 @@ export const BACKGROUND_NODES: Record<string, Node> = {
     id: 'zaun-tech-tree-background',
     position: { x: 0, y: 0 },
     data: {
-      url: '/bg/Zaun-tech-tree.jpg',
+      url: '/bg/Zaun-tech-tree.png',
     },
     type: 'background',
     selectable: false,
@@ -44,7 +44,7 @@ export const BACKGROUND_NODES: Record<string, Node> = {
     id: 'piltover-tech-tree-background',
     position: { x: 0, y: 0 },
     data: {
-      url: '/bg/Piltover-tech-tree.jpg',
+      url: '/bg/Piltover-tech-tree.png',
     },
     type: 'background',
     selectable: false,
