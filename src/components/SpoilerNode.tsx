@@ -108,6 +108,9 @@ export const SpoilerNode = memo(
 
     console.log('spoiler node', { hasVisibilityAccess });
 
+    // Get border color - use grey if main color is white
+    const borderColor = getBorderColor(color);
+
     // Render the node
     return (
       <>
@@ -116,7 +119,7 @@ export const SpoilerNode = memo(
             width: `${currentWidth}px`,
             height: `${currentHeight}px`,
             backgroundColor: hasVisibilityAccess ? 'transparent' : color,
-            border: hasVisibilityAccess ? `2px dashed ${color}` : `2px solid ${color}`,
+            border: hasVisibilityAccess ? `2px dashed ${borderColor}` : `2px solid ${borderColor}`,
             borderRadius: '8px',
             display: 'flex',
             alignItems: 'center',
@@ -125,7 +128,7 @@ export const SpoilerNode = memo(
             position: 'relative',
             pointerEvents: 'all',
             transition: isResizing ? 'none' : 'opacity 0.2s ease',
-            boxShadow: isResizing ? `0 0 0 2px ${color}40` : 'none',
+            boxShadow: isResizing ? `0 0 0 2px ${borderColor}40` : 'none',
           }}
         >
           {/* Show text only when user doesn't have visibility access */}
@@ -151,14 +154,14 @@ export const SpoilerNode = memo(
           {hasVisibilityAccess && (
             <span
               style={{
-                color: color,
+                color: borderColor,
                 fontSize: Math.min(12, currentWidth / 18, currentHeight / 12),
                 opacity: 0.6,
                 textAlign: 'center',
                 fontStyle: 'italic',
               }}
             >
-              {/* Hidden Content */}
+              {data.text}
             </span>
           )}
         </div>
@@ -172,14 +175,14 @@ export const SpoilerNode = memo(
             onResizeStart={handleResizeStart}
             onResizeEnd={handleResizeEnd}
             handleStyle={{
-              backgroundColor: color,
-              border: `2px solid ${getContrastColor(color)}`,
+              backgroundColor: borderColor,
+              border: `2px solid ${getContrastColor(borderColor)}`,
               borderRadius: '3px',
               width: '8px',
               height: '8px',
             }}
             lineStyle={{
-              borderColor: color,
+              borderColor: borderColor,
               borderWidth: '2px',
             }}
           />
@@ -204,4 +207,17 @@ function getContrastColor(hexColor: string): string {
 
   // Return black or white based on luminance
   return luminance > 0.5 ? '#000000' : '#FFFFFF';
+}
+
+// Helper function to determine border color - use grey for white colors
+function getBorderColor(hexColor: string): string {
+  const normalizedColor = hexColor.toLowerCase().replace('#', '');
+  
+  // Check if color is white or very close to white
+  if (normalizedColor === 'fff' || normalizedColor === 'ffffff' || normalizedColor === 'white') {
+    return '#666666'; // Grey color for white backgrounds
+  }
+  
+  // For all other colors, use the original color
+  return hexColor;
 }

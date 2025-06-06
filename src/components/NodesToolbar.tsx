@@ -1,7 +1,7 @@
 import React, { useState, memo } from 'react';
 import { Panel } from '@xyflow/react';
 import { PinNodeDataType, SpoilerNodeDataType } from '@types';
-import { Text} from '@mantine/core'
+import { Text } from '@mantine/core';
 
 // Define different pin configurations
 const PIN_CONFIGURATIONS: Array<{
@@ -10,33 +10,33 @@ const PIN_CONFIGURATIONS: Array<{
   type: 'pin';
   data: PinNodeDataType;
 }> = [
- { 
-    id: 'star-icon', 
-    name: 'Star Icon', 
+  {
+    id: 'star-icon',
+    name: 'Star Icon',
     type: 'pin',
-    data: { 
+    data: {
       iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png',
-      size: 30
-    } 
+      size: 30,
+    },
   },
-  { 
-    id: 'flag-icon', 
-    name: 'Flag Icon', 
+  {
+    id: 'flag-icon',
+    name: 'Flag Icon',
     type: 'pin',
-    data: { 
+    data: {
       iconUrl: 'https://cdn-icons-png.flaticon.com/512/3448/3448513.png',
-      size: 30
-    } 
+      size: 30,
+    },
   },
   // Example of custom sized colored pins
-  { 
-    id: 'large-red', 
-    name: 'Large Red Pin', 
+  {
+    id: 'large-red',
+    name: 'Large Red Pin',
     type: 'pin',
-    data: { 
+    data: {
       color: '#000000',
-      size: 60
-    } 
+      size: 60,
+    },
   },
 ];
 
@@ -52,48 +52,32 @@ const SPOILER_CONFIGURATIONS: Array<{
     name: 'Basic Spoiler',
     type: 'spoiler',
     data: {
-      color: '#000000',
+      color: '#fff',
       text: 'SPOILER',
       width: 200,
       height: 150,
-    }
-  },
-  {
-    id: 'red-spoiler',
-    name: 'Red Spoiler',
-    type: 'spoiler',
-    data: {
-      color: '#FF0000',
-      text: 'CLASSIFIED',
-      width: 250,
-      height: 100,
-    }
-  },
-  {
-    id: 'large-spoiler',
-    name: 'Large Spoiler',
-    type: 'spoiler',
-    data: {
-      color: '#333333',
-      text: 'HIDDEN',
-      width: 300,
-      height: 200,
-    }
+    },
   },
 ];
 
 const PIN_SIZE = 30;
 
-type NodeConfiguration = typeof PIN_CONFIGURATIONS[0] | typeof SPOILER_CONFIGURATIONS[0];
+type NodeConfiguration =
+  | (typeof PIN_CONFIGURATIONS)[0]
+  | (typeof SPOILER_CONFIGURATIONS)[0];
 
 interface ToolbarProps {
-  onDragStart: (event: React.DragEvent, nodeType: 'pin' | 'spoiler', nodeData: PinNodeDataType | SpoilerNodeDataType) => void;
+  onDragStart: (
+    event: React.DragEvent,
+    nodeType: 'pin' | 'spoiler',
+    nodeData: PinNodeDataType | SpoilerNodeDataType,
+  ) => void;
 }
 
 // Component to render a pin preview based on its configuration
-const PinPreview: React.FC<{ data: PinNodeDataType; previewSize?: number }> = ({ 
-  data, 
-  previewSize = PIN_SIZE 
+const PinPreview: React.FC<{ data: PinNodeDataType; previewSize?: number }> = ({
+  data,
+  previewSize = PIN_SIZE,
 }) => {
   const { color = '#FF5733', iconUrl, size } = data;
   const displaySize = previewSize;
@@ -137,7 +121,7 @@ const PinPreview: React.FC<{ data: PinNodeDataType; previewSize?: number }> = ({
 // Component to render a spoiler preview
 const SpoilerPreview: React.FC<{ data: SpoilerNodeDataType }> = ({ data }) => {
   const { color = '#000000', text = 'SPOILER' } = data;
-  
+
   return (
     <div
       style={{
@@ -216,7 +200,7 @@ export const NodesToolbar = memo(({ onDragStart }: ToolbarProps) => {
             cursor: 'pointer',
           }}
         />
-        
+
         {/* Toolbar content */}
         <Text size="sm" color="dimmed">
           Drag pins and spoilers onto map:
@@ -234,7 +218,9 @@ export const NodesToolbar = memo(({ onDragStart }: ToolbarProps) => {
             <div
               key={nodeConfig.id}
               draggable
-              onDragStart={(event) => onDragStart(event, nodeConfig.type, nodeConfig.data)}
+              onDragStart={(event) =>
+                onDragStart(event, nodeConfig.type, nodeConfig.data)
+              }
               style={{
                 cursor: 'grab',
                 display: 'flex',
