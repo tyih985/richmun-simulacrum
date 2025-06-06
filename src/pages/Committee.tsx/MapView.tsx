@@ -100,7 +100,7 @@ export const MapView = (): ReactElement => {
       background: backgroundNodes,
     });
 
-    syncNodes(incomingNodes.concat(backgroundNodes));
+    syncNodes(incomingNodes);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [incomingNodes]);
 
@@ -248,7 +248,7 @@ export const MapView = (): ReactElement => {
     <div style={{ height: '100vh', width: '100vw' }}>
       <ReactFlow
         nodeOrigin={nodeOrigin}
-        nodes={nodes}
+        nodes={[...backgroundNodes, ...nodes]}
         edges={edges}
         nodeTypes={nodeTypes}
         onNodesChange={onNodesChange}
