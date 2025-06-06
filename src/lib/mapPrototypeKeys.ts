@@ -65,7 +65,7 @@ export const COMMITTEE_DATA_MAP: Record<string, AccessCategoriesType> = {
   [ECC_COMMITTEE_KEY]: {
     name: 'ECC',
     staff: ['director@richmun.ca', 'ecc@richmun.ca'],
-    delegates: ['alexkim.347@gmail.com'],
+    delegates: [],
   },
   [FJCC_COMMITTEE_KEY]: {
     name: 'FJCC',
