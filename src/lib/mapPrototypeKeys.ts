@@ -64,12 +64,19 @@ interface AccessCategoriesType extends Record<string, unknown> {
 export const COMMITTEE_DATA_MAP: Record<string, AccessCategoriesType> = {
   [ECC_COMMITTEE_KEY]: {
     name: 'ECC',
-    staff: ['director@richmun.ca', 'ecc@richmun.ca'],
+    staff: [
+      'director@richmun.ca',
+      'ecc@richmun.ca',
+      'tyler.yih985@gmail.com',
+      'angela.li@outlook.com',
+    ],
     delegates: [],
   },
   [FJCC_COMMITTEE_KEY]: {
     name: 'FJCC',
     staff: [
+      'tyler.yih985@gmail.com',
+      'angela.li@outlook.com',
       'director@richmun.ca',
       'fjcc@richmun.ca',
       'piltover@richmun.ca',
