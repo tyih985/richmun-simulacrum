@@ -3,6 +3,7 @@ import { Debugger } from './Debugger';
 import { useSession } from '@hooks/useSession';
 import { Loader } from '@mantine/core';
 import { Branding } from './Branding';
+import { Mock } from './Mock';
 import { AuthRoutes } from './Auth';
 import { CommitteeRoutes } from './Committee.tsx';
 
@@ -55,5 +56,6 @@ const stableAccessRoutes = (
   <>
     <Route path="/debugger" element={<Debugger />} />
     <Route path="/branding" element={<Branding />} />
+    <Route path="/mock" element={<Mock />} />
   </>
 );
