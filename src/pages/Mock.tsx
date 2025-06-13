@@ -83,35 +83,44 @@ export const Mock = (): ReactElement => {
 
   return (
     <Container size="md" p='xl'>
-    <Stack align='left' p="xl">
+    <Stack p="xl">
         <Title>Let's get set up!</Title>
-        <Container size="sm">
-            <TextInput
-            label="What's your committee name?"
-            placeholder="e.g. econ"
-            {...form.getInputProps('shortName')}
-            radius="lg"
-            required
-            />
-        
-            <DateInput
-            label="When does your event start?"
-            value={value}
-            onChange={setValue}
-            placeholder="Date input"
-            />
-        </Container>
+        <Text size="sm" color="dimmed">
+            This will help you create a committee and set up your event.
+        </Text>
+         
+        <Stack align='flex-start'>
+            <Container size="xl" m={0} p={0}>
+
+                <TextInput
+                label="What's your committee name?"
+                placeholder="e.g. the coolest committee"
+                {...form.getInputProps('shortName')}
+                radius="md"
+                required
+                />
+            
+                <DateInput
+                radius="md"
+                size='sm'
+                label="When does your event start?"
+                value={value}
+                onChange={setValue}
+                placeholder="Date input"
+                />
+            </Container>
+        </Stack>
        
 
-        <Fieldset legend="Staff">
+        <Fieldset legend="Staff" radius="md">
             <TextInput
                 label="Who's on your staff team?"
                 placeholder="Add staff emails here..."
-                radius="lg"
+                radius="md"
             ></TextInput>
         </Fieldset>
         
-        <Fieldset legend="Delegation">
+        <Fieldset legend="Delegation" radius="md">
             <Table>
                 <thead>
                     <tr>
