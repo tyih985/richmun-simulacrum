@@ -1,6 +1,7 @@
 import { ReactElement, useState } from 'react';
 import { useForm } from '@mantine/form';
-import { Stack, Title, TextInput, Button, Text } from '@mantine/core';
+import { Stack, Title, TextInput, Button, Text, Fieldset, Container, Table, Flex } from '@mantine/core';
+import { DateInput } from '@mantine/dates';
 import {
   createFirestoreDocument,
   getFirestoreDocument,
@@ -78,9 +79,59 @@ export const Mock = (): ReactElement => {
     }
   };
 
+  const [value, setValue] = useState<Date | null>(null);
+
   return (
-    <Stack p="xl">
-      <Title order={2}> Test</Title>
+    <Container size="md" p='xl'>
+    <Stack align='left' p="xl">
+        <Title>Let's get set up!</Title>
+        <Container size="sm">
+            <TextInput
+            label="What's your committee name?"
+            placeholder="e.g. econ"
+            {...form.getInputProps('shortName')}
+            radius="lg"
+            required
+            />
+        
+            <DateInput
+            label="When does your event start?"
+            value={value}
+            onChange={setValue}
+            placeholder="Date input"
+            />
+        </Container>
+       
+
+        <Fieldset legend="Staff">
+            <TextInput
+                label="Who's on your staff team?"
+                placeholder="Add staff emails here..."
+                radius="lg"
+            ></TextInput>
+        </Fieldset>
+        
+        <Fieldset legend="Delegation">
+            <Table>
+                <thead>
+                    <tr>
+                        <th>Country</th>
+                        <th>Delegates</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Country A</td>
+                        <td>Delegate 1, Delegate 2</td>
+                    </tr>
+                    <tr>
+                        <td>Country B</td>
+                        <td>Delegate 3, Delegate 4</td>
+                    </tr>
+                </tbody>
+            </Table>
+        </Fieldset>
+      {/* <Title order={2}> Test</Title>
 
       <form onSubmit={form.onSubmit(handleSet)}>
         <Stack>
@@ -117,7 +168,8 @@ export const Mock = (): ReactElement => {
         <Text size="sm" mt="md">
           {result}
         </Text>
-      )}
+      )} */}
     </Stack>
+    </Container>
   );
 };
