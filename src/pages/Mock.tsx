@@ -1,175 +1,143 @@
 import { ReactElement, useState } from 'react';
 import { useForm } from '@mantine/form';
-import { Stack, Title, TextInput, Button, Text, Fieldset, Container, Table, Flex } from '@mantine/core';
+import {
+  Container,
+  Stack,
+  Title,
+  Divider,
+  TextInput,
+  Button,
+  Fieldset,
+  Table,
+  Text,
+  Flex,
+  TagsInput,
+} from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import {
   createFirestoreDocument,
   getFirestoreDocument,
 } from '@packages/firestoreAsQuery';
 import { committeePath } from '@packages/firestorePaths';
-import { generateCommitteeId } from '@packages/generateIds';
 
 type TestData = { message: string };
 
 export const Mock = (): ReactElement => {
   const form = useForm({
     initialValues: {
-      shortName: '',
-      committeeId: '',
+      committeeName: '',
     },
     validate: {
-      shortName: (v) => (v.trim() ? null : 'Required'),
+      committeeName: (v) => (v.trim() ? null : 'Required'),
     },
   });
 
   const [result, setResult] = useState<string | null>(null);
+  const [date, setDate] = useState<Date | null>(null);
 
-  const getDocPath = () => committeePath(form.values.committeeId);
-
-  const handleGenerateCommitteeId = () => {
-    const { shortName } = form.values;
-    if (!shortName.trim()) {
-      setResult('Enter a short name first dummy');
-      return;
-    }
-    const newCommId = generateCommitteeId(shortName.trim());
-    form.setFieldValue('committeeId', newCommId);
-    setResult(`Generated Committee ID: ${newCommId}`);
-  };
-
-  const handleSet = async (values: typeof form.values) => {
+  const handleSet = async () => {
     setResult(null);
-    const { committeeId } = values;
-    if (!committeeId) {
-      setResult('Committee ID is required');
+    const name = form.values.committeeName.trim();
+    if (!name) {
+      setResult('Committee name is required');
       return;
     }
-
-    const docPath = getDocPath();
+    const path = committeePath(name);
     try {
-      await createFirestoreDocument<TestData>(
-        docPath,
-        { message: `Committee record for ${committeeId}` },
-        true
-      );
-      setResult(`Wrote document at "${docPath}"`);
-    } catch (error: any) {
-      setResult(`Error setting document: ${error.message}`);
+      await createFirestoreDocument<TestData>(path, { message: name }, true);
+      setResult(`Wrote document at "${path}"`);
+    } catch (err: any) {
+      setResult(`Error: ${err.message}`);
     }
   };
 
   const handleGet = async () => {
     setResult(null);
-    const { committeeId } = form.values;
-    if (!committeeId) {
-      setResult('Committee ID is required');
+    const name = form.values.committeeName.trim();
+    if (!name) {
+      setResult('Committee name is required');
       return;
     }
-
-    const docPath = getDocPath();
+    const path = committeePath(name);
     try {
-      const data = await getFirestoreDocument<TestData>(docPath);
+      const data = await getFirestoreDocument<TestData>(path);
       if (data) {
-        setResult(`Fetched from "${docPath}": ${JSON.stringify(data)}`);
+        setResult(`Fetched: ${JSON.stringify(data)}`);
       } else {
-        setResult(`No document found at "${docPath}"`);
+        setResult(`No document at "${path}"`);
       }
-    } catch (error: any) {
-      setResult(`Error fetching document: ${error.message}`);
+    } catch (err: any) {
+      setResult(`Error: ${err.message}`);
     }
   };
 
-  const [value, setValue] = useState<Date | null>(null);
-
   return (
-    <Container size="md" p='xl'>
-    <Stack align='left' p="xl">
-        <Title>Let's get set up!</Title>
-        <Container size="sm">
-            <TextInput
-            label="What's your committee name?"
+    <Container size="md" p="xl">
+      <Stack align="left">
+        <Title order={2}>Let’s get set up!</Title>
+
+        <Container size="sm" px={0}>
+          <TextInput
+            label="What’s your committee name?"
             placeholder="e.g. econ"
-            {...form.getInputProps('shortName')}
+            {...form.getInputProps('committeeName')}
             radius="lg"
             required
-            />
-        
-            <DateInput
+          />
+
+          <DateInput
             label="When does your event start?"
-            value={value}
-            onChange={setValue}
-            placeholder="Date input"
-            />
+            placeholder="Pick a date"
+            value={date}
+            onChange={setDate}
+            radius="lg"
+          />
         </Container>
-       
 
         <Fieldset legend="Staff">
-            <TextInput
-                label="Who's on your staff team?"
-                placeholder="Add staff emails here..."
-                radius="lg"
-            ></TextInput>
+          <TagsInput
+            label="Who’s on your staff team?"
+            placeholder="Add staff emails here..."
+            radius="lg"
+          />
         </Fieldset>
-        
+
         <Fieldset legend="Delegation">
-            <Table>
-                <thead>
-                    <tr>
-                        <th>Country</th>
-                        <th>Delegates</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Country A</td>
-                        <td>Delegate 1, Delegate 2</td>
-                    </tr>
-                    <tr>
-                        <td>Country B</td>
-                        <td>Delegate 3, Delegate 4</td>
-                    </tr>
-                </tbody>
-            </Table>
+          <Table>
+            <thead>
+              <tr>
+                <th>Country</th>
+                <th>Delegates</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Country A</td>
+                <td>Delegate 1, Delegate 2</td>
+              </tr>
+              <tr>
+                <td>Country B</td>
+                <td>Delegate 3, Delegate 4</td>
+              </tr>
+            </tbody>
+          </Table>
         </Fieldset>
-      {/* <Title order={2}> Test</Title>
 
-      <form onSubmit={form.onSubmit(handleSet)}>
-        <Stack>
-          <TextInput
-            label="Committee short name"
-            placeholder="e.g. econ"
-            {...form.getInputProps('shortName')}
-            radius="lg"
-            required
-          />
-          <Button radius="lg" onClick={handleGenerateCommitteeId}>
-            Generate Committee ID
+        <Flex justify="flex-end" gap="sm">
+          <Button variant="outline" onClick={handleGet} radius="lg">
+            Get
           </Button>
+          <Button onClick={handleSet} radius="lg">
+            Set
+          </Button>
+        </Flex>
 
-          <TextInput
-            label="Committee ID"
-            {...form.getInputProps('committeeId')}
-            readOnly
-            radius="lg"
-          />
-
-          <Stack mt="md">
-            <Button type="submit" radius="lg">
-              Set
-            </Button>
-            <Button type="button" radius="lg" onClick={handleGet}>
-              Get
-            </Button>
-          </Stack>
-        </Stack>
-      </form>
-
-      {result && (
-        <Text size="sm" mt="md">
-          {result}
-        </Text>
-      )} */}
-    </Stack>
+        {result && (
+          <Text size="sm" mt="md">
+            {result}
+          </Text>
+        )}
+      </Stack>
     </Container>
   );
 };
