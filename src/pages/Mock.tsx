@@ -1,4 +1,5 @@
 import { ReactElement, useEffect, useState } from 'react';
+import dayjs from 'dayjs';
 import '@mantine/dates/styles.css';
 import { useForm } from '@mantine/form';
 import {
@@ -20,6 +21,7 @@ import {
   MultiSelect,
   FileButton,
   Stepper,
+  CloseButton,
 } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import {
@@ -34,7 +36,14 @@ import { generateCommitteeId } from '@packages/generateIds';
 type TestData = { message: string };
 
 export const Mock = (): ReactElement => {
+  // State for modal
   const [opened, { open, close }] = useDisclosure(false);
+
+  // State for selected values in MultiSelect
+  const [selectedValues, setSelectedValues] = useState<string[]>([]);
+  const [tableValues, setTableValues] = useState<string[]>([]);
+
+  // State for stepper
   const [active, setActive] = useState(1);
   const nextStep = () => setActive((current) => (current < 3 ? current + 1 : current));
   const prevStep = () => setActive((current) => (current > 0 ? current - 1 : current));
@@ -98,17 +107,12 @@ export const Mock = (): ReactElement => {
       setResult(`Error: ${err.message}`);
     }
   };
-  
-    const country = [
-        { name: 'Country A', delegate: 'Delegate 1, Delegate 2' },
-        { name: 'Country B', delegate: 'Delegate 3, Delegate 4' },
-        // Add more countries and delegates as needed
-    ];
 
-    const rows = country.map((country) => (
-        <Table.Tr key={country.name}>
-        <Table.Td>{country.name}</Table.Td>
+    const rows = tableValues.map((country) => (
+        <Table.Tr key={country}>
+        <Table.Td>{country}</Table.Td>
         <Table.Td><TextInput placeholder='Add delegate email here...'></TextInput></Table.Td>
+        <Table.Td>{<CloseButton variant='outline'></CloseButton>}</Table.Td>
         </Table.Tr>
     ));
 
@@ -128,6 +132,8 @@ export const Mock = (): ReactElement => {
                 label="Add UN countries"
                 placeholder="Type to search..."
                 data={['Canada', 'United States', 'Mexico', 'United Kingdom', 'Germany', 'France', 'Japan', 'Australia', 'India', 'China']}
+                value={selectedValues}
+                onChange={setSelectedValues}
                 clearable
                 searchable
                 nothingFoundMessage="Nothing found..."
@@ -143,7 +149,10 @@ export const Mock = (): ReactElement => {
                 </FileButton>
             </Group>
             <Group justify="center">
-                <Button onClick={close}>Submit countries</Button>
+                <Button onClick={() => {
+                    close();
+                    setTableValues((prev) => [...prev, ...selectedValues]); // Add selected values to table
+                    }}>Submit countries</Button>
             </Group>
             
         </Stack>
@@ -151,7 +160,7 @@ export const Mock = (): ReactElement => {
        
        <Stack gap='md' py={'xl'}>
         <Title>Let’s get set up!</Title>
-        <Text size="sm" color="dimmed">
+        <Text size="sm" c="dimmed">
             This will help you create a committee and set up your event.
         </Text>
 
@@ -181,6 +190,7 @@ export const Mock = (): ReactElement => {
 
           <Space h="md"></Space>
           <DateInput
+            // minDate={dayjs().format('YYYY-MM-DD')}
             label="When does your event start?"
             placeholder="Pick a date"
             value={date}
@@ -199,7 +209,7 @@ export const Mock = (): ReactElement => {
         </Fieldset>
 
         <Fieldset legend="Delegation">
-          <Table stickyHeader highlightOnHover withColumnBorders>
+          <Table stickyHeader highlightOnHover >
             <Table.Thead>
                 <Table.Tr>
                 <Table.Th>Country</Table.Th>
