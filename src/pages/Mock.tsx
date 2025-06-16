@@ -1,11 +1,10 @@
-import { ReactElement, useState } from 'react';
+import { ReactElement, useEffect, useState } from 'react';
 import '@mantine/dates/styles.css';
 import { useForm } from '@mantine/form';
 import {
   Container,
   Stack,
   Title,
-  Divider,
   TextInput,
   Button,
   Fieldset,
@@ -30,6 +29,7 @@ import {
 import { committeePath } from '@packages/firestorePaths';
 import { IconArrowLeft, IconArrowRight, IconAt, IconFileSpreadsheet, IconPlus } from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
+import { generateCommitteeId } from '@packages/generateIds';
 
 type TestData = { message: string };
 
@@ -51,17 +51,28 @@ export const Mock = (): ReactElement => {
 
   const [result, setResult] = useState<string | null>(null);
   const [date, setDate] = useState<Date | null>(null);
+  const [generatedId, setGeneratedId] = useState<string | null>(null);
+
+  // Regenerate ID only when committeeName changes
+  useEffect(() => {
+    const name = form.values.committeeName.trim();
+    if (name) {
+      setGeneratedId(generateCommitteeId(name));
+    } else {
+      setGeneratedId(null);
+    }
+  }, [form.values.committeeName]);
 
   const handleSet = async () => {
     setResult(null);
-    const name = form.values.committeeName.trim();
-    if (!name) {
-      setResult('Committee name is required');
+    if (!generatedId) {
+      setResult('Valid committee name is required');
       return;
     }
-    const path = committeePath(name);
+
+    const path = committeePath(generatedId);
     try {
-      await createFirestoreDocument<TestData>(path, { message: name }, true);
+      await createFirestoreDocument<TestData>(path, { message: form.values.committeeName }, true);
       setResult(`Wrote document at "${path}"`);
     } catch (err: any) {
       setResult(`Error: ${err.message}`);
@@ -70,12 +81,12 @@ export const Mock = (): ReactElement => {
 
   const handleGet = async () => {
     setResult(null);
-    const name = form.values.committeeName.trim();
-    if (!name) {
-      setResult('Committee name is required');
+    if (!generatedId) {
+      setResult('Valid committee name is required');
       return;
     }
-    const path = committeePath(name);
+
+    const path = committeePath(generatedId);
     try {
       const data = await getFirestoreDocument<TestData>(path);
       if (data) {
