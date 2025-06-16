@@ -109,7 +109,6 @@ export const Mock = (): ReactElement => {
   });
 
   const [result, setResult] = useState<string | null>(null);
-  const [date, setDate] = useState<Date | null>(null);
   const [generatedId, setGeneratedId] = useState<string | null>(null);
 
   // Regenerate ID only when committeeName changes
@@ -161,6 +160,9 @@ export const Mock = (): ReactElement => {
       setResult(`Error: ${err.message}`);
     }
   };
+
+    const [startDate, setStartDate] = useState<Date | null>(null);
+    const [endDate, setEndDate] = useState<Date | null>(null);
 
   
 
@@ -231,20 +233,20 @@ export const Mock = (): ReactElement => {
                                 required
                             />
                             <DateInput
-                                // minDate={dayjs().format('YYYY-MM-DD')}
+                                minDate={dayjs().toDate()}
                                 label="When does your event start?"
                                 placeholder="Pick a start date"
-                                value={date}
-                                onChange={setDate}
+                                value={startDate}
+                                onChange={setStartDate}
                                 radius="lg"
                             />
 
                             <DateInput
-                                // minDate={dayjs().format('YYYY-MM-DD')}
+                                minDate={startDate || undefined}
                                 label="When does your event end?"
                                 placeholder="Pick a end date"
-                                value={date}
-                                onChange={setDate}
+                                value={endDate}
+                                onChange={setEndDate}
                                 radius="lg"
                             />
                     </Flex>
@@ -284,8 +286,8 @@ export const Mock = (): ReactElement => {
                         )}
 
                         <Flex justify="flex-end" mt="md">
-                            <ActionIcon variant="filled" aria-label="Add country" onClick={open}>
-                                <IconPlus style={{ width: '70%', height: '70%' }} stroke={2}/>
+                            <ActionIcon variant="outline" aria-label="Add country" onClick={open}>
+                                <IconPlus style={{ width: '70%', height: '70%' }} stroke={3}/>
                             </ActionIcon>
                         </Flex>
                      </Container>
