@@ -123,10 +123,11 @@ export const CommitteeAccessProvider: React.FC<CommitteeAccessProviderProps> = (
     return allMaps.filter((mapId) => {
       const mapMeta = mapsMetadata[mapId];
       const { visibilityFactions = [] } = mapMeta || {};
-      if (userAccessData.originalAccessLevel === 'staff' && isImpersonating.length === 0) return true;
+      if (userAccessData.originalAccessLevel === 'staff' && isImpersonating.length === 0)
+        return true;
       if (!visibilityFactions.length) return false;
-      return visibilityFactions.some(faction => 
-        userAccessData.userFactions.includes(faction)
+      return visibilityFactions.some((faction) =>
+        userAccessData.userFactions.includes(faction),
       );
     });
   }, [selectedCommittee, allMaps, mapsMetadata, userAccessData, isImpersonating]);
@@ -173,7 +174,15 @@ export const CommitteeAccessProvider: React.FC<CommitteeAccessProviderProps> = (
       setImpersonatedFactions,
       cancelImpersonation,
     };
-  }, [isLoggedIn, sessionUser?.email, availableMaps, selectedCommittee, userAccessData, isImpersonating, setIsImpersonating]);
+  }, [
+    isLoggedIn,
+    sessionUser?.email,
+    availableMaps,
+    selectedCommittee,
+    userAccessData,
+    isImpersonating,
+    setIsImpersonating,
+  ]);
 
   useEffect(() => {
     console.log('Committee Access data: ', contextValue);

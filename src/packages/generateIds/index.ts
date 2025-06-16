@@ -18,7 +18,6 @@ export const generateDelegateId = (delegationShortName: string) => {
   return `${parsedName}-${nano(NUM_DIGITS)}`;
 };
 
-
 // should be reasonably unique within a larger collection (expect max: 1000)
 // a block is for rich text: description, paragraph
 export const generateBlockId = () => nano(8);

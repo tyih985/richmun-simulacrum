@@ -102,13 +102,18 @@ export const SpoilerNode = memo(
 
     // Check if user has visibility access
     const hasVisibilityAccess =
-      visibilityFactions.length === 0 ? accessLevel === 'staff' :
-      visibilityFactions.some((faction) => userFactions.includes(faction));
+      visibilityFactions.length === 0
+        ? accessLevel === 'staff'
+        : visibilityFactions.some((faction) => userFactions.includes(faction));
 
     // Get border color - use grey if main color is white
     const borderColor = getContrastColor(color);
 
-    console.log('hasVisibilityAccess', {hasVisibilityAccess, visibilityFactions, userFactions})
+    console.log('hasVisibilityAccess', {
+      hasVisibilityAccess,
+      visibilityFactions,
+      userFactions,
+    });
     // Render the node
     return (
       <>

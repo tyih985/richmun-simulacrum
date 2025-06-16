@@ -33,28 +33,33 @@ const nodeOrigin: NodeOrigin = [0.5, 1];
 
 // Error screen component for no available maps
 const NoMapsErrorScreen = (): ReactElement => (
-  <div style={{
-    height: '100vh',
-    width: '100vw',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#f5f5f5',
-    color: '#666',
-    textAlign: 'center',
-    padding: '2rem'
-  }}>
-    <div style={{
-      maxWidth: '400px',
+  <div
+    style={{
+      height: '100vh',
+      width: '100vw',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: '#f5f5f5',
+      color: '#666',
+      textAlign: 'center',
       padding: '2rem',
-      backgroundColor: 'white',
-      borderRadius: '8px',
-      boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
-    }}>
+    }}
+  >
+    <div
+      style={{
+        maxWidth: '400px',
+        padding: '2rem',
+        backgroundColor: 'white',
+        borderRadius: '8px',
+        boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+      }}
+    >
       <h2 style={{ marginBottom: '1rem', color: '#333' }}>No Maps Available</h2>
       <p style={{ marginBottom: '1rem', lineHeight: '1.5' }}>
-        You don't have access to any maps for this committee, or no maps have been configured yet.
+        You don't have access to any maps for this committee, or no maps have been
+        configured yet.
       </p>
       <p style={{ fontSize: '0.9em', color: '#888' }}>
         Please contact your administrator if you believe this is an error.
@@ -294,7 +299,7 @@ export const MapView = (): ReactElement => {
         onDrop={onDrop}
         onDragOver={onDragOver}
         maxZoom={20}
-         minZoom={0.1}
+        minZoom={0.1}
         zoomOnDoubleClick={false}
         onNodeDragStop={onNodeDragStop}
         fitView

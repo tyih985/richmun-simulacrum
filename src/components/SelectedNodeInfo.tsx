@@ -282,7 +282,7 @@ export const SelectedNodeInfo: React.FC = () => {
         const displayText = isEditing ? editingPins[pin.id] : pinText;
         const displayVisibility = isEditing ? editingVisibility[pin.id] : pinVisibility;
 
-        if (pin.type === 'background') return null
+        if (pin.type === 'background') return null;
 
         return (
           <ViewportPortal key={pin.id}>

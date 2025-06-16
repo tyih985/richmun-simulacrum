@@ -29,7 +29,13 @@ import {
   getFirestoreDocument,
 } from '@packages/firestoreAsQuery';
 import { committeePath } from '@packages/firestorePaths';
-import { IconArrowLeft, IconArrowRight, IconAt, IconFileSpreadsheet, IconPlus } from '@tabler/icons-react';
+import {
+  IconArrowLeft,
+  IconArrowRight,
+  IconAt,
+  IconFileSpreadsheet,
+  IconPlus,
+} from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
 import { generateCommitteeId } from '@packages/generateIds';
 
@@ -48,7 +54,6 @@ export const Mock = (): ReactElement => {
   const nextStep = () => setActive((current) => (current < 3 ? current + 1 : current));
   const prevStep = () => setActive((current) => (current > 0 ? current - 1 : current));
 
-  
   const form = useForm({
     initialValues: {
       committeeName: '',
@@ -81,7 +86,11 @@ export const Mock = (): ReactElement => {
 
     const path = committeePath(generatedId);
     try {
-      await createFirestoreDocument<TestData>(path, { message: form.values.committeeName }, true);
+      await createFirestoreDocument<TestData>(
+        path,
+        { message: form.values.committeeName },
+        true,
+      );
       setResult(`Wrote document at "${path}"`);
     } catch (err: any) {
       setResult(`Error: ${err.message}`);
@@ -108,75 +117,109 @@ export const Mock = (): ReactElement => {
     }
   };
 
-    const rows = tableValues.map((country) => (
-        <Table.Tr key={country}>
-        <Table.Td>{country}</Table.Td>
-        <Table.Td><TextInput placeholder='Add delegate email here...'></TextInput></Table.Td>
-        <Table.Td>{<CloseButton variant='outline'></CloseButton>}</Table.Td>
-        </Table.Tr>
-    ));
+  const removeCountry = (countryToRemove: string) => {
+    setTableValues((prev) => prev.filter((country) => country !== countryToRemove));
+  };
 
-    // const [rows, setRows] = useState([]);
+  const rows = tableValues.map((country) => (
+    <Table.Tr key={country}>
+      <Table.Td>{country}</Table.Td>
+      <Table.Td>
+        <TextInput placeholder="Add delegate email here..." />
+      </Table.Td>
+      <Table.Td>
+        <CloseButton variant="outline" onClick={() => removeCountry(country)} />
+      </Table.Td>
+    </Table.Tr>
+  ));
 
-    // const addRow = () => {
-    //     const newRow = { name: 'John Doe', age: 30 }; // Replace with your data
-    //     setRows([...rows, newRow]);
-    // }
+  // const [rows, setRows] = useState([]);
+
+  // const addRow = () => {
+  //     const newRow = { name: 'John Doe', age: 30 }; // Replace with your data
+  //     setRows([...rows, newRow]);
+  // }
 
   return (
-    <Container size="md" p='xl'>
-       
-       <Modal opened={opened} onClose={close} title="Add a country" centered>
+    <Container size="md" p="xl">
+      <Modal opened={opened} onClose={close} title="Add a country" centered>
         <Stack gap={'md'}>
-            <MultiSelect
-                label="Add UN countries"
-                placeholder="Type to search..."
-                data={['Canada', 'United States', 'Mexico', 'United Kingdom', 'Germany', 'France', 'Japan', 'Australia', 'India', 'China']}
-                value={selectedValues}
-                onChange={setSelectedValues}
-                clearable
-                searchable
-                nothingFoundMessage="Nothing found..."
-            />
-            <TagsInput
-                label="Add custom countries"
-                clearable
-                placeholder="Type a country name and press enter..." // this is kinda wordy lmao but alas
-            />
-             <Group justify="flex-start">
-                <FileButton onChange={close/*<- placeholder bc i dont wanna figure it out rn should be smt to setFile*/} accept="">
-                {(props) => <Button rightSection={<IconFileSpreadsheet size={18} stroke={1.5}/>} variant='default'{...props}>Import spreadsheet</Button>}
-                </FileButton>
-            </Group>
-            <Group justify="center">
-                <Button onClick={() => {
-                    close();
-                    setTableValues((prev) => [...prev, ...selectedValues]); // Add selected values to table
-                    }}>Submit countries</Button>
-            </Group>
-            
+          <MultiSelect
+            label="Add UN countries"
+            placeholder="Type to search..."
+            data={[
+              'Canada',
+              'United States',
+              'Mexico',
+              'United Kingdom',
+              'Germany',
+              'France',
+              'Japan',
+              'Australia',
+              'India',
+              'China',
+            ]}
+            value={selectedValues}
+            onChange={setSelectedValues}
+            clearable
+            searchable
+            nothingFoundMessage="Nothing found..."
+          />
+          <TagsInput
+            label="Add custom countries"
+            clearable
+            placeholder="Type a country name and press enter..." // this is kinda wordy lmao but alas
+          />
+          <Group justify="flex-start">
+            <FileButton
+              onChange={
+                close /*<- placeholder bc i dont wanna figure it out rn should be smt to setFile*/
+              }
+              accept=""
+            >
+              {(props) => (
+                <Button
+                  rightSection={<IconFileSpreadsheet size={18} stroke={1.5} />}
+                  variant="default"
+                  {...props}
+                >
+                  Import spreadsheet
+                </Button>
+              )}
+            </FileButton>
+          </Group>
+          <Group justify="center">
+            <Button
+              onClick={() => {
+                close();
+                setTableValues((prev) => [...prev, ...selectedValues]); // Add selected values to table
+              }}
+            >
+              Submit countries
+            </Button>
+          </Group>
         </Stack>
-       </Modal>
-       
-       <Stack gap='md' py={'xl'}>
+      </Modal>
+
+      <Stack gap="md" py={'xl'}>
         <Title>Let’s get set up!</Title>
         <Text size="sm" c="dimmed">
-            This will help you create a committee and set up your event.
+          This will help you create a committee and set up your event.
         </Text>
 
         <Stepper active={active} onStepClick={setActive}>
-            <Stepper.Step label="First step" description="Create an account">
+          <Stepper.Step label="First step" description="Create an account">
             Step 1 content: Create an account
-            </Stepper.Step>
-            <Stepper.Step label="Second step" description="Verify email">
+          </Stepper.Step>
+          <Stepper.Step label="Second step" description="Verify email">
             Step 2 content: Verify email
-            </Stepper.Step>
-            <Stepper.Step label="Final step" description="Get full access">
+          </Stepper.Step>
+          <Stepper.Step label="Final step" description="Get full access">
             Step 3 content: Get full access
-            </Stepper.Step>
-            <Stepper.Completed>
+          </Stepper.Step>
+          <Stepper.Completed>
             Completed, click back button to get to previous step
-            </Stepper.Completed>
+          </Stepper.Completed>
         </Stepper>
 
         <Container size="300px" m={0}>
@@ -209,31 +252,30 @@ export const Mock = (): ReactElement => {
         </Fieldset>
 
         <Fieldset legend="Delegation">
-          <Table stickyHeader highlightOnHover >
+          <Table stickyHeader highlightOnHover>
             <Table.Thead>
-                <Table.Tr>
+              <Table.Tr>
                 <Table.Th>Country</Table.Th>
                 <Table.Th>Delegate</Table.Th>
-                </Table.Tr>
+              </Table.Tr>
             </Table.Thead>
             <Table.Tbody>{rows}</Table.Tbody>
           </Table>
 
           {rows.length === 0 && (
-            <Stack align='center' justify='center' bg="gray.0" p="md">
-                <Text c="dimmed">no countries added :c</Text>
-                <Group>
+            <Stack align="center" justify="center" bg="gray.0" p="md">
+              <Text c="dimmed">no countries added :c</Text>
+              <Group>
                 <Button>Import spreadsheet?</Button>
                 <Button>Add UN countries?</Button>
-                </Group>
+              </Group>
             </Stack>
           )}
-            <Flex justify="flex-end" mt="md">
-                <ActionIcon variant="filled" aria-label="Add country" onClick={open}>
-                    <IconPlus style={{ width: '70%', height: '70%' }} stroke={2}/>
-                </ActionIcon>
-            </Flex>
-               
+          <Flex justify="flex-end" mt="md">
+            <ActionIcon variant="filled" aria-label="Add country" onClick={open}>
+              <IconPlus style={{ width: '70%', height: '70%' }} stroke={2} />
+            </ActionIcon>
+          </Flex>
         </Fieldset>
 
         <Flex justify="flex-end" gap="sm">
@@ -251,9 +293,20 @@ export const Mock = (): ReactElement => {
           </Text>
         )}
 
-        <Flex justify="center" align='flex-end' mt="xl" gap={"sm"}>
-            <Button variant="default" leftSection={<IconArrowLeft size={18} stroke={1.5}/>} onClick={prevStep}>Back</Button>
-            <Button rightSection={<IconArrowRight size={18} stroke={1.5}/>} onClick={nextStep}>Next step</Button>
+        <Flex justify="center" align="flex-end" mt="xl" gap={'sm'}>
+          <Button
+            variant="default"
+            leftSection={<IconArrowLeft size={18} stroke={1.5} />}
+            onClick={prevStep}
+          >
+            Back
+          </Button>
+          <Button
+            rightSection={<IconArrowRight size={18} stroke={1.5} />}
+            onClick={nextStep}
+          >
+            Next step
+          </Button>
         </Flex>
       </Stack>
     </Container>

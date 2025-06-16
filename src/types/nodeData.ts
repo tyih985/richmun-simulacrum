@@ -14,20 +14,20 @@ export type SpoilerNodeDataType = {
   text?: string;
   visibilityFactions?: string[];
   // needs to be resizable
-  height?: number
-  width?: number
-}
+  height?: number;
+  width?: number;
+};
 
 export type PostableNodeType = Partial<PinNodeDataType | SpoilerNodeDataType> & {
-  id?: string
-  type: 'pin' | 'spoiler'
+  id?: string;
+  type: 'pin' | 'spoiler';
   position: XYPosition;
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type BackgroundNodeDataType = any
+export type BackgroundNodeDataType = any;
 
 export type PostableBackgroundNode = Partial<BackgroundNodeDataType> & {
-  id?: string
+  id?: string;
   position: XYPosition;
 };
