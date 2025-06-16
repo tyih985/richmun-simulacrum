@@ -22,6 +22,7 @@ import {
   FileButton,
   Stepper,
   CloseButton,
+  AppShell,
 } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import {
@@ -124,8 +125,7 @@ export const Mock = (): ReactElement => {
     // }
 
   return (
-    <Container size="md" p='xl'>
-       
+    <Container size="md" p='xl' h={'100vh'}>
        <Modal opened={opened} onClose={close} title="Add a country" centered>
         <Stack gap={'md'}>
             <MultiSelect
@@ -157,105 +157,111 @@ export const Mock = (): ReactElement => {
             
         </Stack>
        </Modal>
-       
-       <Stack gap='md' py={'xl'}>
-        <Title>Let’s get set up!</Title>
+
+        {/* <Title>Let’s get set up!</Title>
         <Text size="sm" c="dimmed">
             This will help you create a committee and set up your event.
-        </Text>
+        </Text> */}
+        <Flex direction="column" gap="md" h="100%" w='100%' py="xl">
+            <Stack flex={1} justify='flex-start' align='center'>
+            <Stepper active={active} onStepClick={setActive}  w={'100%'}>
+                <Stepper.Step label="First step" description="Basic Information">
+                    <Container size="500px" p="md">
+                    <Flex p='xl' direction='column' gap={'md'}>
+                            <TextInput
+                                label="What’s your committee name?"
+                                placeholder="e.g. the bestest committee :D"
+                                {...form.getInputProps('committeeName')}
+                                radius="lg"
+                                required
+                            />
+                            <DateInput
+                                // minDate={dayjs().format('YYYY-MM-DD')}
+                                label="When does your event start?"
+                                placeholder="Pick a start date"
+                                value={date}
+                                onChange={setDate}
+                                radius="lg"
+                            />
 
-        <Stepper active={active} onStepClick={setActive}>
-            <Stepper.Step label="First step" description="Create an account">
-            Step 1 content: Create an account
-            </Stepper.Step>
-            <Stepper.Step label="Second step" description="Verify email">
-            Step 2 content: Verify email
-            </Stepper.Step>
-            <Stepper.Step label="Final step" description="Get full access">
-            Step 3 content: Get full access
-            </Stepper.Step>
-            <Stepper.Completed>
-            Completed, click back button to get to previous step
-            </Stepper.Completed>
-        </Stepper>
+                            <DateInput
+                                // minDate={dayjs().format('YYYY-MM-DD')}
+                                label="When does your event end?"
+                                placeholder="Pick a end date"
+                                value={date}
+                                onChange={setDate}
+                                radius="lg"
+                            />
+                    </Flex>
+                    </Container>
+                </Stepper.Step>
+                <Stepper.Step label="Second step" description="Add Staff Members">
+                    <Container size="500px" p="md">
+                        <TagsInput
+                            label="Who’s on your staff team?"
+                            placeholder="Press enter to add a staff email..."
+                            leftSection={<IconAt size={16} />}
+                            radius="lg"
+                        />
+                    </Container> 
+                </Stepper.Step>
+                <Stepper.Step label="Final step" description="Add Countries + Delegates">
+                    <Container size="800px" p="md">
+                        <Table stickyHeader highlightOnHover >
+                            <Table.Thead>
+                                <Table.Tr>
+                                <Table.Th>Country</Table.Th>
+                                <Table.Th>Delegate</Table.Th>
+                                </Table.Tr>
+                            </Table.Thead>
+                            <Table.Tbody>{rows}</Table.Tbody>
+                        </Table>
+                   
+                    
+                        {rows.length === 0 && (
+                            <Stack align='center' justify='center' bg="gray.0" p="md">
+                                <Text c="dimmed">no countries added :c</Text>
+                                <Group>
+                                <Button>Import spreadsheet?</Button>
+                                <Button>Add UN countries?</Button>
+                                </Group>
+                            </Stack>
+                        )}
 
-        <Container size="300px" m={0}>
-          <TextInput
-            label="What’s your committee name?"
-            placeholder="e.g. the bestest committee :D"
-            {...form.getInputProps('committeeName')}
-            radius="lg"
-            required
-          />
-
-          <Space h="md"></Space>
-          <DateInput
-            // minDate={dayjs().format('YYYY-MM-DD')}
-            label="When does your event start?"
-            placeholder="Pick a date"
-            value={date}
-            onChange={setDate}
-            radius="lg"
-          />
-        </Container>
-
-        <Fieldset legend="Staff">
-          <TagsInput
-            label="Who’s on your staff team?"
-            placeholder="Press enter to add a staff email..."
-            leftSection={<IconAt size={16} />}
-            radius="lg"
-          />
-        </Fieldset>
-
-        <Fieldset legend="Delegation">
-          <Table stickyHeader highlightOnHover >
-            <Table.Thead>
-                <Table.Tr>
-                <Table.Th>Country</Table.Th>
-                <Table.Th>Delegate</Table.Th>
-                </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>{rows}</Table.Tbody>
-          </Table>
-
-          {rows.length === 0 && (
-            <Stack align='center' justify='center' bg="gray.0" p="md">
-                <Text c="dimmed">no countries added :c</Text>
-                <Group>
-                <Button>Import spreadsheet?</Button>
-                <Button>Add UN countries?</Button>
-                </Group>
+                        <Flex justify="flex-end" mt="md">
+                            <ActionIcon variant="filled" aria-label="Add country" onClick={open}>
+                                <IconPlus style={{ width: '70%', height: '70%' }} stroke={2}/>
+                            </ActionIcon>
+                        </Flex>
+                     </Container>
+                </Stepper.Step>
+                <Stepper.Completed>
+                Completed, click back button to get to previous step
+                </Stepper.Completed>
+            </Stepper>
             </Stack>
-          )}
-            <Flex justify="flex-end" mt="md">
-                <ActionIcon variant="filled" aria-label="Add country" onClick={open}>
-                    <IconPlus style={{ width: '70%', height: '70%' }} stroke={2}/>
-                </ActionIcon>
+
+            {/* temp stuff */}
+            <Flex justify="flex-end" gap="sm">
+            <Button variant="outline" onClick={handleGet} radius="lg">
+                Get
+            </Button>
+            <Button onClick={handleSet} radius="lg">
+                Set
+            </Button>
             </Flex>
-               
-        </Fieldset>
 
-        <Flex justify="flex-end" gap="sm">
-          <Button variant="outline" onClick={handleGet} radius="lg">
-            Get
-          </Button>
-          <Button onClick={handleSet} radius="lg">
-            Set
-          </Button>
+            {result && (
+            <Text size="sm" mt="md">
+                {result}
+            </Text>
+            )}
+
+            <Flex justify="center" align='flex-end'p={'xl'} gap={"sm"}>
+                <Button variant="default" leftSection={<IconArrowLeft size={18} stroke={1.5}/>} onClick={prevStep}>Back</Button>
+                <Button rightSection={<IconArrowRight size={18} stroke={1.5}/>} onClick={nextStep}>Next step</Button>
+            </Flex>
         </Flex>
-
-        {result && (
-          <Text size="sm" mt="md">
-            {result}
-          </Text>
-        )}
-
-        <Flex justify="center" align='flex-end' mt="xl" gap={"sm"}>
-            <Button variant="default" leftSection={<IconArrowLeft size={18} stroke={1.5}/>} onClick={prevStep}>Back</Button>
-            <Button rightSection={<IconArrowRight size={18} stroke={1.5}/>} onClick={nextStep}>Next step</Button>
-        </Flex>
-      </Stack>
     </Container>
   );
 };
