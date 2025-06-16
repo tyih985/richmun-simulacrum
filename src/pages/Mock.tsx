@@ -20,6 +20,7 @@ import {
   Modal,
   MultiSelect,
   FileButton,
+  Stepper,
 } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import {
@@ -27,13 +28,17 @@ import {
   getFirestoreDocument,
 } from '@packages/firestoreAsQuery';
 import { committeePath } from '@packages/firestorePaths';
-import { IconAt, IconFileSpreadsheet, IconPlus } from '@tabler/icons-react';
+import { IconArrowLeft, IconArrowRight, IconAt, IconFileSpreadsheet, IconPlus } from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
 
 type TestData = { message: string };
 
 export const Mock = (): ReactElement => {
   const [opened, { open, close }] = useDisclosure(false);
+  const [active, setActive] = useState(1);
+  const nextStep = () => setActive((current) => (current < 3 ? current + 1 : current));
+  const prevStep = () => setActive((current) => (current > 0 ? current - 1 : current));
+
   
   const form = useForm({
     initialValues: {
@@ -139,6 +144,21 @@ export const Mock = (): ReactElement => {
             This will help you create a committee and set up your event.
         </Text>
 
+        <Stepper active={active} onStepClick={setActive}>
+            <Stepper.Step label="First step" description="Create an account">
+            Step 1 content: Create an account
+            </Stepper.Step>
+            <Stepper.Step label="Second step" description="Verify email">
+            Step 2 content: Verify email
+            </Stepper.Step>
+            <Stepper.Step label="Final step" description="Get full access">
+            Step 3 content: Get full access
+            </Stepper.Step>
+            <Stepper.Completed>
+            Completed, click back button to get to previous step
+            </Stepper.Completed>
+        </Stepper>
+
         <Container size="300px" m={0}>
           <TextInput
             label="What’s your committee name?"
@@ -209,6 +229,11 @@ export const Mock = (): ReactElement => {
             {result}
           </Text>
         )}
+
+        <Flex justify="center" align='flex-end' mt="xl" gap={"sm"}>
+            <Button variant="default" leftSection={<IconArrowLeft size={18} stroke={1.5}/>} onClick={prevStep}>Back</Button>
+            <Button rightSection={<IconArrowRight size={18} stroke={1.5}/>} onClick={nextStep}>Next step</Button>
+        </Flex>
       </Stack>
     </Container>
   );
