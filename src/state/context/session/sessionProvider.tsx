@@ -11,7 +11,6 @@ import { auth } from '@packages/firebase/firebaseAuth';
 
 import { SessionContext } from './sessionContext';
 
-
 export const SessionProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const queryClient = useQueryClient();
   const [isChecking, setIsChecking] = useState<boolean>(true);

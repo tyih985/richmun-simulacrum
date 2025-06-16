@@ -40,7 +40,10 @@ export const committeeMapPath = (committeeId: string, mapId: string) =>
 // Map nodes paths
 export const committeeMapNodesPath = (committeeId: string, mapId: string) =>
   `committees/${committeeId}/maps/${mapId}/nodes`;
-export const committeeMapNodePath = (committeeId: string, mapId: string, nodeId: string) =>
-  `committees/${committeeId}/maps/${mapId}/nodes/${nodeId}`;
+export const committeeMapNodePath = (
+  committeeId: string,
+  mapId: string,
+  nodeId: string,
+) => `committees/${committeeId}/maps/${mapId}/nodes/${nodeId}`;
 export const committeeMapBackgroundNodesPath = (committeeId: string, mapId: string) =>
   `committees/${committeeId}/maps/${mapId}/background_nodes`;

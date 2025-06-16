@@ -30,7 +30,13 @@ import {
   getFirestoreDocument,
 } from '@packages/firestoreAsQuery';
 import { committeePath } from '@packages/firestorePaths';
-import { IconArrowLeft, IconArrowRight, IconAt, IconFileSpreadsheet, IconPlus } from '@tabler/icons-react';
+import {
+  IconArrowLeft,
+  IconArrowRight,
+  IconAt,
+  IconFileSpreadsheet,
+  IconPlus,
+} from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
 import { generateCommitteeId } from '@packages/generateIds';
 
@@ -49,7 +55,6 @@ export const Mock = (): ReactElement => {
   const nextStep = () => setActive((current) => (current < 3 ? current + 1 : current));
   const prevStep = () => setActive((current) => (current > 0 ? current - 1 : current));
 
-  
   const form = useForm({
     initialValues: {
       committeeName: '',
@@ -82,7 +87,11 @@ export const Mock = (): ReactElement => {
 
     const path = committeePath(generatedId);
     try {
-      await createFirestoreDocument<TestData>(path, { message: form.values.committeeName }, true);
+      await createFirestoreDocument<TestData>(
+        path,
+        { message: form.values.committeeName },
+        true,
+      );
       setResult(`Wrote document at "${path}"`);
     } catch (err: any) {
       setResult(`Error: ${err.message}`);
@@ -109,52 +118,87 @@ export const Mock = (): ReactElement => {
     }
   };
 
-    const rows = tableValues.map((country) => (
-        <Table.Tr key={country}>
-        <Table.Td>{country}</Table.Td>
-        <Table.Td><TextInput placeholder='Add delegate email here...'></TextInput></Table.Td>
-        <Table.Td>{<CloseButton variant='outline'></CloseButton>}</Table.Td>
-        </Table.Tr>
-    ));
+  const removeCountry = (countryToRemove: string) => {
+    setTableValues((prev) => prev.filter((country) => country !== countryToRemove));
+  };
 
-    // const [rows, setRows] = useState([]);
+  const rows = tableValues.map((country) => (
+    <Table.Tr key={country}>
+      <Table.Td>{country}</Table.Td>
+      <Table.Td>
+        <TextInput placeholder="Add delegate email here..." />
+      </Table.Td>
+      <Table.Td>
+        <CloseButton variant="outline" onClick={() => removeCountry(country)} />
+      </Table.Td>
+    </Table.Tr>
+  ));
 
-    // const addRow = () => {
-    //     const newRow = { name: 'John Doe', age: 30 }; // Replace with your data
-    //     setRows([...rows, newRow]);
-    // }
+  // const [rows, setRows] = useState([]);
+
+  // const addRow = () => {
+  //     const newRow = { name: 'John Doe', age: 30 }; // Replace with your data
+  //     setRows([...rows, newRow]);
+  // }
 
   return (
     <Container size="md" p='xl' h={'100vh'}>
        <Modal opened={opened} onClose={close} title="Add a country" centered>
         <Stack gap={'md'}>
-            <MultiSelect
-                label="Add UN countries"
-                placeholder="Type to search..."
-                data={['Canada', 'United States', 'Mexico', 'United Kingdom', 'Germany', 'France', 'Japan', 'Australia', 'India', 'China']}
-                value={selectedValues}
-                onChange={setSelectedValues}
-                clearable
-                searchable
-                nothingFoundMessage="Nothing found..."
-            />
-            <TagsInput
-                label="Add custom countries"
-                clearable
-                placeholder="Type a country name and press enter..." // this is kinda wordy lmao but alas
-            />
-             <Group justify="flex-start">
-                <FileButton onChange={close/*<- placeholder bc i dont wanna figure it out rn should be smt to setFile*/} accept="">
-                {(props) => <Button rightSection={<IconFileSpreadsheet size={18} stroke={1.5}/>} variant='default'{...props}>Import spreadsheet</Button>}
-                </FileButton>
-            </Group>
-            <Group justify="center">
-                <Button onClick={() => {
-                    close();
-                    setTableValues((prev) => [...prev, ...selectedValues]); // Add selected values to table
-                    }}>Submit countries</Button>
-            </Group>
-            
+          <MultiSelect
+            label="Add UN countries"
+            placeholder="Type to search..."
+            data={[
+              'Canada',
+              'United States',
+              'Mexico',
+              'United Kingdom',
+              'Germany',
+              'France',
+              'Japan',
+              'Australia',
+              'India',
+              'China',
+            ]}
+            value={selectedValues}
+            onChange={setSelectedValues}
+            clearable
+            searchable
+            nothingFoundMessage="Nothing found..."
+          />
+          <TagsInput
+            label="Add custom countries"
+            clearable
+            placeholder="Type a country name and press enter..." // this is kinda wordy lmao but alas
+          />
+          <Group justify="flex-start">
+            <FileButton
+              onChange={
+                close /*<- placeholder bc i dont wanna figure it out rn should be smt to setFile*/
+              }
+              accept=""
+            >
+              {(props) => (
+                <Button
+                  rightSection={<IconFileSpreadsheet size={18} stroke={1.5} />}
+                  variant="default"
+                  {...props}
+                >
+                  Import spreadsheet
+                </Button>
+              )}
+            </FileButton>
+          </Group>
+          <Group justify="center">
+            <Button
+              onClick={() => {
+                close();
+                setTableValues((prev) => [...prev, ...selectedValues]); // Add selected values to table
+              }}
+            >
+              Submit countries
+            </Button>
+          </Group>
         </Stack>
        </Modal>
 

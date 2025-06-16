@@ -39,11 +39,7 @@ type OptionsType =
 export const mapMetaMutations = ({
   enable = true,
 }: OptionsType = {}): MapMetaMutationsType => {
-  const createMapMeta = (
-    committeeId: string,
-    mapId: string,
-    data: MapMetadataType,
-  ) => {
+  const createMapMeta = (committeeId: string, mapId: string, data: MapMetadataType) => {
     if (enable === false) return Promise.resolve(undefined);
     const path = committeeMapPath(committeeId, mapId);
     return createFirestoreDocument(path, data);
