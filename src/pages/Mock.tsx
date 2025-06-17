@@ -223,9 +223,16 @@ export const Mock = (): ReactElement => {
         <Flex direction="column" gap="md" h="100%" w='100%' py="xl">
             <Stack flex={1} justify='flex-start' align='center'>
             <Stepper active={active} onStepClick={setActive}  w={'100%'} h={'100%'}>
-                <Stepper.Step flex={1} label="First step" description="Basic Information" h={'100%'}>
+                <Stepper.Step label="First step" description="Basic Information" h={'100%'}>
                     <Container size="500px" p="xl">
-                        <Flex direction='column' gap={'md'}>
+                        <Flex direction='column' gap={'sm'}>
+                                <Title order={3}>1. Basic Information</Title>
+                                <Text size="sm">
+                                    Let us know some general information about your committee and event to get started.
+                                </Text>
+
+                                <Space h="md" />
+
                                 <TextInput
                                     label="What’s your committee name?"
                                     placeholder="e.g. the bestest committee :D"
@@ -233,6 +240,9 @@ export const Mock = (): ReactElement => {
                                     radius="lg"
                                     required
                                 />
+                                
+                                <Space h="md" />
+                                
                                 <DatePickerInput
                                     type="range"
                                     minDate={dayjs().toDate()}
@@ -245,46 +255,71 @@ export const Mock = (): ReactElement => {
                                     required>
                                     
                                 </DatePickerInput>
+                                <Text size="sm" c="dimmed">Delegates added to the committee will gain access the day your event starts. 
+                                    All unsaved data will be lost one week after you event ends.</Text>
                         </Flex>
                         </Container>
                 </Stepper.Step>
                 <Stepper.Step label="Second step" description="Add Staff Members">
                     <Container size="500px" p="xl">
-                        <TagsInput
-                            label="Who’s on your staff team?"
-                            placeholder="Press enter to add a staff email..."
-                            leftSection={<IconAt size={16} />}
-                            radius="lg"
-                        />
+                        <Flex direction='column' gap={'sm'}>
+                            <Title order={3}>2. Add Staff Members</Title>
+                            <Text size="sm">
+                                Add the emails of staff members who will be managing your committee. 
+                                They will have access to staff things (?) in the committee and can help manage delegates.
+                            </Text>
+
+                            <Space h="md" />
+
+                            <TagsInput
+                                label="Who’s on your staff team?"
+                                placeholder="Press enter to add a staff email..."
+                                leftSection={<IconAt size={16} />}
+                                radius="lg"
+                            />
+                            <Text size="sm" c="dimmed">
+                                Unsure? No worries, you can change this anytime after you've created your committee.
+                            </Text>
+                        </Flex>
+                        
                     </Container> 
                 </Stepper.Step>
                 <Stepper.Step label="Final step" description="Add Countries + Delegates">
                     <Container size="800px" p="xl">
-                        <Table stickyHeader highlightOnHover >
-                            <Table.Thead>
-                                <Table.Tr>
-                                <Table.Th>Country</Table.Th>
-                                <Table.Th>Delegate</Table.Th>
-                                </Table.Tr>
-                            </Table.Thead>
-                            <Table.Tbody>{rows}</Table.Tbody>
-                        </Table>
-                   
-                    
-                        {rows.length === 0 && (
-                            <Stack align='center' justify='center' bg="gray.0" p="md">
-                                <Text c="dimmed">no countries added :c</Text>
-                                <Group>
-                                <Button>Import spreadsheet?</Button>
-                                <Button>Add UN countries?</Button>
-                                </Group>
-                            </Stack>
-                        )}
+                        <Flex direction='column' gap={'sm'}>
+                            <Title order={3}>3. Add Countries + Delegates</Title>
+                            <Text size="sm">
+                                Add the countries and delegates that will be participating in your committee. This can be done later too!
+                            </Text>
 
-                        <Flex justify="flex-end" mt="md">
-                            <ActionIcon variant="outline" aria-label="Add country" onClick={open}>
-                                <IconPlus style={{ width: '70%', height: '70%' }} stroke={3}/>
-                            </ActionIcon>
+                            <Space h="md" />
+
+                            <Table stickyHeader highlightOnHover >
+                                <Table.Thead>
+                                    <Table.Tr>
+                                    <Table.Th>Country</Table.Th>
+                                    <Table.Th>Delegate</Table.Th>
+                                    </Table.Tr>
+                                </Table.Thead>
+                                <Table.Tbody>{rows}</Table.Tbody>
+                            </Table>
+                    
+                        
+                            {rows.length === 0 && (
+                                <Stack align='center' justify='center' bg="gray.0" p="md">
+                                    <Text c="dimmed">no countries added :c</Text>
+                                    <Group>
+                                    <Button>Import spreadsheet?</Button>
+                                    <Button>Add UN countries?</Button>
+                                    </Group>
+                                </Stack>
+                            )}
+
+                            <Flex justify="flex-end" mt="md">
+                                <ActionIcon variant="outline" aria-label="Add country" onClick={open}>
+                                    <IconPlus style={{ width: '70%', height: '70%' }} stroke={3}/>
+                                </ActionIcon>
+                            </Flex>
                         </Flex>
                      </Container>
                 </Stepper.Step>
@@ -294,7 +329,7 @@ export const Mock = (): ReactElement => {
             </Stepper>
             </Stack>
 
-            {/* temp stuff */}
+        {/* temp stuff */}
             <Flex justify="flex-end" gap="sm">
             <Button variant="outline" onClick={handleGet} radius="lg">
                 Get
@@ -310,11 +345,11 @@ export const Mock = (): ReactElement => {
             </Text>
             )}
 
-            <Flex justify="center" align='flex-end'p={'xl'} gap={"sm"}>
-                <Button variant="default" leftSection={<IconArrowLeft size={18} stroke={1.5}/>} onClick={prevStep}>Back</Button>
+        <Flex justify="flex-end" align='flex-end' py={'md'}>
                 <Button rightSection={<IconArrowRight size={18} stroke={1.5}/>} onClick={nextStep}>Next step</Button>
-            </Flex>
         </Flex>
+        </Flex>
+        
     </Container>
   );
 };
