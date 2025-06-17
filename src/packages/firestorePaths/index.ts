@@ -47,3 +47,8 @@ export const committeeMapNodePath = (
 ) => `committees/${committeeId}/maps/${mapId}/nodes/${nodeId}`;
 export const committeeMapBackgroundNodesPath = (committeeId: string, mapId: string) =>
   `committees/${committeeId}/maps/${mapId}/background_nodes`;
+
+// TYLER JAWN
+export const emailPath = (email: string) => `emails/${email}`;
+export const committeeDelegatePathTyler = (committeeId: string, country: string) =>
+  `committees/${committeeId}/delegates/${country}`;
