@@ -23,8 +23,9 @@ import {
   Stepper,
   CloseButton,
   AppShell,
+  Box,
 } from '@mantine/core';
-import { DateInput } from '@mantine/dates';
+import { DateInput, DatePickerInput } from '@mantine/dates';
 import {
   createFirestoreDocument,
   getFirestoreDocument,
@@ -34,6 +35,7 @@ import {
   IconArrowLeft,
   IconArrowRight,
   IconAt,
+  IconCalendar,
   IconFileSpreadsheet,
   IconPlus,
 } from '@tabler/icons-react';
@@ -161,8 +163,7 @@ export const Mock = (): ReactElement => {
     }
   };
 
-    const [startDate, setStartDate] = useState<Date | null>(null);
-    const [endDate, setEndDate] = useState<Date | null>(null);
+    const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null]);
 
   
 
@@ -221,36 +222,31 @@ export const Mock = (): ReactElement => {
         </Text> */}
         <Flex direction="column" gap="md" h="100%" w='100%' py="xl">
             <Stack flex={1} justify='flex-start' align='center'>
-            <Stepper active={active} onStepClick={setActive}  w={'100%'}>
-                <Stepper.Step label="First step" description="Basic Information">
+            <Stepper active={active} onStepClick={setActive}  w={'100%'} h={'100%'}>
+                <Stepper.Step flex={1} label="First step" description="Basic Information" h={'100%'}>
                     <Container size="500px" p="xl">
-                    <Flex direction='column' gap={'md'}>
-                            <TextInput
-                                label="What’s your committee name?"
-                                placeholder="e.g. the bestest committee :D"
-                                {...form.getInputProps('committeeName')}
-                                radius="lg"
-                                required
-                            />
-                            <DateInput
-                                minDate={dayjs().toDate()}
-                                label="When does your event start?"
-                                placeholder="Pick a start date"
-                                value={startDate}
-                                onChange={setStartDate}
-                                radius="lg"
-                            />
-
-                            <DateInput
-                                minDate={startDate || undefined}
-                                label="When does your event end?"
-                                placeholder="Pick a end date"
-                                value={endDate}
-                                onChange={setEndDate}
-                                radius="lg"
-                            />
-                    </Flex>
-                    </Container>
+                        <Flex direction='column' gap={'md'}>
+                                <TextInput
+                                    label="What’s your committee name?"
+                                    placeholder="e.g. the bestest committee :D"
+                                    {...form.getInputProps('committeeName')}
+                                    radius="lg"
+                                    required
+                                />
+                                <DatePickerInput
+                                    type="range"
+                                    minDate={dayjs().toDate()}
+                                    label="What date(s) will your event take place?"
+                                    placeholder="Pick a date range"
+                                    value={dateRange}
+                                    onChange={setDateRange}
+                                    radius="lg"
+                                    leftSection={<IconCalendar size={20}></IconCalendar>}
+                                    required>
+                                    
+                                </DatePickerInput>
+                        </Flex>
+                        </Container>
                 </Stepper.Step>
                 <Stepper.Step label="Second step" description="Add Staff Members">
                     <Container size="500px" p="xl">
