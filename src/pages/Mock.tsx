@@ -37,6 +37,7 @@ import {
   createEmail,
   getEmail,
 } from './yeahglo';
+
 import { DateInput, DatePickerInput } from '@mantine/dates';
 import {
   createFirestoreDocument,
@@ -68,6 +69,27 @@ export const Mock = (): ReactElement => {
       committeeName: (v) => (v.trim() ? null : 'Required'),
     },
   });
+
+  const handleSubmit = async () => {
+    console.log('submitting form', form.values);
+
+    const [startDate, endDate] = form.values.dateRange;
+    if (!startDate || !endDate) {
+      console.error('Start date and end date are required.');
+      return;
+    }
+
+    try {
+      await createCommittee(
+        generateCommitteeId(form.values.committeeName),
+        form.values.committeeName,
+        startDate,
+        endDate
+      );
+    } catch (error) {
+      console.error('Error submitting form:', error);
+    }
+  }
 
   const un_countries = [
     'Afghanistan',
@@ -274,9 +296,6 @@ export const Mock = (): ReactElement => {
   // State for custom countries
   const [customValues, setCustomValues] = useState<string[]>([]);
 
-  // // State for table data
-  const [tableValues, setTableValues] = useState<string[]>([]);
-
   // State for available countries
   const [availableCountries, setAvailableCountries] = useState<string[]>(un_countries);
 
@@ -310,23 +329,23 @@ export const Mock = (): ReactElement => {
   };
 
 const addRows = () => {
-  const UNJawn = selectedValues.map((country) => ({
+  const selectedUNDelegates = selectedValues.sort().map((country) => ({
     country,
     email: '',
   }));
-  const customJawn = customValues.map((country) => ({
+  const selectedCustomDelegates = customValues.sort().map((country) => ({
     country,
     email: '',
   }));
   form.setFieldValue('delegates', [
     ...form.values.delegates,
-    ...UNJawn,
-    ...customJawn,
+    ...selectedUNDelegates,
+    ...selectedCustomDelegates,
   ]);
-  setAvailableCountries((prev) =>
+
+   setAvailableCountries((prev) =>
     prev.filter((c) => !selectedValues.includes(c))
   );
-
   setSelectedValues([]);
   setCustomValues([]);
   close();
@@ -335,8 +354,7 @@ const addRows = () => {
 
   // State for stepper
   const [active, setActive] = useState(0);
-  const nextStep = () => setActive((current) => (current < 3 ? current + 1 : current));
-  const prevStep = () => setActive((current) => (current > 0 ? current - 1 : current));
+  const nextStep = () => setActive((current) => (current < 2 ? current + 1 : current));
 
   const [result, setResult] = useState<string | null>(null);
   const [generatedId, setGeneratedId] = useState<string | null>(null);
@@ -350,48 +368,6 @@ const addRows = () => {
       setGeneratedId(null);
     }
   }, [form.values.committeeName]);
-
-  // const handleSet = async () => {
-  //   setResult(null);
-  //   if (!generatedId) {
-  //     setResult('Valid committee name is required');
-  //     return;
-  //   }
-
-  //   const path = committeePath(generatedId);
-  //   try {
-  //     await createFirestoreDocument<TestData>(
-  //       path,
-  //       { message: form.values.committeeName },
-  //       true,
-  //     );
-  //     setResult(`Wrote document at "${path}"`);
-  //   } catch (err: any) {
-  //     setResult(`Error: ${err.message}`);
-  //   }
-  // };
-
-  // const handleGet = async () => {
-  //   setResult(null);
-  //   if (!generatedId) {
-  //     setResult('Valid committee name is required');
-  //     return;
-  //   }
-
-  //   const path = committeePath(generatedId);
-  //   try {
-  //     const data = await getFirestoreDocument<TestData>(path);
-  //     if (data) {
-  //       setResult(`Fetched: ${JSON.stringify(data)}`);
-  //     } else {
-  //       setResult(`No document at "${path}"`);
-  //     }
-  //   } catch (err: any) {
-  //     setResult(`Error: ${err.message}`);
-  //   }
-  // };
-
-  // const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null]);
 
   return (
     <Container size="md" p="xl" h={'100vh'}>
@@ -438,13 +414,10 @@ const addRows = () => {
         </Stack>
       </Modal>
 
-      {/* <Title>Let’s get set up!</Title>
-        <Text size="sm" c="dimmed">
-            This will help you create a committee and set up your event.
-        </Text> */}
       <Flex direction="column" gap="md" h="100%" w="100%" py="xl">
+        <form onSubmit={form.onSubmit(handleSubmit)}>
         <Stack flex={1} justify="flex-start" align="center">
-          <Stepper active={active} onStepClick={setActive} w={'100%'} h={'100%'}>
+          <Stepper active={active} onStepClick={setActive} allowNextStepsSelect={false} w={'100%'} h={'100%'}>
             <Stepper.Step label="First step" description="Basic Information" h={'100%'}>
               <Container size="500px" p="xl">
                 <Flex direction="column" gap={'sm'}>
@@ -480,7 +453,7 @@ const addRows = () => {
 
                   <Text size="sm" c="dimmed">
                     Delegates added to the committee will gain access the day your event
-                    starts. All unsaved data will be lost one week after you event ends.
+                    starts. All unsaved data will be lost one week after your event ends.
                   </Text>
                 </Flex>
               </Container>
@@ -556,6 +529,7 @@ const addRows = () => {
             </Stepper.Completed>
           </Stepper>
         </Stack>
+        </form>
 
         {/* temp stuff
         <Flex justify="flex-end" gap="sm">
@@ -574,12 +548,24 @@ const addRows = () => {
         )} */}
 
         <Flex justify="flex-end" align="flex-end" py={'md'}>
-          <Button
-            rightSection={<IconArrowRight size={18} stroke={1.5} />}
-            onClick={nextStep}
-          >
-            Next step
-          </Button>
+          {
+            active === 2 ? (
+              <Button
+                type='submit'
+                onClick={handleSubmit}
+              >
+                Complete
+              </Button>
+            ) : (
+              <Button
+              rightSection={<IconArrowRight size={18} stroke={1.5} />}
+              onClick={nextStep}
+            >
+              Next step
+            </Button>
+            )
+          }
+          
         </Flex>
       </Flex>
     </Container>
