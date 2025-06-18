@@ -6,7 +6,6 @@ import {
 } from '@packages/firestoreAsQuery/firestoreRequests';
 
 import {
-  usersPath,
   committeePath,
   committeeDelegatePath,
   committeeStaffMemberPath,
@@ -43,25 +42,6 @@ export async function getCommittee(
 
 export async function deleteCommittee(committeeId: string): Promise<void> {
   const path = committeePath(committeeId);
-  await deleteFirestoreDocument(path);
-}
-
-// ─── USER CRUD ─────────────────────────────────────────────────────────────────
-export async function createUser(uid: string, email: string): Promise<void> {
-  const path = usersPath(uid);
-  await createFirestoreDocument(path, { email }, true);
-}
-
-export async function getUser(
-  uid: string,
-): Promise<{ id: string; email: string } | null> {
-  const path = usersPath(uid);
-  const doc = await getFirestoreDocument<{ email: string }>(path);
-  return doc ? { id: uid, email: doc.email } : null;
-}
-
-export async function deleteUser(uid: string): Promise<void> {
-  const path = usersPath(uid);
   await deleteFirestoreDocument(path);
 }
 

@@ -28,16 +28,6 @@ import {
   FileInput,
   Select,
 } from '@mantine/core';
-import {
-  createCommittee,
-  getCommittee,
-  createUser,
-  getUser,
-  addStaffToCommittee,
-  addDelegateToCommittee,
-  addUserCommittee,
-  getUserCommittees,
-} from './yeahglo';
 import { DatePickerInput } from '@mantine/dates';
 import {
   IconArrowRight,
@@ -47,8 +37,53 @@ import {
   IconPlus,
 } from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
+import {
+  createCommittee,
+  addStaffToCommittee,
+  addDelegateToCommittee,
+  addUserCommittee,
+  createStaff,
+  createDelegate,
+} from './yeahglo';
+import { getFirestoreCollection } from '@packages/firestoreAsQuery/firestoreRequests';
+import {
+  generateCommitteeId,
+  generateDelegateId,
+  generateStaffId,
+} from '@packages/generateIds';
+import { usersPath } from '@packages/firestorePaths';
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  addDoc,
+  serverTimestamp,
+  FirestoreError,
+} from 'firebase/firestore';
+import { firestoreDb } from '@packages/firebase/firestoreDb';
 
 type Delegate = { country: string; email: string };
+
+async function getOrCreateUidFromEmail(email: string): Promise<string> {
+  try {
+    const usersCol = collection(firestoreDb, 'users');
+    const q = query(usersCol, where('email', '==', email));
+    const snap = await getDocs(q);
+    if (!snap.empty) {
+      return snap.docs[0].id;
+    }
+    // make user if snap is empty
+    const docRef = await addDoc(usersCol, {
+      email,
+      createdAt: serverTimestamp(),
+    });
+    return docRef.id;
+  } catch (e) {
+    console.error('Error in getOrCreateUidFromEmail:', (e as FirestoreError).message);
+    throw e;
+  }
+}
 
 export const Mock = (): ReactElement => {
   const form = useForm({
@@ -63,7 +98,48 @@ export const Mock = (): ReactElement => {
     },
   });
 
-  const handleSubmit = async () => {};
+  const handleSubmit = async () => {
+    try {
+      // committee
+      const committeeId = generateCommitteeId(form.values.committeeName.trim());
+      const [startDate, endDate] = form.values.dateRange;
+      await createCommittee(committeeId, form.values.committeeName, startDate!, endDate!);
+      console.log(`Committee ${committeeId} created.`);
+
+      // staff
+      const staffTasks = form.values.staff.map(async (email) => {
+        const uid = await getOrCreateUidFromEmail(email);
+        console.log(`Using user ${uid} for staff email ${email}.`);
+
+        const staffId = generateStaffId();
+        await createStaff(staffId, uid);
+        await addStaffToCommittee(committeeId, staffId, false);
+        await addUserCommittee(uid, committeeId, 'staff');
+        console.log(`Staff ${staffId} committee ${committeeId} for user ${uid}.`);
+      });
+
+      // delegates
+      const delegateTasks = form.values.delegates.map(async ({ country, email }) => {
+        const uid = await getOrCreateUidFromEmail(email);
+        console.log("Using user ${uid} for delegate email ${email}.");
+
+        const delegateId = generateDelegateId(country);
+        await createDelegate(delegateId, uid);
+        await addDelegateToCommittee(committeeId, delegateId, country);
+        await addUserCommittee(uid, committeeId, 'delegate');
+        console.log(
+          `Delegate ${delegateId} (“${country}”) committee ${committeeId} as user ${uid}.`,
+        );
+      });
+
+      await Promise.all([...staffTasks, ...delegateTasks]);
+      console.log(`All staff and delegates processed for committee ${committeeId}.`);
+      form.reset();
+      console.log('Form reset; flow complete.');
+    } catch (err) {
+      console.error('Error in handleSubmit:', err);
+    }
+  };
 
   const un_countries = [
     'Afghanistan',
