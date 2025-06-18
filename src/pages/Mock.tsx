@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import * as XLSX from 'xlsx';
 import '@mantine/dates/styles.css';
 import { useForm } from '@mantine/form';
-import { uploadImageToCloudinary } from './cloudinary';
+import { uploadToCloudinary } from './cloudinary';
 import {
   Container,
   Stack,
@@ -48,7 +48,7 @@ import {
   IconPhoto,
 } from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
-import { ExpandableButton } from './Components';
+import { ExpandableButton, ImageUploader } from './Components';
 
 type Delegate = { country: string; email: string };
 
@@ -481,6 +481,7 @@ export const Mock = (): ReactElement => {
 
   return (
     <Container size="md" p="xl" h={'100vh'}>
+      <ImageUploader></ImageUploader>
       <Modal  
       opened={opened}
       onClose={close} 
