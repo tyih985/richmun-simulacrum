@@ -322,7 +322,7 @@ const addRows = () => {
     ...selectedUNDelegates,
     ...selectedCustomDelegates,
     ...importedDelegates,
-  ].sort();
+  ].sort((a, b) => a.country.localeCompare(b.country));
 
   console.log('All delegates:', allDelegates);
 
