@@ -71,6 +71,7 @@ async function getOrCreateUidFromEmail(email: string): Promise<string> {
     const q = query(usersCol, where('email', '==', email));
     const snap = await getDocs(q);
     if (!snap.empty) {
+      console.log(`Found existing user for email ${email}:`, snap.docs[0].id);
       return snap.docs[0].id;
     }
     // make user if snap is empty
@@ -78,6 +79,7 @@ async function getOrCreateUidFromEmail(email: string): Promise<string> {
       email,
       createdAt: serverTimestamp(),
     });
+    console.log(`Created new user for email ${email}:`, docRef.id);
     return docRef.id;
   } catch (e) {
     console.error('Error in getOrCreateUidFromEmail:', (e as FirestoreError).message);
@@ -104,7 +106,6 @@ export const Mock = (): ReactElement => {
       const committeeId = generateCommitteeId(form.values.committeeName.trim());
       const [startDate, endDate] = form.values.dateRange;
       await createCommittee(committeeId, form.values.committeeName, startDate!, endDate!);
-      console.log(`Committee ${committeeId} created.`);
 
       // staff
       const staffTasks = form.values.staff.map(async (email) => {
@@ -115,21 +116,17 @@ export const Mock = (): ReactElement => {
         await createStaff(staffId, uid);
         await addStaffToCommittee(committeeId, staffId, false);
         await addUserCommittee(uid, committeeId, 'staff');
-        console.log(`Staff ${staffId} committee ${committeeId} for user ${uid}.`);
       });
 
       // delegates
       const delegateTasks = form.values.delegates.map(async ({ country, email }) => {
         const uid = await getOrCreateUidFromEmail(email);
-        console.log("Using user ${uid} for delegate email ${email}.");
+        console.log(`Using user ${uid} for delegate email ${email}.`);
 
         const delegateId = generateDelegateId(country);
         await createDelegate(delegateId, uid);
         await addDelegateToCommittee(committeeId, delegateId, country);
         await addUserCommittee(uid, committeeId, 'delegate');
-        console.log(
-          `Delegate ${delegateId} (“${country}”) committee ${committeeId} as user ${uid}.`,
-        );
       });
 
       await Promise.all([...staffTasks, ...delegateTasks]);
