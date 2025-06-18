@@ -47,6 +47,7 @@ import {
   IconPlus,
 } from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
+import { ExpandableButton } from './Components';
 
 type Delegate = { country: string; email: string };
 
@@ -617,13 +618,7 @@ export const Mock = (): ReactElement => {
                     )}
 
                     <Flex justify="flex-end" mt="md">
-                      <ActionIcon
-                        variant="outline"
-                        aria-label="Add country"
-                        onClick={open}
-                      >
-                        <IconPlus style={{ width: '70%', height: '70%' }} stroke={3} />
-                      </ActionIcon>
+                      <ExpandableButton onClick={(open)}></ExpandableButton>
                     </Flex>
                   </Flex>
                 </Container>
