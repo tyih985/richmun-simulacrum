@@ -6,7 +6,6 @@ import {
 } from '@packages/firestoreAsQuery/firestoreRequests';
 
 import {
-  usersPath,
   committeePath,
   committeeDelegatePath,
   committeeStaffMemberPath,
@@ -14,7 +13,6 @@ import {
   delegatePath,
   userCommitteesPath,
   userCommitteePath,
-  emailPath,
 } from '@packages/firestorePaths';
 
 // ─── COMMITTEE CRUD ────────────────────────────────────────────────────────────
@@ -26,6 +24,7 @@ export async function createCommittee(
 ): Promise<void> {
   const path = committeePath(committeeId);
   await createFirestoreDocument(path, { name, startDate, endDate }, true);
+  console.log(`[createCommittee] created committee ${committeeId} at path ${path} with name ${name} and dates ${startDate} to ${endDate}`);
 }
 
 export async function getCommittee(
@@ -47,25 +46,6 @@ export async function deleteCommittee(committeeId: string): Promise<void> {
   await deleteFirestoreDocument(path);
 }
 
-// ─── USER CRUD ─────────────────────────────────────────────────────────────────
-export async function createUser(uid: string, email: string): Promise<void> {
-  const path = usersPath(uid);
-  await createFirestoreDocument(path, { email }, true);
-}
-
-export async function getUser(
-  uid: string,
-): Promise<{ id: string; email: string } | null> {
-  const path = usersPath(uid);
-  const doc = await getFirestoreDocument<{ email: string }>(path);
-  return doc ? { id: uid, email: doc.email } : null;
-}
-
-export async function deleteUser(uid: string): Promise<void> {
-  const path = usersPath(uid);
-  await deleteFirestoreDocument(path);
-}
-
 // ─── USER COMMITTEE MAPPING ───────────────────────────────────────────────────
 
 export async function addUserCommittee(
@@ -75,6 +55,7 @@ export async function addUserCommittee(
 ): Promise<void> {
   const path = userCommitteePath(uid, committeeId);
   await createFirestoreDocument(path, { role }, true);
+  console.log(`[addUserCommittee] created committee ${committeeId} at path ${path} with role ${role}`);
 }
 
 export async function getUserCommittees(
@@ -103,6 +84,7 @@ export async function removeUserCommittee(
 export async function createStaff(staffId: string, uid: string): Promise<void> {
   const path = staffMemberPath(staffId);
   await createFirestoreDocument(path, { uid }, true);
+  console.log(`[createStaff] created staff ${staffId} at path ${path} mapped to uid`);
 }
 
 export async function getStaff(
@@ -127,6 +109,7 @@ export async function addStaffToCommittee(
 ): Promise<void> {
   const path = committeeStaffMemberPath(committeeId, staffId);
   await createFirestoreDocument(path, { owner }, true);
+  console.log(`[addStaffToCommittee] added staff ${staffId} to committee ${committeeId} at path ${path} with owner status ${owner}`);
 }
 
 export async function removeStaffFromCommittee(
@@ -142,6 +125,7 @@ export async function removeStaffFromCommittee(
 export async function createDelegate(delegateId: string, uid: string): Promise<void> {
   const path = delegatePath(delegateId);
   await createFirestoreDocument(path, { uid }, true);
+  console.log(`[createDelegate] created delegate ${delegateId} at path ${path} mapped to uid`);
 }
 
 export async function getDelegate(
@@ -166,6 +150,7 @@ export async function addDelegateToCommittee(
 ): Promise<void> {
   const path = committeeDelegatePath(committeeId, delegateId);
   await createFirestoreDocument(path, { name }, true);
+  console.log(`[addDelegateToCommittee] added delegate ${delegateId} to committee ${committeeId} at path ${path} with name ${name}`);
 }
 
 export async function removeDelegateFromCommittee(
