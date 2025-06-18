@@ -14,7 +14,6 @@ import {
   delegatePath,
   userCommitteesPath,
   userCommitteePath,
-  emailPath,
 } from '@packages/firestorePaths';
 
 // ─── COMMITTEE CRUD ────────────────────────────────────────────────────────────
