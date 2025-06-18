@@ -26,6 +26,7 @@ import {
   AppShell,
   Box,
   FileInput,
+  Select,
 } from '@mantine/core';
 import {
   createCommittee,
@@ -62,9 +63,7 @@ export const Mock = (): ReactElement => {
     },
   });
 
-  const handleSubmit = async () => {
-
-  };
+  const handleSubmit = async () => {};
 
   const un_countries = [
     'Afghanistan',
@@ -264,6 +263,7 @@ export const Mock = (): ReactElement => {
 
   // State for modal
   const [opened, { open, close }] = useDisclosure(false);
+  // const [activeModal, setActiveModal] = useState<'UN' | 'custom' | 'import' | null>(null);
 
   // State for UN countries
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
@@ -272,10 +272,23 @@ export const Mock = (): ReactElement => {
   const [customValues, setCustomValues] = useState<string[]>([]);
 
   // State for imported countries
-  const [importedValues, setImportedValues] = useState<{ Country: string; Delegate?: string }[]>([]);
+  const [importedValues, setImportedValues] = useState<any[]>([]);
+  const [sheetHeaders, setSheetHeaders] = useState<string[]>([]);
+  const [countryCol, setCountryCol] = useState<string | null>(null);
+  const [delegateCol, setDelegateCol] = useState<string | null>(null);
 
   // State for available countries
   const [availableCountries, setAvailableCountries] = useState<string[]>(un_countries);
+
+  const existingCountries = new Set(form.values.delegates.map((d) => d.country));
+
+  // !TEST !TEST! TEST! these r for testing
+  useEffect(() => {
+    console.log('Imported delegates updated:', importedValues);
+  }, [importedValues]);
+  useEffect(() => {
+    console.log('Imported headers updated:', sheetHeaders);
+  }, [sheetHeaders]);
 
   const rows = form.values.delegates.map(({ country, email }, idx) => (
     <Table.Tr key={`${country}-${idx}`}>
@@ -292,12 +305,67 @@ export const Mock = (): ReactElement => {
         />
       </Table.Td>
       <Table.Td>
-        <CloseButton variant="outline" onClick={() => removeDelegate(idx)} />
+        <CloseButton variant="outline" onClick={() => removeRow(idx)} />
       </Table.Td>
     </Table.Tr>
   ));
 
-  const removeDelegate = (idx: number) => {
+  const setAndSort = (newDelegates: Delegate[]) => {
+    form.setFieldValue(
+      'delegates',
+      [...form.values.delegates, ...newDelegates].sort((a, b) =>
+        a.country.localeCompare(b.country),
+      ),
+    );
+
+    close();
+  };
+
+  const addImportedRows = () => {
+    const importedDelegates = saveImported(importedValues);
+    setAndSort(importedDelegates);
+
+    setAvailableCountries((prev) =>
+      prev.filter((c) => !importedDelegates.some((d) => d.country === c)),
+    );
+    setImportedValues([]);
+    setSheetHeaders([]);
+    setCountryCol(null);
+    setDelegateCol(null);
+  };
+
+  const addCustomRows = () => {
+    const selectedCustomDelegates = customValues.map((country) => ({
+      country,
+      email: '',
+    }));
+
+    setAndSort(selectedCustomDelegates);
+
+    setAvailableCountries((prev) =>
+      prev.filter((c) => !selectedCustomDelegates.some((d) => d.country === c)),
+    );
+    setCustomValues([]);
+  };
+
+  const addUNRows = () => {
+    const selectedUNDelegates = selectedValues.map((country) => ({
+      country,
+      email: '',
+    }));
+    setAndSort(selectedUNDelegates);
+
+    setAvailableCountries((prev) => prev.filter((c) => !selectedValues.includes(c)));
+    setSelectedValues([]);
+  };
+
+  const addRows = () => {
+    addUNRows();
+    addCustomRows();
+    addImportedRows();
+  };
+
+  const removeRow = (idx: number) => {
     const removed = form.values.delegates[idx];
     form.setFieldValue(
       'delegates',
@@ -306,87 +374,69 @@ export const Mock = (): ReactElement => {
     setAvailableCountries((prev) => [...prev, removed.country]);
   };
 
-const addRows = () => {
-  const selectedUNDelegates = selectedValues.map((country) => ({
-    country,
-    email: '',
-  }));
-  const selectedCustomDelegates = customValues.map((country) => ({
-    country,
-    email: '',
-  }));
-  const importedDelegates = saveImported(importedValues);
-
-  const allDelegates = [
-    ...form.values.delegates,
-    ...selectedUNDelegates,
-    ...selectedCustomDelegates,
-    ...importedDelegates,
-  ].sort((a, b) => a.country.localeCompare(b.country));
-
-  console.log('All delegates:', allDelegates);
-
-  form.setFieldValue('delegates', allDelegates);
-
-   setAvailableCountries((prev) =>
-    prev.filter((c) => !selectedValues.includes(c))
-  );
-  setSelectedValues([]);
-  setCustomValues([]);
-  close();
-};
-
-  // !TEST !TEST! TEST! this is a test
-  useEffect(() => {
-  console.log('Imported delegates updated:', importedValues);
-}, [importedValues]);
-
-  async function readImported(payload: File | null): Promise<void> {
+  async function readImported(payload: File | null) {
     if (!payload) {
       setImportedValues([]);
       return;
-    };
-  
+    }
     try {
       const reader = new FileReader();
       reader.onload = (e) => {
         const data = new Uint8Array(e.target!.result as ArrayBuffer);
         const workbook = XLSX.read(data, { type: 'array' });
 
-        const firstSheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[firstSheetName];
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const json = XLSX.utils.sheet_to_json(sheet, { raw: true, defval: '' });
 
-        const jsonData = XLSX.utils.sheet_to_json(worksheet, { raw: true, defval: '' }) as { Country: string; Delegate?: string }[];
-        console.log('Parsed JSON data:', jsonData);
-        setImportedValues(jsonData);
-    };
-    reader.readAsArrayBuffer(payload);
+        if (!json.length) return;
 
+        const headers = Object.keys(json[0] as object);
+        setSheetHeaders(headers);
+
+        if (headers.includes('Country')) setCountryCol('Country');
+        if (headers.includes('Delegate')) setDelegateCol('Delegate');
+
+        setImportedValues(json as { Country: string; Delegate: string }[]);
+      };
+      reader.readAsArrayBuffer(payload);
     } catch (error) {
       console.error('Failed to import file:', error);
     }
   }
 
-  function saveImported(jsonData: Array<{Country: string; Delegate?: string;}>): { country: string; email: string }[] {
-  if (!Array.isArray(jsonData)) 
-    return [];
-  // Try to map spreadsheet data to delegates: expect columns like "Country" and "Delegate" or "Email"
-  const existingCountries = form.values.delegates.map((d) => d.country);
-  console.log('Existing countries:', existingCountries);
-  const mapped = jsonData
-    .map((row: {Country: string; Delegate?: string;}) => {
-      const country = row.Country?.trim();
-      const email = typeof row.Delegate === 'string' ? row.Delegate.trim() : '';
-      return { country, email };
-    }) 
-    .filter((d) => !existingCountries.includes(d.country));  // Remove existing rows from mapped
+  // Update available countries when delegates change; existingCountries changes on every render i think so this does not work. lol
+  // useEffect(() => {
+  //   setAvailableCountries(un_countries)
+  //   setAvailableCountries((prev) =>
+  //     prev.filter((c) => !existingCountries.has(c)),
+  //   );
+  // }, [existingCountries, un_countries]);
+
+  function saveImported(
+    jsonData: Record<string, unknown>[],
+  ): { country: string; email: string }[] {
+    if (!Array.isArray(jsonData)) return [];
+    console.log('ahaha:', jsonData);
+
+    const mapped = jsonData
+      .map((row) => {
+        const country =
+          countryCol && typeof row[countryCol] === 'string' ? row[countryCol].trim() : '';
+        const email =
+          delegateCol && typeof row[delegateCol] === 'string'
+            ? row[delegateCol].trim()
+            : '';
+        return { country, email };
+      })
+
+      .filter((d) => !existingCountries.has(d.country));
 
     console.log('Mapped delegates:', mapped);
 
     if (mapped.length) {
       // Remove imported countries from availableCountries if they are in the UN list
       setAvailableCountries((prev) =>
-        prev.filter((c) => !mapped.some((d) => d.country === c))
+        prev.filter((c) => !mapped.some((d) => d.country === c)),
       );
       return mapped;
     } else {
@@ -398,8 +448,6 @@ const addRows = () => {
   // State for stepper
   const [active, setActive] = useState(0);
   const nextStep = () => setActive((current) => (current < 2 ? current + 1 : current));
-
-  const [generatedId, setGeneratedId] = useState<string | null>(null);
 
   return (
     <Container size="md" p="xl" h={'100vh'}>
@@ -430,6 +478,25 @@ const addRows = () => {
             onChange={readImported}
             accept=".xlsx,.xls,.csv"
           />
+          {importedValues.length > 0 && (
+            <Group grow>
+              <Select
+                label="Which column is Country?"
+                data={sheetHeaders}
+                value={countryCol}
+                onChange={setCountryCol}
+                placeholder="Choose column"
+              />
+
+              <Select
+                label="Which column is Delegate?"
+                data={sheetHeaders}
+                value={delegateCol}
+                onChange={setDelegateCol}
+                placeholder="Choose column"
+              />
+            </Group>
+          )}
           <Group justify="center">
             <Button onClick={addRows}>Submit countries</Button>
           </Group>
@@ -437,160 +504,154 @@ const addRows = () => {
       </Modal>
 
       <Flex direction="column" gap="md" h="100%" w="100%" py="xl">
-      <Box
-        component="form"
-        onSubmit={handleSubmit}
-      >
-        <Stack flex={1} justify="flex-start" align="center">
-          <Stepper active={active} onStepClick={setActive} allowNextStepsSelect={false} w={'100%'} h={'100%'}>
-            <Stepper.Step label="First step" description="Basic Information" h={'100%'}>
-              <Container size="sm" p="xl">
-                <Flex direction="column" gap={'sm'}>
-                  <Title order={3}>1. Basic Information</Title>
-                  <Text size="sm">
-                    Let us know some general information about your committee and event to
-                    get started.
-                  </Text>
+        <Box component="form" onSubmit={handleSubmit}>
+          <Stack flex={1} justify="flex-start" align="center">
+            <Stepper
+              active={active}
+              onStepClick={setActive}
+              allowNextStepsSelect={false}
+              w={'100%'}
+              h={'100%'}
+            >
+              <Stepper.Step label="First step" description="Basic Information" h={'100%'}>
+                <Container size="sm" p="xl">
+                  <Flex direction="column" gap={'sm'}>
+                    <Title order={3}>1. Basic Information</Title>
+                    <Text size="sm">
+                      Let us know some general information about your committee and event
+                      to get started.
+                    </Text>
 
-                  <Space h="md" />
+                    <Space h="md" />
 
-                  <TextInput
-                    label="What’s your committee name?"
-                    placeholder="e.g. the bestest committee :D"
-                    {...form.getInputProps('committeeName')}
-                    radius="lg"
-                    autoFocus
-                    required
-                  />
+                    <TextInput
+                      label="What’s your committee name?"
+                      placeholder="e.g. the bestest committee :D"
+                      {...form.getInputProps('committeeName')}
+                      radius="lg"
+                      autoFocus
+                      required
+                    />
 
-                  <Space h="md" />
+                    <Space h="md" />
 
-                  <DatePickerInput
-                    type="range"
-                    minDate={dayjs().toDate()}
-                    label="What date(s) will your event take place?"
-                    placeholder="Pick a date range"
-                    value={form.values.dateRange}
-                    onChange={(range) => form.setFieldValue('dateRange', range!)}
-                    radius="lg"
-                    leftSection={<IconCalendar size={20} />}
-                    required
-                  />
+                    <DatePickerInput
+                      type="range"
+                      minDate={dayjs().toDate()}
+                      label="What date(s) will your event take place?"
+                      placeholder="Pick a date range"
+                      value={form.values.dateRange}
+                      onChange={(range) => form.setFieldValue('dateRange', range!)}
+                      radius="lg"
+                      leftSection={<IconCalendar size={20} />}
+                      required
+                    />
 
-                  <Text size="sm" c="dimmed">
-                    Delegates added to the committee will gain access the day your event
-                    starts. All unsaved data will be lost one week after your event ends.
-                  </Text>
-                </Flex>
-              </Container>
-            </Stepper.Step>
-            <Stepper.Step label="Second step" description="Add Staff Members">
-              <Container size="sm" p="xl">
-                <Flex direction="column" gap={'sm'}>
-                  <Title order={3}>2. Add Staff Members</Title>
-                  <Text size="sm">
-                    Add the emails of staff members who will be managing your committee.
-                    They will have access to staff things (?) in the committee and can
-                    help manage delegates.
-                  </Text>
-
-                  <Space h="md" />
-
-                  <TagsInput
-                    label="Who’s on your staff team?"
-                    placeholder="Press enter to add a staff email..."
-                    leftSection={<IconAt size={16} />}
-                    radius="lg"
-                    value={form.values.staff}
-                    autoFocus
-                    onChange={(list) => form.setFieldValue('staff', list)}
-                  />
-                  <Text size="sm" c="dimmed">
-                    Unsure? No worries, you can change this anytime after you've created
-                    your committee.
-                  </Text>
-                </Flex>
-              </Container>
-            </Stepper.Step>
-            <Stepper.Step label="Final step" description="Add Countries + Delegates">
-              <Container size="sm" p="xl">
-                <Flex direction="column" gap={'sm'}>
-                  <Title order={3}>3. Add Countries + Delegates</Title>
-                  <Text size="sm">
-                    Add the countries and delegates that will be participating in your
-                    committee. This can be done later too!
-                  </Text>
-
-                  <Space h="md" />
-
-                  <Table stickyHeader highlightOnHover>
-                    <Table.Thead>
-                      <Table.Tr>
-                        <Table.Th>Country</Table.Th>
-                        <Table.Th>Delegate</Table.Th>
-                      </Table.Tr>
-                    </Table.Thead>
-                    <Table.Tbody>{rows}</Table.Tbody>
-                  </Table>
-
-                  {rows.length === 0 && (
-                    <Stack align="center" justify="center" bg="gray.0" p="md">
-                      <Text c="dimmed">no countries added :c</Text>
-                      <Group>
-                        <FileButton onChange={readImported} accept=".xlsx, .xls, .csv">
-                          {(props) => (
-                            <Button
-                              {...props}
-                            >
-                              Import spreadsheet?
-                            </Button>
-                          )}
-                        </FileButton>
-                        <Button onClick={open}>Add UN countries?</Button>
-                      </Group>
-                    </Stack>
-                  )}
-
-                  <Flex justify="flex-end" mt="md">
-                    <ActionIcon variant="outline" aria-label="Add country" onClick={open}>
-                      <IconPlus style={{ width: '70%', height: '70%' }} stroke={3} />
-                    </ActionIcon>
+                    <Text size="sm" c="dimmed">
+                      Delegates added to the committee will gain access the day your event
+                      starts. All unsaved data will be lost one week after your event
+                      ends.
+                    </Text>
                   </Flex>
-                </Flex>
-              </Container>
-            </Stepper.Step>
-            <Stepper.Completed>
-              Completed, click back button to get to previous step
-            </Stepper.Completed>
-          </Stepper>
-        </Stack>
+                </Container>
+              </Stepper.Step>
+              <Stepper.Step label="Second step" description="Add Staff Members">
+                <Container size="sm" p="xl">
+                  <Flex direction="column" gap={'sm'}>
+                    <Title order={3}>2. Add Staff Members</Title>
+                    <Text size="sm">
+                      Add the emails of staff members who will be managing your committee.
+                      They will have access to staff things (?) in the committee and can
+                      help manage delegates.
+                    </Text>
+
+                    <Space h="md" />
+
+                    <TagsInput
+                      label="Who’s on your staff team?"
+                      placeholder="Press enter to add a staff email..."
+                      leftSection={<IconAt size={16} />}
+                      radius="lg"
+                      value={form.values.staff}
+                      autoFocus
+                      onChange={(list) => form.setFieldValue('staff', list)}
+                    />
+                    <Text size="sm" c="dimmed">
+                      Unsure? No worries, you can change this anytime after you've created
+                      your committee.
+                    </Text>
+                  </Flex>
+                </Container>
+              </Stepper.Step>
+              <Stepper.Step label="Final step" description="Add Countries + Delegates">
+                <Container size="sm" p="xl">
+                  <Flex direction="column" gap={'sm'}>
+                    <Title order={3}>3. Add Countries + Delegates</Title>
+                    <Text size="sm">
+                      Add the countries and delegates that will be participating in your
+                      committee. This can be done later too!
+                    </Text>
+
+                    <Space h="md" />
+
+                    <Table stickyHeader highlightOnHover>
+                      <Table.Thead>
+                        <Table.Tr>
+                          <Table.Th>Country</Table.Th>
+                          <Table.Th>Delegate</Table.Th>
+                        </Table.Tr>
+                      </Table.Thead>
+                      <Table.Tbody>{rows}</Table.Tbody>
+                    </Table>
+
+                    {rows.length === 0 && (
+                      <Stack align="center" justify="center" bg="gray.0" p="md">
+                        <Text c="dimmed">no countries added :c</Text>
+                        <Group>
+                          <FileButton onChange={readImported} accept=".xlsx, .xls, .csv">
+                            {(props) => <Button {...props}>Import spreadsheet?</Button>}
+                          </FileButton>
+                          <Button onClick={open}>Add UN countries?</Button>
+                        </Group>
+                      </Stack>
+                    )}
+
+                    <Flex justify="flex-end" mt="md">
+                      <ActionIcon
+                        variant="outline"
+                        aria-label="Add country"
+                        onClick={open}
+                      >
+                        <IconPlus style={{ width: '70%', height: '70%' }} stroke={3} />
+                      </ActionIcon>
+                    </Flex>
+                  </Flex>
+                </Container>
+              </Stepper.Step>
+              <Stepper.Completed>
+                Completed, click back button to get to previous step
+              </Stepper.Completed>
+            </Stepper>
+          </Stack>
         </Box>
 
         <Flex flex={1} justify="flex-end" align="flex-end" py={'md'}>
-          {
-            active === 2 ? (
-              <Button
-                type='submit'
-                onClick={handleSubmit}
-              >
-                Complete
-              </Button>
-            ) : (
-              <Button
-                type='submit'
-                rightSection={<IconArrowRight size={18} stroke={1.5} />}
-                onClick={nextStep}
-                // disabled={!form.isValid() || !form.values.committeeName.trim() || !form.values.dateRange[0] || !form.values.dateRange[1]}
-              >
+          {active === 2 ? (
+            <Button type="submit" onClick={handleSubmit}>
+              Complete
+            </Button>
+          ) : (
+            <Button
+              type="submit"
+              rightSection={<IconArrowRight size={18} stroke={1.5} />}
+              onClick={nextStep}
+              // disabled={!form.isValid() || !form.values.committeeName.trim() || !form.values.dateRange[0] || !form.values.dateRange[1]}
+            >
               Next step
             </Button>
-            )
-          }
+          )}
         </Flex>
-
       </Flex>
     </Container>
   );
 };
-
-
