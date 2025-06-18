@@ -1,5 +1,6 @@
 import { ReactElement, useEffect, useState } from 'react';
 import dayjs from 'dayjs';
+import * as XLSX from 'xlsx';
 import '@mantine/dates/styles.css';
 import { useForm } from '@mantine/form';
 import {
@@ -24,6 +25,7 @@ import {
   CloseButton,
   AppShell,
   Box,
+  FileInput,
 } from '@mantine/core';
 import {
   createCommittee,
@@ -62,9 +64,9 @@ export const Mock = (): ReactElement => {
     },
   });
 
-const handleSubmit = async () => {
+  const handleSubmit = async () => {
 
-};
+  };
 
   const un_countries = [
     'Afghanistan',
@@ -271,6 +273,9 @@ const handleSubmit = async () => {
   // State for custom countries
   const [customValues, setCustomValues] = useState<string[]>([]);
 
+  // State for imported countries
+  const [importedValues, setImportedValues] = useState<{country: string; email: string;}[]>([]);
+
   // State for available countries
   const [availableCountries, setAvailableCountries] = useState<string[]>(un_countries);
 
@@ -312,10 +317,13 @@ const addRows = () => {
     country,
     email: '',
   }));
+  const importedDelegates = importedValues.sort();
+
   form.setFieldValue('delegates', [
     ...form.values.delegates,
     ...selectedUNDelegates,
     ...selectedCustomDelegates,
+    ...importedDelegates,
   ]);
 
    setAvailableCountries((prev) =>
@@ -326,25 +334,58 @@ const addRows = () => {
   close();
 };
 
+  // !TEST !TEST! TEST! this is a test
+  useEffect(() => {
+  console.log('Imported delegates updated:', importedValues);
+}, [importedValues]);
+
+  async function handleFile(payload: File | null): Promise<void> {
+    if (!payload) return;
+    try {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const data = new Uint8Array(e.target!.result as ArrayBuffer);
+        const workbook = XLSX.read(data, { type: 'array' });
+
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+
+        const jsonData = XLSX.utils.sheet_to_json(worksheet, { raw: true, defval: '' }) as { Country: string; Delegate?: string }[];
+        console.log('Parsed JSON data:', jsonData);
+        setData(jsonData);
+    };
+    reader.readAsArrayBuffer(payload);
+
+    } catch (error) {
+      console.error('Failed to import file:', error);
+    }
+  }
+
+  function setData(jsonData: Array<{Country: string; Delegate?: string;}>): void {
+  if (!Array.isArray(jsonData)) return;
+  // Try to map spreadsheet data to delegates: expect columns like "Country" and "Delegate" or "Email"
+  const mapped = jsonData
+    .map((row: {Country: string; Delegate?: string;}) => {
+      const country = row.Country?.trim();
+      const email = typeof row.Delegate === 'string' ? row.Delegate.trim() : '';
+      return { country, email };
+    })
+    .filter(Boolean) as { country: string; email: string }[];
+    if (mapped.length) {
+      // Remove imported countries from availableCountries if they are in the UN list
+      setAvailableCountries((prev) =>
+        prev.filter((c) => !mapped.some((d) => d.country === c))
+      );
+    }
+    console.log('Mapped delegates:', mapped);
+    setImportedValues(mapped);
+  }
+
   // State for stepper
   const [active, setActive] = useState(0);
   const nextStep = () => setActive((current) => (current < 2 ? current + 1 : current));
 
   const [generatedId, setGeneratedId] = useState<string | null>(null);
-
-  // Regenerate ID only when committeeName changes
-  useEffect(() => {
-    const name = form.values.committeeName.trim();
-    if (name) {
-      setGeneratedId(generateCommitteeId(name));
-    } else {
-      setGeneratedId(null);
-    }
-  }, [form.values.committeeName]);
-
-  async function handleFile(payload: File | null): Promise<void> {
-    if (!payload) return;
-  }
 
   return (
     <Container size="md" p="xl" h={'100vh'}>
@@ -367,20 +408,14 @@ const addRows = () => {
             onChange={setCustomValues}
             clearable
           />
-          <Group justify="flex-start">
-            <FileButton onChange={handleFile} accept=".xlsx, .xls, .csv"
-            >
-              {(props) => (
-                <Button
-                  rightSection={<IconFileSpreadsheet size={18} stroke={1.5} />}
-                  variant="default"
-                  {...props}
-                >
-                  Import spreadsheet
-                </Button>
-              )}
-            </FileButton>
-          </Group>
+          <FileInput
+            clearable
+            label="Import spreadsheet"
+            placeholder="Upload spreadsheet"
+            leftSection={<IconFileSpreadsheet size={18} stroke={1.5} />}
+            onChange={handleFile}
+            accept=".xlsx,.xls,.csv"
+          />
           <Group justify="center">
             <Button onClick={addRows}>Submit countries</Button>
           </Group>
@@ -486,8 +521,16 @@ const addRows = () => {
                     <Stack align="center" justify="center" bg="gray.0" p="md">
                       <Text c="dimmed">no countries added :c</Text>
                       <Group>
-                        <Button>Import spreadsheet?</Button>
-                        <Button>Add UN countries?</Button>
+                        <FileButton onChange={handleFile} accept=".xlsx, .xls, .csv">
+                          {(props) => (
+                            <Button
+                              {...props}
+                            >
+                              Import spreadsheet
+                            </Button>
+                          )}
+                        </FileButton>
+                        <Button onClick={open}>Add UN countries?</Button>
                       </Group>
                     </Stack>
                   )}
@@ -533,3 +576,5 @@ const addRows = () => {
     </Container>
   );
 };
+
+
