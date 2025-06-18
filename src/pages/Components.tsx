@@ -30,9 +30,9 @@ export function ExpandableButton({
         <Group
         grow
         >
-          <Button size="xs" color="blue" onClick={onFirst} >Add UN country</Button>
-          <Button size="xs" color="green" onClick={onSecond} >Add custom country</Button>
-          <Button size="xs" color="red" onClick={onThird} >Import spreadsheet</Button>
+          <Button size="xs" color="blue" onClick={onFirst} >+UN country</Button>
+          <Button size="xs" color="green" onClick={onSecond} >+custom</Button>
+          <Button size="xs" color="red" onClick={onThird} >+spreadsheet</Button>
         </Group>
       ) : (
         <ActionIcon

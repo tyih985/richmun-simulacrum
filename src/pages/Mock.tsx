@@ -3,6 +3,7 @@ import dayjs from 'dayjs';
 import * as XLSX from 'xlsx';
 import '@mantine/dates/styles.css';
 import { useForm } from '@mantine/form';
+import { uploadImageToCloudinary } from './cloudinary';
 import {
   Container,
   Stack,
@@ -44,7 +45,7 @@ import {
   IconAt,
   IconCalendar,
   IconFileSpreadsheet,
-  IconPlus,
+  IconPhoto,
 } from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
 import { ExpandableButton } from './Components';
@@ -263,8 +264,8 @@ export const Mock = (): ReactElement => {
   ];
 
   // State for modal
-  const [opened, { open, close }] = useDisclosure(false);
-  // const [activeModal, setActiveModal] = useState<'UN' | 'custom' | 'import' | null>(null);
+  const [opened, { open, close: close }] = useDisclosure(false);
+  const [activeModal, setActiveModal] = useState<'UN' | 'custom' | 'import' | null>(null);  
 
   // State for UN countries
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
@@ -283,6 +284,26 @@ export const Mock = (): ReactElement => {
 
   const existingCountries = new Set(form.values.delegates.map((d) => d.country));
 
+  // State for flag things
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [flag, setFlag] = useState<File | null>(null);
+  const [loading, setLoading] = useState(false);
+  
+  const handleImage = async () => {
+    if (!flag) return;
+    setLoading(true);
+    try {
+      const url = await uploadImageToCloudinary(flag);
+      setImageUrl(url);
+      console.log('image url:', imageUrl);
+
+    } catch (err) {
+      console.error('Upload error', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // !TEST !TEST! TEST! these r for testing
   useEffect(() => {
     console.log('Imported delegates updated:', importedValues);
@@ -290,6 +311,12 @@ export const Mock = (): ReactElement => {
   useEffect(() => {
     console.log('Imported headers updated:', sheetHeaders);
   }, [sheetHeaders]);
+    useEffect(() => {
+    console.log('selected values updated:', selectedValues);
+  }, [selectedValues]);
+    useEffect(() => {
+    console.log('custom values updated:', customValues);
+  }, [customValues]);
 
   const rows = form.values.delegates.map(({ country, email }, idx) => (
     <Table.Tr key={`${country}-${idx}`}>
@@ -340,6 +367,8 @@ export const Mock = (): ReactElement => {
       country,
       email: '',
     }));
+
+    handleImage();
 
     setAndSort(selectedCustomDelegates);
 
@@ -452,9 +481,19 @@ export const Mock = (): ReactElement => {
 
   return (
     <Container size="md" p="xl" h={'100vh'}>
-      <Modal opened={opened} onClose={close} title="Add a country" centered>
-        <Stack p={'lg'} pt="sm" gap={'md'}>
-          <MultiSelect
+      <Modal  
+      opened={opened}
+      onClose={close} 
+      title={activeModal === 'UN'
+            ? 'Add UN countries'
+            : activeModal === 'custom'
+            ? 'Add custom country'
+            : 'Import Spreadsheet'} 
+      centered>
+
+          {activeModal === 'UN' && (
+            <Stack>
+<           MultiSelect
             label="Add UN countries"
             placeholder="Type to search..."
             data={availableCountries.sort()}
@@ -464,13 +503,42 @@ export const Mock = (): ReactElement => {
             searchable
             nothingFoundMessage="Nothing found..."
           />
-          <TagsInput
+          <Group justify="center">
+            <Button onClick={addUNRows}>Submit countries</Button>
+          </Group>
+            </Stack>
+            
+        )}
+
+        {activeModal === 'custom' && (
+          <Stack>
+            <TagsInput
             label="Add custom countries"
             placeholder="Type a country name and press enter..." // this is kinda wordy lmao but alas
             value={customValues}
             onChange={setCustomValues}
             clearable
-          />
+            />
+            <FileInput
+            clearable
+            value={flag}
+            onChange={setFlag}
+            label="Add a flag"
+            disabled={loading}
+            placeholder="Upload image"
+            leftSection={<IconPhoto size={18} stroke={1.5} />}
+            accept=".jpg,.png,.webp"
+            ></FileInput>
+
+          <Group justify="center">
+            <Button onClick={addCustomRows}>Submit countries</Button>
+          </Group>
+          </Stack>
+        )}
+
+        {activeModal === 'import' && (
+          <Stack>
+            <div>
           <FileInput
             clearable
             label="Import spreadsheet"
@@ -479,29 +547,34 @@ export const Mock = (): ReactElement => {
             onChange={readImported}
             accept=".xlsx,.xls,.csv"
           />
-          {importedValues.length > 0 && (
-            <Group grow>
-              <Select
-                label="Which column is Country?"
-                data={sheetHeaders}
-                value={countryCol}
-                onChange={setCountryCol}
-                placeholder="Choose column"
-              />
+            {importedValues.length > 0 && (
+              <Group grow>
+                <Select
+                  label="Which column is Country?"
+                  data={sheetHeaders}
+                  value={countryCol}
+                  onChange={setCountryCol}
+                  placeholder="Choose column"
+                />
 
-              <Select
-                label="Which column is Delegate?"
-                data={sheetHeaders}
-                value={delegateCol}
-                onChange={setDelegateCol}
-                placeholder="Choose column"
-              />
+                <Select
+                  label="Which column is Delegate?"
+                  data={sheetHeaders}
+                  value={delegateCol}
+                  onChange={setDelegateCol}
+                  placeholder="Choose column"
+                />
+              </Group>
+            )}
+          </div>
+
+            <Group justify="center">
+              <Button onClick={addImportedRows}>Submit countries</Button>
             </Group>
-          )}
-          <Group justify="center">
-            <Button onClick={addRows}>Submit countries</Button>
-          </Group>
-        </Stack>
+          </Stack>
+          
+        )}
+          
       </Modal>
 
       <Flex direction="column" gap="md" h="100%" w="100%" py="xl">
@@ -618,7 +691,21 @@ export const Mock = (): ReactElement => {
                     )}
 
                     <Flex justify="flex-end" mt="md">
-                      <ExpandableButton onClick={(open)}></ExpandableButton>
+                      <ExpandableButton 
+                        onClick= {(open)} 
+                        onFirst= {() => {
+                          setActiveModal('UN')
+                          open()
+                        }} 
+                        onSecond={() => {
+                          setActiveModal('custom')
+                          open()
+                        }}
+                        onThird= {() => {
+                          setActiveModal('import')
+                          open()
+                          }}>
+                      </ExpandableButton>
                     </Flex>
                   </Flex>
                 </Container>
