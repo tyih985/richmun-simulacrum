@@ -1,6 +1,38 @@
 import { useState } from 'react';
-import { ActionIcon, Button, Group, rem, Stack } from '@mantine/core';
+import { ActionIcon, Button, Group, FileInput, Image, Loader, Stack } from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
+import { uploadToCloudinary } from './cloudinary';
+
+export const ImageUploader = () => {
+  const [file, setFile] = useState<File | null>(null);
+  const [url, setUrl] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleUpload = async () => {
+    if (!file) return;
+    setLoading(true);
+    try {
+      const uploadedUrl = await uploadToCloudinary(file);
+      setUrl(uploadedUrl);
+    } catch (err) {
+      console.error('Upload failed:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Stack>
+      <FileInput value={file} onChange={setFile} label="Choose an image" accept="image/*" />
+      <Button onClick={handleUpload} disabled={!file || loading}>
+        Upload to Cloudinary
+      </Button>
+      {loading && <Loader />}
+      {url && <Image src={url} alt="Uploaded" width={300} />}
+    </Stack>
+  );
+};
+
 
 export function ExpandableButton({
   onClick,
