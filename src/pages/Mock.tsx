@@ -37,9 +37,8 @@ import {
   addUserCommittee,
   getUserCommittees,
 } from './yeahglo';
-import { DateInput, DatePickerInput } from '@mantine/dates';
+import { DatePickerInput } from '@mantine/dates';
 import {
-  IconArrowLeft,
   IconArrowRight,
   IconAt,
   IconCalendar,
@@ -47,7 +46,6 @@ import {
   IconPlus,
 } from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
-import { generateCommitteeId } from '@packages/generateIds';
 
 type Delegate = { country: string; email: string };
 
@@ -274,7 +272,7 @@ export const Mock = (): ReactElement => {
   const [customValues, setCustomValues] = useState<string[]>([]);
 
   // State for imported countries
-  const [importedValues, setImportedValues] = useState<{country: string; email: string;}[]>([]);
+  const [importedValues, setImportedValues] = useState<{ Country: string; Delegate?: string }[]>([]);
 
   // State for available countries
   const [availableCountries, setAvailableCountries] = useState<string[]>(un_countries);
@@ -309,22 +307,26 @@ export const Mock = (): ReactElement => {
   };
 
 const addRows = () => {
-  const selectedUNDelegates = selectedValues.sort().map((country) => ({
+  const selectedUNDelegates = selectedValues.map((country) => ({
     country,
     email: '',
   }));
-  const selectedCustomDelegates = customValues.sort().map((country) => ({
+  const selectedCustomDelegates = customValues.map((country) => ({
     country,
     email: '',
   }));
-  const importedDelegates = importedValues.sort();
+  const importedDelegates = saveImported(importedValues);
 
-  form.setFieldValue('delegates', [
+  const allDelegates = [
     ...form.values.delegates,
     ...selectedUNDelegates,
     ...selectedCustomDelegates,
     ...importedDelegates,
-  ]);
+  ].sort();
+
+  console.log('All delegates:', allDelegates);
+
+  form.setFieldValue('delegates', allDelegates);
 
    setAvailableCountries((prev) =>
     prev.filter((c) => !selectedValues.includes(c))
@@ -339,8 +341,12 @@ const addRows = () => {
   console.log('Imported delegates updated:', importedValues);
 }, [importedValues]);
 
-  async function handleFile(payload: File | null): Promise<void> {
-    if (!payload) return;
+  async function readImported(payload: File | null): Promise<void> {
+    if (!payload) {
+      setImportedValues([]);
+      return;
+    };
+  
     try {
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -352,7 +358,7 @@ const addRows = () => {
 
         const jsonData = XLSX.utils.sheet_to_json(worksheet, { raw: true, defval: '' }) as { Country: string; Delegate?: string }[];
         console.log('Parsed JSON data:', jsonData);
-        setData(jsonData);
+        setImportedValues(jsonData);
     };
     reader.readAsArrayBuffer(payload);
 
@@ -361,24 +367,32 @@ const addRows = () => {
     }
   }
 
-  function setData(jsonData: Array<{Country: string; Delegate?: string;}>): void {
-  if (!Array.isArray(jsonData)) return;
+  function saveImported(jsonData: Array<{Country: string; Delegate?: string;}>): { country: string; email: string }[] {
+  if (!Array.isArray(jsonData)) 
+    return [];
   // Try to map spreadsheet data to delegates: expect columns like "Country" and "Delegate" or "Email"
+  const existingCountries = form.values.delegates.map((d) => d.country);
+  console.log('Existing countries:', existingCountries);
   const mapped = jsonData
     .map((row: {Country: string; Delegate?: string;}) => {
       const country = row.Country?.trim();
       const email = typeof row.Delegate === 'string' ? row.Delegate.trim() : '';
       return { country, email };
-    })
-    .filter(Boolean) as { country: string; email: string }[];
+    }) 
+    .filter((d) => !existingCountries.includes(d.country));  // Remove existing rows from mapped
+
+    console.log('Mapped delegates:', mapped);
+
     if (mapped.length) {
       // Remove imported countries from availableCountries if they are in the UN list
       setAvailableCountries((prev) =>
         prev.filter((c) => !mapped.some((d) => d.country === c))
       );
+      return mapped;
+    } else {
+      console.warn('No new delegates to add, all are already present.');
+      return [];
     }
-    console.log('Mapped delegates:', mapped);
-    setImportedValues(mapped);
   }
 
   // State for stepper
@@ -413,7 +427,7 @@ const addRows = () => {
             label="Import spreadsheet"
             placeholder="Upload spreadsheet"
             leftSection={<IconFileSpreadsheet size={18} stroke={1.5} />}
-            onChange={handleFile}
+            onChange={readImported}
             accept=".xlsx,.xls,.csv"
           />
           <Group justify="center">
@@ -445,6 +459,7 @@ const addRows = () => {
                     placeholder="e.g. the bestest committee :D"
                     {...form.getInputProps('committeeName')}
                     radius="lg"
+                    autoFocus
                     required
                   />
 
@@ -487,6 +502,7 @@ const addRows = () => {
                     leftSection={<IconAt size={16} />}
                     radius="lg"
                     value={form.values.staff}
+                    autoFocus
                     onChange={(list) => form.setFieldValue('staff', list)}
                   />
                   <Text size="sm" c="dimmed">
@@ -521,12 +537,12 @@ const addRows = () => {
                     <Stack align="center" justify="center" bg="gray.0" p="md">
                       <Text c="dimmed">no countries added :c</Text>
                       <Group>
-                        <FileButton onChange={handleFile} accept=".xlsx, .xls, .csv">
+                        <FileButton onChange={readImported} accept=".xlsx, .xls, .csv">
                           {(props) => (
                             <Button
                               {...props}
                             >
-                              Import spreadsheet
+                              Import spreadsheet?
                             </Button>
                           )}
                         </FileButton>
@@ -564,7 +580,7 @@ const addRows = () => {
                 type='submit'
                 rightSection={<IconArrowRight size={18} stroke={1.5} />}
                 onClick={nextStep}
-                disabled={!form.isValid() || !form.values.committeeName.trim() || !form.values.dateRange[0] || !form.values.dateRange[1]}
+                // disabled={!form.isValid() || !form.values.committeeName.trim() || !form.values.dateRange[0] || !form.values.dateRange[1]}
               >
               Next step
             </Button>
