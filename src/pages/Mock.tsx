@@ -342,6 +342,10 @@ const addRows = () => {
     }
   }, [form.values.committeeName]);
 
+  async function handleFile(payload: File | null): Promise<void> {
+    if (!payload) return;
+  }
+
   return (
     <Container size="md" p="xl" h={'100vh'}>
       <Modal opened={opened} onClose={close} title="Add a country" centered>
@@ -364,11 +368,7 @@ const addRows = () => {
             clearable
           />
           <Group justify="flex-start">
-            <FileButton
-              onChange={
-                close /*<- placeholder bc i dont wanna figure it out rn should be smt to setFile*/
-              }
-              accept=""
+            <FileButton onChange={handleFile} accept=".xlsx, .xls, .csv"
             >
               {(props) => (
                 <Button
@@ -388,11 +388,14 @@ const addRows = () => {
       </Modal>
 
       <Flex direction="column" gap="md" h="100%" w="100%" py="xl">
-        <form onSubmit={form.onSubmit(handleSubmit)}>
+      <Box
+        component="form"
+        onSubmit={handleSubmit}
+      >
         <Stack flex={1} justify="flex-start" align="center">
           <Stepper active={active} onStepClick={setActive} allowNextStepsSelect={false} w={'100%'} h={'100%'}>
             <Stepper.Step label="First step" description="Basic Information" h={'100%'}>
-              <Container size="500px" p="xl">
+              <Container size="sm" p="xl">
                 <Flex direction="column" gap={'sm'}>
                   <Title order={3}>1. Basic Information</Title>
                   <Text size="sm">
@@ -432,7 +435,7 @@ const addRows = () => {
               </Container>
             </Stepper.Step>
             <Stepper.Step label="Second step" description="Add Staff Members">
-              <Container size="500px" p="xl">
+              <Container size="sm" p="xl">
                 <Flex direction="column" gap={'sm'}>
                   <Title order={3}>2. Add Staff Members</Title>
                   <Text size="sm">
@@ -459,7 +462,7 @@ const addRows = () => {
               </Container>
             </Stepper.Step>
             <Stepper.Step label="Final step" description="Add Countries + Delegates">
-              <Container size="800px" p="xl">
+              <Container size="sm" p="xl">
                 <Flex direction="column" gap={'sm'}>
                   <Title order={3}>3. Add Countries + Delegates</Title>
                   <Text size="sm">
@@ -502,9 +505,9 @@ const addRows = () => {
             </Stepper.Completed>
           </Stepper>
         </Stack>
-        </form>
+        </Box>
 
-        <Flex justify="flex-end" align="flex-end" py={'md'}>
+        <Flex flex={1} justify="flex-end" align="flex-end" py={'md'}>
           {
             active === 2 ? (
               <Button
@@ -515,15 +518,17 @@ const addRows = () => {
               </Button>
             ) : (
               <Button
-              rightSection={<IconArrowRight size={18} stroke={1.5} />}
-              onClick={nextStep}
-            >
+                type='submit'
+                rightSection={<IconArrowRight size={18} stroke={1.5} />}
+                onClick={nextStep}
+                disabled={!form.isValid() || !form.values.committeeName.trim() || !form.values.dateRange[0] || !form.values.dateRange[1]}
+              >
               Next step
             </Button>
             )
           }
-          
         </Flex>
+
       </Flex>
     </Container>
   );
