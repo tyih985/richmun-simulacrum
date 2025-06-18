@@ -34,16 +34,8 @@ import {
   addDelegateToCommittee,
   addUserCommittee,
   getUserCommittees,
-  createEmail,
-  getEmail,
 } from './yeahglo';
-
 import { DateInput, DatePickerInput } from '@mantine/dates';
-import {
-  createFirestoreDocument,
-  getFirestoreDocument,
-} from '@packages/firestoreAsQuery';
-import { committeePath } from '@packages/firestorePaths';
 import {
   IconArrowLeft,
   IconArrowRight,
@@ -70,26 +62,9 @@ export const Mock = (): ReactElement => {
     },
   });
 
-  const handleSubmit = async () => {
-    console.log('submitting form', form.values);
+const handleSubmit = async () => {
 
-    const [startDate, endDate] = form.values.dateRange;
-    if (!startDate || !endDate) {
-      console.error('Start date and end date are required.');
-      return;
-    }
-
-    try {
-      await createCommittee(
-        generateCommitteeId(form.values.committeeName),
-        form.values.committeeName,
-        startDate,
-        endDate
-      );
-    } catch (error) {
-      console.error('Error submitting form:', error);
-    }
-  }
+};
 
   const un_countries = [
     'Afghanistan',
@@ -351,12 +326,10 @@ const addRows = () => {
   close();
 };
 
-
   // State for stepper
   const [active, setActive] = useState(0);
   const nextStep = () => setActive((current) => (current < 2 ? current + 1 : current));
 
-  const [result, setResult] = useState<string | null>(null);
   const [generatedId, setGeneratedId] = useState<string | null>(null);
 
   // Regenerate ID only when committeeName changes
@@ -530,22 +503,6 @@ const addRows = () => {
           </Stepper>
         </Stack>
         </form>
-
-        {/* temp stuff
-        <Flex justify="flex-end" gap="sm">
-          <Button variant="outline" onClick={handleGet} radius="lg">
-            Get
-          </Button>
-          <Button onClick={handleSet} radius="lg">
-            Set
-          </Button>
-        </Flex>
-
-        {result && (
-          <Text size="sm" mt="md">
-            {result}
-          </Text>
-        )} */}
 
         <Flex justify="flex-end" align="flex-end" py={'md'}>
           {

@@ -48,7 +48,17 @@ export const committeeMapNodePath = (
 export const committeeMapBackgroundNodesPath = (committeeId: string, mapId: string) =>
   `committees/${committeeId}/maps/${mapId}/background_nodes`;
 
-// TYLER JAWN
-export const emailPath = (email: string) => `emails/${email}`;
-export const committeeDelegatePathTyler = (committeeId: string, country: string) =>
-  `committees/${committeeId}/delegates/${country}`;
+// ─────────────────────────────────────────────── Tyler stuff ───────────────────────────────────────────────
+
+// Staff at root
+export const staffPath = () => 'staff';
+export const staffMemberPath = (staffId: string) => `staff/${staffId}`;
+
+// Delegates at root
+export const delegatesPath = () => 'delegates';
+export const delegatePath = (delegateId: string) => `delegates/${delegateId}`;
+
+// User's list of committees
+export const userCommitteesPath = (userId: string) => `users/${userId}/committees`;
+export const userCommitteePath = (userId: string, committeeId: string) =>
+  `users/${userId}/committees/${committeeId}`;
