@@ -50,7 +50,6 @@ export const ImageUploader = ({ onChange, onUploadSuccess }: Props) => {
   );
 };
 
-
 export function ExpandableButton({
   onClick,
   onFirst,
@@ -75,7 +74,6 @@ export function ExpandableButton({
         overflow: 'hidden',
       }}
     >
-      
       {hovered ? (
         <Stack 
         >
@@ -84,15 +82,10 @@ export function ExpandableButton({
           <Button variant='outline' size="xs" onClick={onThird} > import spreadsheet</Button>
         </Stack>
       ) : (
-        <ActionIcon
-        variant="outline"
-        aria-label="Add"
-        onClick={onClick}
-        size="md"
-      ><IconPlus style={{ width: '70%', height: '70%' }} stroke={2.5} /></ActionIcon>
-      )
-      }
+        <ActionIcon variant="outline" aria-label="Add" onClick={onClick} size="md">
+          <IconPlus style={{ width: '70%', height: '70%' }} stroke={2.5} />
+        </ActionIcon>
+      )}
     </Group>
   );
 }
-

@@ -76,7 +76,7 @@ export const Mock = (): ReactElement => {
     },
   });
 
-    async function ultimateConsoleLog(): Promise<void> {
+  async function ultimateConsoleLog(): Promise<void> {
     console.log('--- DATABASE DUMP START ---');
 
     // 1) Committees + their staff and delegate subcollections
@@ -85,13 +85,17 @@ export const Mock = (): ReactElement => {
     for (const cDoc of committeesSnap.docs) {
       console.log(`Committee [${cDoc.id}]:`, cDoc.data());
 
-      const staffSnap = await getDocs(collection(firestoreDb, 'committees', cDoc.id, 'staff'));
+      const staffSnap = await getDocs(
+        collection(firestoreDb, 'committees', cDoc.id, 'staff'),
+      );
       console.log(`  ↳ staff (${staffSnap.size}):`);
-      staffSnap.docs.forEach(s => console.log(`    • [${s.id}]`, s.data()));
+      staffSnap.docs.forEach((s) => console.log(`    • [${s.id}]`, s.data()));
 
-      const delSnap = await getDocs(collection(firestoreDb, 'committees', cDoc.id, 'delegates'));
+      const delSnap = await getDocs(
+        collection(firestoreDb, 'committees', cDoc.id, 'delegates'),
+      );
       console.log(`  ↳ delegates (${delSnap.size}):`);
-      delSnap.docs.forEach(d => console.log(`    • [${d.id}]`, d.data()));
+      delSnap.docs.forEach((d) => console.log(`    • [${d.id}]`, d.data()));
     }
 
     // 2) Users + their committees
@@ -100,20 +104,22 @@ export const Mock = (): ReactElement => {
     for (const uDoc of usersSnap.docs) {
       console.log(`User [${uDoc.id}]:`, uDoc.data());
 
-      const ucSnap = await getDocs(collection(firestoreDb, 'users', uDoc.id, 'committees'));
+      const ucSnap = await getDocs(
+        collection(firestoreDb, 'users', uDoc.id, 'committees'),
+      );
       console.log(`  ↳ user‑committees (${ucSnap.size}):`);
-      ucSnap.docs.forEach(uc => console.log(`    • [${uc.id}]`, uc.data()));
+      ucSnap.docs.forEach((uc) => console.log(`    • [${uc.id}]`, uc.data()));
     }
 
     // 3) Root staff collection
     const rootStaffSnap = await getDocs(collection(firestoreDb, 'staff'));
     console.log(`Found ${rootStaffSnap.size} staff records at root.`);
-    rootStaffSnap.docs.forEach(s => console.log(`  • [${s.id}]`, s.data()));
+    rootStaffSnap.docs.forEach((s) => console.log(`  • [${s.id}]`, s.data()));
 
     // 4) Root delegates collection
     const rootDelSnap = await getDocs(collection(firestoreDb, 'delegates'));
     console.log(`Found ${rootDelSnap.size} delegate records at root.`);
-    rootDelSnap.docs.forEach(d => console.log(`  • [${d.id}]`, d.data()));
+    rootDelSnap.docs.forEach((d) => console.log(`  • [${d.id}]`, d.data()));
 
     console.log('--- DATABASE DUMP END ---');
   }
@@ -133,7 +139,9 @@ export const Mock = (): ReactElement => {
         const staffId = generateStaffId();
         await createStaff(staffId, uid);
         await addStaffToCommittee(committeeId, staffId, false);
-        await addUserCommittee(uid, committeeId, 'staff');
+        if (uid) {
+          await addUserCommittee(uid, committeeId, 'staff');
+        }
       });
 
       // delegates
@@ -144,7 +152,9 @@ export const Mock = (): ReactElement => {
         const delegateId = generateDelegateId(country);
         await createDelegate(delegateId, uid);
         await addDelegateToCommittee(committeeId, delegateId, country);
-        await addUserCommittee(uid, committeeId, 'delegate');
+        if (uid) {
+          await addUserCommittee(uid, committeeId, 'delegate');
+        }
       });
 
       await Promise.all([...staffTasks, ...delegateTasks]);
@@ -354,7 +364,7 @@ export const Mock = (): ReactElement => {
 
   // State for modal
   const [opened, { open, close: close }] = useDisclosure(false);
-  const [activeModal, setActiveModal] = useState<'UN' | 'custom' | 'import' | null>(null);  
+  const [activeModal, setActiveModal] = useState<'UN' | 'custom' | 'import' | null>(null);
 
   // State for UN countries
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
@@ -398,10 +408,10 @@ export const Mock = (): ReactElement => {
   useEffect(() => {
     console.log('Imported headers updated:', sheetHeaders);
   }, [sheetHeaders]);
-    useEffect(() => {
+  useEffect(() => {
     console.log('selected values updated:', selectedValues);
   }, [selectedValues]);
-    useEffect(() => {
+  useEffect(() => {
     console.log('custom values updated:', customValues);
   }, [customValues]);
 
@@ -580,37 +590,37 @@ export const Mock = (): ReactElement => {
       title={activeModal === 'UN'
             ? 'Add UN countries'
             : activeModal === 'custom'
-            ? 'Add custom country'
-            : 'Import Spreadsheet'} 
-      centered>
-
-          {activeModal === 'UN' && (
-            <Stack>
-<           MultiSelect
-            label="Add UN countries"
-            placeholder="Type to search..."
-            data={availableCountries.sort()}
-            value={selectedValues}
-            onChange={setSelectedValues}
-            clearable
-            searchable
-            nothingFoundMessage="Nothing found..."
-          />
-          <Group justify="center">
-            <Button onClick={addUNRows}>Submit countries</Button>
-          </Group>
-            </Stack>
-            
+              ? 'Add custom country'
+              : 'Import Spreadsheet'
+        }
+        centered
+      >
+        {activeModal === 'UN' && (
+          <Stack>
+            <MultiSelect
+              label="Add UN countries"
+              placeholder="Type to search..."
+              data={availableCountries.sort()}
+              value={selectedValues}
+              onChange={setSelectedValues}
+              clearable
+              searchable
+              nothingFoundMessage="Nothing found..."
+            />
+            <Group justify="center">
+              <Button onClick={addUNRows}>Submit countries</Button>
+            </Group>
+          </Stack>
         )}
 
         {activeModal === 'custom' && (
           <Stack>
             <TagsInput
-            label="Add custom countries"
-            placeholder="Type a country name and press enter..." // this is kinda wordy lmao but alas
-            value={customValues}
-            onChange={setCustomValues}
-            clearable
+              label="Add custom countries"
+              placeholder="Type a country name and press enter..." // this is kinda wordy lmao but alas
+              value={customValues}
+              onChange={setCustomValues}
+              clearable
             />
             {/* <TextInput
             label="Add custom country"
@@ -622,51 +632,49 @@ export const Mock = (): ReactElement => {
             src={uploadedUrl}
             />}
 
-          <Group justify="center">
-            <Button onClick={addCustomRows}>Submit countries</Button>
-          </Group>
+            <Group justify="center">
+              <Button onClick={addCustomRows}>Submit countries</Button>
+            </Group>
           </Stack>
         )}
 
         {activeModal === 'import' && (
           <Stack>
             <div>
-          <FileInput
-            clearable
-            label="Import spreadsheet"
-            placeholder="Upload spreadsheet"
-            leftSection={<IconFileSpreadsheet size={18} stroke={1.5} />}
-            onChange={readImported}
-            accept=".xlsx,.xls,.csv"
-          />
-            {importedValues.length > 0 && (
-              <Group grow>
-                <Select
-                  label="Which column is Country?"
-                  data={sheetHeaders}
-                  value={countryCol}
-                  onChange={setCountryCol}
-                  placeholder="Choose column"
-                />
+              <FileInput
+                clearable
+                label="Import spreadsheet"
+                placeholder="Upload spreadsheet"
+                leftSection={<IconFileSpreadsheet size={18} stroke={1.5} />}
+                onChange={readImported}
+                accept=".xlsx,.xls,.csv"
+              />
+              {importedValues.length > 0 && (
+                <Group grow>
+                  <Select
+                    label="Which column is Country?"
+                    data={sheetHeaders}
+                    value={countryCol}
+                    onChange={setCountryCol}
+                    placeholder="Choose column"
+                  />
 
-                <Select
-                  label="Which column is Delegate?"
-                  data={sheetHeaders}
-                  value={delegateCol}
-                  onChange={setDelegateCol}
-                  placeholder="Choose column"
-                />
-              </Group>
-            )}
-          </div>
+                  <Select
+                    label="Which column is Delegate?"
+                    data={sheetHeaders}
+                    value={delegateCol}
+                    onChange={setDelegateCol}
+                    placeholder="Choose column"
+                  />
+                </Group>
+              )}
+            </div>
 
             <Group justify="center">
               <Button onClick={addImportedRows}>Submit countries</Button>
             </Group>
           </Stack>
-          
         )}
-          
       </Modal>
 
       <Flex direction="column" gap="md" h="100%" w="100%" py="xl">
@@ -805,8 +813,8 @@ export const Mock = (): ReactElement => {
                           open()
                         }} 
                         onSecond={() => {
-                          setActiveModal('custom')
-                          open()
+                          setActiveModal('custom');
+                          open();
                         }}
                         onThird= {() => {
                           setActiveModal('import')
