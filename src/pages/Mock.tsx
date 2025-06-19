@@ -37,20 +37,15 @@ import {
   addUserCommittee,
   getOrCreateUidFromEmail,
   ultimateConsoleLog,
-  UN_COUNTRIES,
 } from './yeahglo';
 import {
   generateCommitteeId,
   generateDelegateId,
   generateStaffId,
 } from '@packages/generateIds';
-import {
-  collection,
-  getDocs,
-} from 'firebase/firestore';
-import { firestoreDb } from '@packages/firebase/firestoreDb';
 import { DateInputComponent } from '@components/DateInput';
 import { ImageUploader } from '@components/ImageUploader';
+import { UN_COUNTRIES } from './countriesData';
 
 type Staff = { role: 'assistant director' | 'director' | 'flex staff'; email: string };
 type Delegate = { country: string; email: string };
