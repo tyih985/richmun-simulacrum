@@ -1,35 +1,53 @@
-import { useState } from 'react';
+import { ReactEventHandler, useEffect, useState } from 'react';
 import { ActionIcon, Button, Group, FileInput, Image, Loader, Stack } from '@mantine/core';
-import { IconPlus } from '@tabler/icons-react';
+import { IconPhoto, IconPlus } from '@tabler/icons-react';
 import { uploadToCloudinary } from './cloudinary';
 
-export const ImageUploader = () => {
+type Props = {
+  onUploadSuccess: (url: string) => void;
+  onChange?: (file: File | null) => void;
+};
+
+export const ImageUploader = ({ onChange, onUploadSuccess }: Props) => {
   const [file, setFile] = useState<File | null>(null);
-  const [url, setUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  
 
   const handleUpload = async () => {
+    console.log('uploadin!')
     if (!file) return;
+    console.log(file)
     setLoading(true);
     try {
-      const uploadedUrl = await uploadToCloudinary(file);
-      setUrl(uploadedUrl);
+      const url = await uploadToCloudinary(file);
+      console.log(url)
+      onUploadSuccess(url);
     } catch (err) {
-      console.error('Upload failed:', err);
+      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Stack>
-      <FileInput value={file} onChange={setFile} label="Choose an image" accept="image/*" />
-      <Button onClick={handleUpload} disabled={!file || loading}>
-        Upload to Cloudinary
+    <>
+      <FileInput
+            clearable
+            value={file}
+            onChange={(selectedFile) => {
+              setFile(selectedFile);
+              if (onChange) onChange(selectedFile);
+            }}
+            label="Add a flag"
+            // disabled={loading}
+            placeholder="Upload image"
+            leftSection={<IconPhoto size={18} stroke={1.5} />}
+            accept=".jpg,.png,.webp"
+            />
+      <Button onClick={handleUpload} disabled={loading || !file}>
+        {loading ? <Loader size="xs" /> : 'Upload'}
       </Button>
-      {loading && <Loader />}
-      {url && <Image src={url} alt="Uploaded" width={300} />}
-    </Stack>
+    </>
   );
 };
 
