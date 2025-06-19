@@ -1,5 +1,13 @@
 import { useState } from 'react';
-import { ActionIcon, Button, Group, FileInput, Image, Loader, Stack } from '@mantine/core';
+import {
+  ActionIcon,
+  Button,
+  Group,
+  FileInput,
+  Image,
+  Loader,
+  Stack,
+} from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
 import { uploadToCloudinary } from './cloudinary';
 
@@ -23,7 +31,12 @@ export const ImageUploader = () => {
 
   return (
     <Stack>
-      <FileInput value={file} onChange={setFile} label="Choose an image" accept="image/*" />
+      <FileInput
+        value={file}
+        onChange={setFile}
+        label="Choose an image"
+        accept="image/*"
+      />
       <Button onClick={handleUpload} disabled={!file || loading}>
         Upload to Cloudinary
       </Button>
@@ -32,7 +45,6 @@ export const ImageUploader = () => {
     </Stack>
   );
 };
-
 
 export function ExpandableButton({
   onClick,
@@ -57,25 +69,23 @@ export function ExpandableButton({
         overflow: 'hidden',
       }}
     >
-      
       {hovered ? (
-        <Group
-        grow
-        >
-          <Button size="xs" color="blue" onClick={onFirst} >+UN country</Button>
-          <Button size="xs" color="green" onClick={onSecond} >+custom</Button>
-          <Button size="xs" color="red" onClick={onThird} >+spreadsheet</Button>
+        <Group grow>
+          <Button size="xs" color="blue" onClick={onFirst}>
+            +UN country
+          </Button>
+          <Button size="xs" color="green" onClick={onSecond}>
+            +custom
+          </Button>
+          <Button size="xs" color="red" onClick={onThird}>
+            +spreadsheet
+          </Button>
         </Group>
       ) : (
-        <ActionIcon
-        variant="outline"
-        aria-label="Add"
-        onClick={onClick}
-        size="md"
-      ><IconPlus style={{ width: '70%', height: '70%' }} stroke={2.5} /></ActionIcon>
-      )
-      }
+        <ActionIcon variant="outline" aria-label="Add" onClick={onClick} size="md">
+          <IconPlus style={{ width: '70%', height: '70%' }} stroke={2.5} />
+        </ActionIcon>
+      )}
     </Group>
   );
 }
-
