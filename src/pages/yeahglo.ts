@@ -87,38 +87,18 @@ export async function removeUserCommittee(
   await deleteFirestoreDocument(path);
 }
 
-// ─── STAFF CRUD ────────────────────────────────────────────────────────────────
-
-export async function createStaff(staffId: string, uid: string): Promise<void> {
-  const path = staffMemberPath(staffId);
-  await createFirestoreDocument(path, { uid }, true);
-  console.log(`[createStaff] created staff ${staffId} at path ${path} mapped to uid`);
-}
-
-export async function getStaff(
-  staffId: string,
-): Promise<{ id: string; uid: string } | null> {
-  const path = staffMemberPath(staffId);
-  const doc = await getFirestoreDocument<{ uid: string }>(path);
-  return doc ? { id: staffId, uid: doc.uid } : null;
-}
-
-export async function deleteStaff(staffId: string): Promise<void> {
-  const path = staffMemberPath(staffId);
-  await deleteFirestoreDocument(path);
-}
-
 // ─── STAFF COMMITTEE MAPPING ─────────────────────────────────────────────────────────
 
 export async function addStaffToCommittee(
   committeeId: string,
   staffId: string,
   owner: boolean = false,
+  uid: string,
 ): Promise<void> {
   const path = committeeStaffMemberPath(committeeId, staffId);
-  await createFirestoreDocument(path, { owner }, true);
+  await createFirestoreDocument(path, { owner, uid }, true);
   console.log(
-    `[addStaffToCommittee] added staff ${staffId} to committee ${committeeId} at path ${path} with owner status ${owner}`,
+    `[addStaffToCommittee] added staff ${staffId} (uid=${uid}) to committee ${committeeId} as owner=${owner}`,
   );
 }
 
@@ -130,40 +110,18 @@ export async function removeStaffFromCommittee(
   await deleteFirestoreDocument(path);
 }
 
-// ─── DELEGATE CRUD ─────────────────────────────────────────────────────────────
-
-export async function createDelegate(delegateId: string, uid: string): Promise<void> {
-  const path = delegatePath(delegateId);
-  await createFirestoreDocument(path, { uid }, true);
-  console.log(
-    `[createDelegate] created delegate ${delegateId} at path ${path} mapped to uid`,
-  );
-}
-
-export async function getDelegate(
-  delegateId: string,
-): Promise<{ id: string; uid: string } | null> {
-  const path = delegatePath(delegateId);
-  const doc = await getFirestoreDocument<{ uid: string }>(path);
-  return doc ? { id: delegateId, uid: doc.uid } : null;
-}
-
-export async function deleteDelegate(delegateId: string): Promise<void> {
-  const path = delegatePath(delegateId);
-  await deleteFirestoreDocument(path);
-}
-
 // ─── DELEGATE COMMITTEE MAPPING ───────────────────────────────────────────────────────
 
 export async function addDelegateToCommittee(
   committeeId: string,
   delegateId: string,
   name: string,
+  uid: string,
 ): Promise<void> {
   const path = committeeDelegatePath(committeeId, delegateId);
-  await createFirestoreDocument(path, { name }, true);
+  await createFirestoreDocument(path, { name, uid }, true);
   console.log(
-    `[addDelegateToCommittee] added delegate ${delegateId} to committee ${committeeId} at path ${path} with name ${name}`,
+    `[addDelegateToCommittee] added delegate ${delegateId} (uid=${uid}) to committee ${committeeId} with name="${name}"`,
   );
 }
 

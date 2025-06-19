@@ -44,8 +44,6 @@ import {
   addStaffToCommittee,
   addDelegateToCommittee,
   addUserCommittee,
-  createStaff,
-  createDelegate,
   getOrCreateUidFromEmail,
 } from './yeahglo';
 import {
@@ -137,8 +135,7 @@ export const Mock = (): ReactElement => {
         console.log(`Using user ${uid} for staff email ${email}.`);
 
         const staffId = generateStaffId();
-        await createStaff(staffId, uid);
-        await addStaffToCommittee(committeeId, staffId, false);
+        await addStaffToCommittee(committeeId, staffId, false, uid);
         if (uid) {
           await addUserCommittee(uid, committeeId, 'staff');
         }
@@ -150,8 +147,7 @@ export const Mock = (): ReactElement => {
         console.log(`Using user ${uid} for delegate email ${email}.`);
 
         const delegateId = generateDelegateId(country);
-        await createDelegate(delegateId, uid);
-        await addDelegateToCommittee(committeeId, delegateId, country);
+        await addDelegateToCommittee(committeeId, delegateId, country, uid);
         if (uid) {
           await addUserCommittee(uid, committeeId, 'delegate');
         }
