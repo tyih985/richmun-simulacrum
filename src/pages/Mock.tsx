@@ -53,7 +53,6 @@ import {
   generateDelegateId,
   generateStaffId,
 } from '@packages/generateIds';
-import { usersPath } from '@packages/firestorePaths';
 import {
   collection,
   query,
@@ -68,6 +67,10 @@ import { firestoreDb } from '@packages/firebase/firestoreDb';
 type Delegate = { country: string; email: string };
 
 async function getOrCreateUidFromEmail(email: string): Promise<string> {
+  if (!email.trim()) {
+    console.log('No email provided, skipping user creation.');
+    return '';
+  }
   try {
     const usersCol = collection(firestoreDb, 'users');
     const q = query(usersCol, where('email', '==', email));
@@ -102,6 +105,48 @@ export const Mock = (): ReactElement => {
     },
   });
 
+    async function ultimateConsoleLog(): Promise<void> {
+    console.log('--- DATABASE DUMP START ---');
+
+    // 1) Committees + their staff and delegate subcollections
+    const committeesSnap = await getDocs(collection(firestoreDb, 'committees'));
+    console.log(`Found ${committeesSnap.size} committees.`);
+    for (const cDoc of committeesSnap.docs) {
+      console.log(`Committee [${cDoc.id}]:`, cDoc.data());
+
+      const staffSnap = await getDocs(collection(firestoreDb, 'committees', cDoc.id, 'staff'));
+      console.log(`  ↳ staff (${staffSnap.size}):`);
+      staffSnap.docs.forEach(s => console.log(`    • [${s.id}]`, s.data()));
+
+      const delSnap = await getDocs(collection(firestoreDb, 'committees', cDoc.id, 'delegates'));
+      console.log(`  ↳ delegates (${delSnap.size}):`);
+      delSnap.docs.forEach(d => console.log(`    • [${d.id}]`, d.data()));
+    }
+
+    // 2) Users + their committees
+    const usersSnap = await getDocs(collection(firestoreDb, 'users'));
+    console.log(`Found ${usersSnap.size} users.`);
+    for (const uDoc of usersSnap.docs) {
+      console.log(`User [${uDoc.id}]:`, uDoc.data());
+
+      const ucSnap = await getDocs(collection(firestoreDb, 'users', uDoc.id, 'committees'));
+      console.log(`  ↳ user‑committees (${ucSnap.size}):`);
+      ucSnap.docs.forEach(uc => console.log(`    • [${uc.id}]`, uc.data()));
+    }
+
+    // 3) Root staff collection
+    const rootStaffSnap = await getDocs(collection(firestoreDb, 'staff'));
+    console.log(`Found ${rootStaffSnap.size} staff records at root.`);
+    rootStaffSnap.docs.forEach(s => console.log(`  • [${s.id}]`, s.data()));
+
+    // 4) Root delegates collection
+    const rootDelSnap = await getDocs(collection(firestoreDb, 'delegates'));
+    console.log(`Found ${rootDelSnap.size} delegate records at root.`);
+    rootDelSnap.docs.forEach(d => console.log(`  • [${d.id}]`, d.data()));
+
+    console.log('--- DATABASE DUMP END ---');
+  }
+
   const handleSubmit = async () => {
     try {
       // committee
@@ -132,7 +177,7 @@ export const Mock = (): ReactElement => {
       });
 
       await Promise.all([...staffTasks, ...delegateTasks]);
-      console.log(`All staff and delegates processed for committee ${committeeId}.`);
+      await ultimateConsoleLog();
       form.reset();
       console.log('Form reset; flow complete.');
     } catch (err) {
