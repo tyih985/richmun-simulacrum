@@ -135,7 +135,7 @@ export const Mock = (): ReactElement => {
         console.log(`Using user ${uid} for staff email ${email}.`);
 
         const staffId = generateStaffId();
-        await addStaffToCommittee(committeeId, staffId, false, uid);
+        await addStaffToCommittee(committeeId, staffId, false, role, uid);
         if (uid) {
           await addUserCommittee(uid, committeeId, 'staff');
         }

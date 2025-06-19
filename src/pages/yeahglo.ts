@@ -10,8 +10,6 @@ import {
   committeePath,
   committeeDelegatePath,
   committeeStaffMemberPath,
-  staffMemberPath,
-  delegatePath,
   userCommitteesPath,
   userCommitteePath,
 } from '@packages/firestorePaths';
@@ -93,12 +91,13 @@ export async function addStaffToCommittee(
   committeeId: string,
   staffId: string,
   owner: boolean = false,
+  role: 'assistant director' | 'director' | 'flex staff',
   uid: string,
 ): Promise<void> {
   const path = committeeStaffMemberPath(committeeId, staffId);
-  await createFirestoreDocument(path, { owner, uid }, true);
+  await createFirestoreDocument(path, { owner, role, uid }, true);
   console.log(
-    `[addStaffToCommittee] added staff ${staffId} (uid=${uid}) to committee ${committeeId} as owner=${owner}`,
+    `[addStaffToCommittee] added staff ${staffId} (uid=${uid}) to committee ${committeeId} as owner=${owner} with role=${role}`,
   );
 }
 

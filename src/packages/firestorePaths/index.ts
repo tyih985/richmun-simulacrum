@@ -50,14 +50,6 @@ export const committeeMapBackgroundNodesPath = (committeeId: string, mapId: stri
 
 // ─────────────────────────────────────────────── Tyler stuff ───────────────────────────────────────────────
 
-// Staff at root
-export const staffPath = () => 'staff';
-export const staffMemberPath = (staffId: string) => `staff/${staffId}`;
-
-// Delegates at root
-export const delegatesPath = () => 'delegates';
-export const delegatePath = (delegateId: string) => `delegates/${delegateId}`;
-
 // User's list of committees
 export const userCommitteesPath = (userId: string) => `users/${userId}/committees`;
 export const userCommitteePath = (userId: string, committeeId: string) =>
