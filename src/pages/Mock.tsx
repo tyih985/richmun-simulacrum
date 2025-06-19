@@ -27,6 +27,7 @@ import {
   AppShell,
   Box,
   FileInput,
+  Image,
   Select,
 } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
@@ -413,23 +414,22 @@ export const Mock = (): ReactElement => {
   const existingCountries = new Set(form.values.delegates.map((d) => d.country));
 
   // State for flag things
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [flag, setFlag] = useState<File | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
+  
+  // const handleImage = async () => {
+  //   if (!flag) return;
+  //   setLoading(true);
+  //   try {
+  //     const url = await uploadImageToCloudinary(flag);
+  //     setImageUrl(url);
+  //     console.log('image url:', imageUrl);
 
-  const handleImage = async () => {
-    if (!flag) return;
-    setLoading(true);
-    try {
-      const url = await uploadImageToCloudinary(flag);
-      setImageUrl(url);
-      console.log('image url:', imageUrl);
-    } catch (err) {
-      console.error('Upload error', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  //   } catch (err) {
+  //     console.error('Upload error', err);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   // !TEST !TEST! TEST! these r for testing
   useEffect(() => {
@@ -495,7 +495,7 @@ export const Mock = (): ReactElement => {
       email: '',
     }));
 
-    handleImage();
+    // handleImage();
 
     setAndSort(selectedCustomDelegates);
 
@@ -608,12 +608,16 @@ export const Mock = (): ReactElement => {
 
   return (
     <Container size="md" p="xl" h={'100vh'}>
-      <ImageUploader></ImageUploader>
-      <Modal
-        opened={opened}
-        onClose={close}
-        title={
-          activeModal === 'UN'
+      <Modal  
+      opened={opened}
+      onClose={() => {
+        setSelectedValues([]);
+        setCustomValues([]);
+        setImportedValues([]);
+        setUploadedUrl(null)
+        close();
+      }} 
+      title={activeModal === 'UN'
             ? 'Add UN countries'
             : activeModal === 'custom'
               ? 'Add custom country'
@@ -648,16 +652,11 @@ export const Mock = (): ReactElement => {
               onChange={setCustomValues}
               clearable
             />
-            <FileInput
-              clearable
-              value={flag}
-              onChange={setFlag}
-              label="Add a flag"
-              disabled={loading}
-              placeholder="Upload image"
-              leftSection={<IconPhoto size={18} stroke={1.5} />}
-              accept=".jpg,.png,.webp"
-            ></FileInput>
+            <ImageUploader onChange={() => setUploadedUrl(null)} onUploadSuccess={setUploadedUrl} />
+            {uploadedUrl && <Image w={'200px'}
+            radius="md"
+            src={uploadedUrl}
+            />}
 
             <Group justify="center">
               <Button onClick={addCustomRows}>Submit countries</Button>
