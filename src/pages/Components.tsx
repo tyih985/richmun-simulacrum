@@ -12,9 +12,8 @@ export const ImageUploader = ({ onChange, onUploadSuccess }: Props) => {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   
-
   const handleUpload = async () => {
-    console.log('uploadin!')
+    console.log("uploadin'!")
     if (!file) return;
     console.log(file)
     setLoading(true);
@@ -66,7 +65,8 @@ export function ExpandableButton({
   const [hovered, setHovered] = useState(false);
 
   return (
-    <Group
+    <Group 
+      p={'md'}
       gap="xs"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -77,13 +77,12 @@ export function ExpandableButton({
     >
       
       {hovered ? (
-        <Group
-        grow
+        <Stack 
         >
-          <Button size="xs" color="blue" onClick={onFirst} >+UN country</Button>
-          <Button size="xs" color="green" onClick={onSecond} >+custom</Button>
-          <Button size="xs" color="red" onClick={onThird} >+spreadsheet</Button>
-        </Group>
+          <Button variant='outline' size="xs" onClick={onFirst} > add UN country</Button>
+          <Button variant='outline' size="xs" onClick={onSecond} > add custom country</Button>
+          <Button variant='outline' size="xs" onClick={onThird} > import spreadsheet</Button>
+        </Stack>
       ) : (
         <ActionIcon
         variant="outline"

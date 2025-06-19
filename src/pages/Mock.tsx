@@ -3,7 +3,6 @@ import dayjs from 'dayjs';
 import * as XLSX from 'xlsx';
 import '@mantine/dates/styles.css';
 import { useForm } from '@mantine/form';
-import { uploadToCloudinary } from './cloudinary';
 import {
   Container,
   Stack,
@@ -47,8 +46,8 @@ import {
   addUserCommittee,
   createStaff,
   createDelegate,
+  getOrCreateUidFromEmail,
 } from './yeahglo';
-import { getFirestoreCollection } from '@packages/firestoreAsQuery/firestoreRequests';
 import {
   generateCommitteeId,
   generateDelegateId,
@@ -56,53 +55,24 @@ import {
 } from '@packages/generateIds';
 import {
   collection,
-  query,
-  where,
   getDocs,
-  addDoc,
-  serverTimestamp,
-  FirestoreError,
 } from 'firebase/firestore';
 import { firestoreDb } from '@packages/firebase/firestoreDb';
 
 type Delegate = { country: string; email: string };
 
-async function getOrCreateUidFromEmail(email: string): Promise<string> {
-  if (!email.trim()) {
-    console.log('No email provided, skipping user creation.');
-    return '';
-  }
-  try {
-    const usersCol = collection(firestoreDb, 'users');
-    const q = query(usersCol, where('email', '==', email));
-    const snap = await getDocs(q);
-    if (!snap.empty) {
-      console.log(`Found existing user for email ${email}:`, snap.docs[0].id);
-      return snap.docs[0].id;
-    }
-    // make user if snap is empty
-    const docRef = await addDoc(usersCol, {
-      email,
-      createdAt: serverTimestamp(),
-    });
-    console.log(`Created new user for email ${email}:`, docRef.id);
-    return docRef.id;
-  } catch (e) {
-    console.error('Error in getOrCreateUidFromEmail:', (e as FirestoreError).message);
-    throw e;
-  }
-}
-
 export const Mock = (): ReactElement => {
   const form = useForm({
     initialValues: {
-      committeeName: '',
+      committeeLongName: '',
+      committeeShortName: '',
       staff: [] as string[],
       delegates: [] as Delegate[],
       dateRange: [null, null] as [Date | null, Date | null],
     },
     validate: {
-      committeeName: (v) => (v.trim() ? null : 'Required'),
+      committeeLongName: (v) => (v.trim() ? null : 'Required'),
+      committeeShortName: (v) => (v.trim() ? null : 'Required'),
     },
   });
 
@@ -151,9 +121,9 @@ export const Mock = (): ReactElement => {
   const handleSubmit = async () => {
     try {
       // committee
-      const committeeId = generateCommitteeId(form.values.committeeName.trim());
+      const committeeId = generateCommitteeId(form.values.committeeShortName.trim());
       const [startDate, endDate] = form.values.dateRange;
-      await createCommittee(committeeId, form.values.committeeName, startDate!, endDate!);
+      await createCommittee(committeeId, form.values.committeeLongName, form.values.committeeShortName, startDate!, endDate!);
 
       // staff
       const staffTasks = form.values.staff.map(async (email) => {
@@ -642,6 +612,10 @@ export const Mock = (): ReactElement => {
             onChange={setCustomValues}
             clearable
             />
+            {/* <TextInput
+            label="Add custom country"
+            placeholder="Type a country name"
+            /> */}
             <ImageUploader onChange={() => setUploadedUrl(null)} onUploadSuccess={setUploadedUrl} />
             {uploadedUrl && <Image w={'200px'}
             radius="md"
@@ -717,9 +691,20 @@ export const Mock = (): ReactElement => {
                     <Space h="md" />
 
                     <TextInput
-                      label="What’s your committee name?"
+                      label="What’s your committee long name?"
                       placeholder="e.g. the bestest committee :D"
-                      {...form.getInputProps('committeeName')}
+                      {...form.getInputProps('committeeLongName')}
+                      radius="lg"
+                      autoFocus
+                      required
+                    />
+
+                    <Space h="md" />
+
+                    <TextInput
+                      label="What’s your committee short name?"
+                      placeholder="e.g. tbc"
+                      {...form.getInputProps('committeeShortName')}
                       radius="lg"
                       autoFocus
                       required
@@ -799,16 +784,20 @@ export const Mock = (): ReactElement => {
                     {rows.length === 0 && (
                       <Stack align="center" justify="center" bg="gray.0" p="md">
                         <Text c="dimmed">no countries added :c</Text>
-                        <Group>
-                          <FileButton onChange={readImported} accept=".xlsx, .xls, .csv">
-                            {(props) => <Button {...props}>Import spreadsheet?</Button>}
-                          </FileButton>
-                          <Button onClick={open}>Add UN countries?</Button>
+                        <Group> 
+                          <Button onClick={() => {
+                          setActiveModal('import')
+                          open()
+                          }}>Import spreadsheet?</Button>
+                          <Button onClick={() => {
+                          setActiveModal('UN')
+                          open()
+                        }}>Add UN countries?</Button>
                         </Group>
                       </Stack>
                     )}
 
-                    <Flex justify="flex-end" mt="md">
+                    <Flex justify="flex-end" flex={1}>
                       <ExpandableButton 
                         onClick= {(open)} 
                         onFirst= {() => {
@@ -824,6 +813,28 @@ export const Mock = (): ReactElement => {
                           open()
                           }}>
                       </ExpandableButton>
+                      {/* <Group w="100%">
+                        <Button size="compact-xs" flex={1} onClick={() => {
+                          setActiveModal('UN');
+                          open();
+                        }}>
+                          UN countries
+                        </Button>
+                        
+                        <Button size="compact-xs" flex={1} onClick={() => {
+                          setActiveModal('custom');
+                          open();
+                        }}>
+                          custom country
+                        </Button>
+                        
+                        <Button size="compact-xs" flex={1} onClick={() => {
+                          setActiveModal('import');
+                          open();
+                        }}>
+                          import spreadsheet
+                        </Button> 
+                      </Group> */}
                     </Flex>
                   </Flex>
                 </Container>
@@ -845,7 +856,7 @@ export const Mock = (): ReactElement => {
               type="submit"
               rightSection={<IconArrowRight size={18} stroke={1.5} />}
               onClick={nextStep}
-              // disabled={!form.isValid() || !form.values.committeeName.trim() || !form.values.dateRange[0] || !form.values.dateRange[1]}
+              disabled={!form.isValid() || !form.values.committeeLongName.trim() || !form.values.committeeShortName.trim() || !form.values.dateRange[0] || !form.values.dateRange[1]}
             >
               Next step
             </Button>
