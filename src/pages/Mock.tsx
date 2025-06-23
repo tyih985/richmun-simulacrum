@@ -1,5 +1,4 @@
 import { ReactElement, useEffect, useState } from 'react';
-import dayjs from 'dayjs';
 import * as XLSX from 'xlsx';
 import '@mantine/dates/styles.css';
 import { useForm } from '@mantine/form';
@@ -9,52 +8,45 @@ import {
   Title,
   TextInput,
   Button,
-  Fieldset,
   Table,
   Text,
   Flex,
   TagsInput,
   Space,
-  Center,
   Group,
-  ActionIcon,
   Modal,
   MultiSelect,
-  FileButton,
   Stepper,
   CloseButton,
-  AppShell,
   Box,
   FileInput,
   Image,
   Select,
   Loader,
 } from '@mantine/core';
-import { DatePickerInput } from '@mantine/dates';
 import {
   IconArrowRight,
   IconAt,
-  IconCalendar,
   IconFileSpreadsheet,
-  IconPhoto,
 } from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
-import { ExpandableButton, ImageUploader } from './Components';
+import { ExpandableButton } from '../components/ExpandableButton';
 import {
   createCommittee,
   addStaffToCommittee,
   addDelegateToCommittee,
   addUserCommittee,
   getOrCreateUidFromEmail,
-  UN_COUNTRIES,
+  ultimateConsoleLog,
 } from './yeahglo';
 import {
   generateCommitteeId,
   generateDelegateId,
   generateStaffId,
 } from '@packages/generateIds';
-import { collection, getDocs } from 'firebase/firestore';
-import { firestoreDb } from '@packages/firebase/firestoreDb';
+import { DateInputComponent } from '@components/DateInput';
+import { ImageUploader } from '@components/ImageUploader';
+import { UN_COUNTRIES } from './countriesData';
 
 type Staff = { role: 'assistant director' | 'director' | 'flex staff'; email: string };
 type Delegate = { country: string; email: string };
@@ -73,54 +65,6 @@ export const Mock = (): ReactElement => {
       committeeShortName: (v) => (v.trim() ? null : 'Required'),
     },
   });
-
-  async function ultimateConsoleLog(): Promise<void> {
-    console.log('--- DATABASE DUMP START ---');
-
-    // 1) Committees + their staff and delegate subcollections
-    const committeesSnap = await getDocs(collection(firestoreDb, 'committees'));
-    console.log(`Found ${committeesSnap.size} committees.`);
-    for (const cDoc of committeesSnap.docs) {
-      console.log(`Committee [${cDoc.id}]:`, cDoc.data());
-
-      const staffSnap = await getDocs(
-        collection(firestoreDb, 'committees', cDoc.id, 'staff'),
-      );
-      console.log(`  ↳ staff (${staffSnap.size}):`);
-      staffSnap.docs.forEach((s) => console.log(`    • [${s.id}]`, s.data()));
-
-      const delSnap = await getDocs(
-        collection(firestoreDb, 'committees', cDoc.id, 'delegates'),
-      );
-      console.log(`  ↳ delegates (${delSnap.size}):`);
-      delSnap.docs.forEach((d) => console.log(`    • [${d.id}]`, d.data()));
-    }
-
-    // 2) Users + their committees
-    const usersSnap = await getDocs(collection(firestoreDb, 'users'));
-    console.log(`Found ${usersSnap.size} users.`);
-    for (const uDoc of usersSnap.docs) {
-      console.log(`User [${uDoc.id}]:`, uDoc.data());
-
-      const ucSnap = await getDocs(
-        collection(firestoreDb, 'users', uDoc.id, 'committees'),
-      );
-      console.log(`  ↳ user‑committees (${ucSnap.size}):`);
-      ucSnap.docs.forEach((uc) => console.log(`    • [${uc.id}]`, uc.data()));
-    }
-
-    // 3) Root staff collection
-    const rootStaffSnap = await getDocs(collection(firestoreDb, 'staff'));
-    console.log(`Found ${rootStaffSnap.size} staff records at root.`);
-    rootStaffSnap.docs.forEach((s) => console.log(`  • [${s.id}]`, s.data()));
-
-    // 4) Root delegates collection
-    const rootDelSnap = await getDocs(collection(firestoreDb, 'delegates'));
-    console.log(`Found ${rootDelSnap.size} delegate records at root.`);
-    rootDelSnap.docs.forEach((d) => console.log(`  • [${d.id}]`, d.data()));
-
-    console.log('--- DATABASE DUMP END ---');
-  }
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -184,7 +128,7 @@ export const Mock = (): ReactElement => {
   const [customValues, setCustomValues] = useState<string[]>([]);
 
   // State for imported countries
-  const [importedValues, setImportedValues] = useState<any[]>([]);
+  const [importedValues, setImportedValues] = useState<unknown[]>([]);
   const [sheetHeaders, setSheetHeaders] = useState<string[]>([]);
   const [countryCol, setCountryCol] = useState<string | null>(null);
   const [delegateCol, setDelegateCol] = useState<string | null>(null);
@@ -229,7 +173,7 @@ export const Mock = (): ReactElement => {
     console.log('custom values updated:', customValues);
   }, [customValues]);
 
-  const rows = form.values.delegates.map(({ country, email }, idx) => (
+  const delegateRows = form.values.delegates.map(({ country, email }, idx) => (
     <Table.Tr key={`${country}-${idx}`}>
       <Table.Td>{country}</Table.Td>
       <Table.Td>
@@ -261,7 +205,7 @@ export const Mock = (): ReactElement => {
   };
 
   const addImportedRows = () => {
-    const importedDelegates = saveImported(importedValues);
+    const importedDelegates = saveImported(importedValues as Record<string, string>[]);
     setAndSort(importedDelegates);
 
     setAvailableCountries((prev) =>
@@ -535,16 +479,12 @@ export const Mock = (): ReactElement => {
 
                     <Space h="md" />
 
-                    <DatePickerInput
-                      type="range"
-                      minDate={dayjs().toDate()}
+                    <DateInputComponent
                       label="What date(s) will your event take place?"
                       placeholder="Pick a date range"
                       value={form.values.dateRange}
                       onChange={(range) => form.setFieldValue('dateRange', range!)}
                       radius="lg"
-                      leftSection={<IconCalendar size={20} />}
-                      required
                     />
 
                     <Text size="sm" c="dimmed">
@@ -566,6 +506,16 @@ export const Mock = (): ReactElement => {
                     </Text>
 
                     <Space h="md" />
+
+                    <Table stickyHeader highlightOnHover>
+                      <Table.Thead>
+                        <Table.Tr>
+                          <Table.Th>Staff</Table.Th>
+                          <Table.Th>Role</Table.Th>
+                        </Table.Tr>
+                      </Table.Thead>
+                      <Table.Tbody>{delegateRows}</Table.Tbody>
+                    </Table>
 
                     <TagsInput
                       label="Who’s on your staff team?"
@@ -601,10 +551,10 @@ export const Mock = (): ReactElement => {
                           <Table.Th>Delegate</Table.Th>
                         </Table.Tr>
                       </Table.Thead>
-                      <Table.Tbody>{rows}</Table.Tbody>
+                      <Table.Tbody>{delegateRows}</Table.Tbody>
                     </Table>
 
-                    {rows.length === 0 && (
+                    {delegateRows.length === 0 && (
                       <Stack align="center" justify="center" bg="gray.0" p="md">
                         <Text c="dimmed">no countries added :c</Text>
                         <Group>
