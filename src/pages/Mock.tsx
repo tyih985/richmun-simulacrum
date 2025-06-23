@@ -1,4 +1,4 @@
-import { ReactElement, useEffect, useState } from 'react';
+import { ReactElement, useEffect, useRef, useState } from 'react';
 import * as XLSX from 'xlsx';
 import '@mantine/dates/styles.css';
 import { useForm } from '@mantine/form';
@@ -22,11 +22,13 @@ import {
   FileInput,
   Image,
   Select,
+  ActionIcon,
 } from '@mantine/core';
 import {
   IconArrowRight,
   IconAt,
   IconFileSpreadsheet,
+  IconPlus,
 } from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
 import { ExpandableButton } from '../components/ExpandableButton';
@@ -46,6 +48,7 @@ import {
 import { DateInputComponent } from '@components/DateInput';
 import { ImageUploader } from '@components/ImageUploader';
 import { UN_COUNTRIES } from './countriesData';
+import { auth } from '@packages/firebase/firebaseAuth';
 
 type Staff = { role: 'assistant director' | 'director' | 'flex staff'; email: string };
 type Delegate = { country: string; email: string };
@@ -107,9 +110,14 @@ export const Mock = (): ReactElement => {
 
   const un_countries = UN_COUNTRIES;
 
-  // State for modal
-  const [opened, { open, close: close }] = useDisclosure(false);
+  // State for delegate modal
+  const [openedDelegateModal, { open: openDelegateModal, close: closeDelegateModal }] = useDisclosure(false);
   const [activeModal, setActiveModal] = useState<'UN' | 'custom' | 'import' | null>(null);
+
+  // State for staff
+  const [staffValues, setStaffValues] = useState<string[]>([]);
+  const [openedStaffModal, { open: openStaffModal, close: closeStaffModal }] = useDisclosure(false);
+
 
   // State for UN countries
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
@@ -130,21 +138,26 @@ export const Mock = (): ReactElement => {
 
   // State for flag things
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
-  
-  // const handleImage = async () => {
-  //   if (!flag) return;
-  //   setLoading(true);
-  //   try {
-  //     const url = await uploadImageToCloudinary(flag);
-  //     setImageUrl(url);
-  //     console.log('image url:', imageUrl);
 
-  //   } catch (err) {
-  //     console.error('Upload error', err);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+  // Enter key to blur active element ?? idk how useful this will be
+  const multiSelectRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Enter') {
+        // Only blur if this MultiSelect is focused
+        if (
+          document.activeElement === multiSelectRef.current ||
+          multiSelectRef.current?.contains(document.activeElement)
+        ) {
+          multiSelectRef.current?.blur();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // !TEST !TEST! TEST! these r for testing
   useEffect(() => {
@@ -175,9 +188,50 @@ export const Mock = (): ReactElement => {
         />
       </Table.Td>
       <Table.Td>
-        <CloseButton variant="outline" onClick={() => removeRow(idx)} />
+        <CloseButton variant="outline" onClick={() => removeDelegateRow(idx)} />
       </Table.Td>
     </Table.Tr>
+  ));
+
+  const ownerRow = () => (
+    <Table.Tr key={`owner-row`}>
+      <Table.Td>{auth.currentUser && auth.currentUser.email || '' }(you)</Table.Td>
+      <Table.Td>
+        <Select
+          data={['assistant director', 'director', 'flex staff']}
+          placeholder="Add staff role here..."
+          value='director'
+          // onChange={() =>{
+          //   const list = [...form.values.staff]; 
+          //   list[0].role = 'director';
+          //   form.setFieldValue('staff', list);
+          // }}
+        />
+      </Table.Td>
+    </Table.Tr>
+  );
+
+  const staffRows = form.values.staff.map(({ email, role }, idx) => (
+    
+    <Table.Tr key={`${email}-${idx}`}>
+      <Table.Td>{email}</Table.Td>
+      <Table.Td>
+        <Select
+          data={['assistant director', 'director', 'flex staff']}
+          placeholder="Add staff role here..."
+          value={role}
+          onChange={(role) =>{
+            const list = [...form.values.staff];
+            list[idx].role = (role as Staff['role']) || 'flex staff'; // default to 'flex staff' if role is null
+            form.setFieldValue('staff', list);
+          }}
+        />
+      </Table.Td>
+      <Table.Td>
+        <CloseButton variant="outline" onClick={() => removeStaffRow(idx)} />
+      </Table.Td>
+    </Table.Tr>
+ 
   ));
 
   const setAndSort = (newDelegates: Delegate[]) => {
@@ -188,7 +242,7 @@ export const Mock = (): ReactElement => {
       ),
     );
 
-    close();
+    closeDelegateModal();
   };
 
   const addImportedRows = () => {
@@ -231,13 +285,19 @@ export const Mock = (): ReactElement => {
     setSelectedValues([]);
   };
 
-  const addRows = () => {
-    addUNRows();
-    addCustomRows();
-    addImportedRows();
+  const addStaffRows = () => {
+    const staffEmails: Staff[] = staffValues.map((email) => ({
+      role: 'flex staff', // default role, can be changed later
+      email,
+    }));
+
+    form.setFieldValue('staff', [...form.values.staff, ...staffEmails]);
+    console.log('Added staff rows:', form.values.staff);
+    setStaffValues([]);
+    closeStaffModal();    
   };
 
-  const removeRow = (idx: number) => {
+  const removeDelegateRow = (idx: number) => {
     const removed = form.values.delegates[idx];
     form.setFieldValue(
       'delegates',
@@ -245,6 +305,14 @@ export const Mock = (): ReactElement => {
     );
     setAvailableCountries((prev) => [...prev, removed.country]);
   };
+
+
+  const removeStaffRow = (idx: number) =>{
+    form.setFieldValue(
+      'staff',
+      form.values.staff.filter((_, i) => i !== idx),
+    );
+  }
 
   async function readImported(payload: File | null) {
     if (!payload) {
@@ -275,14 +343,6 @@ export const Mock = (): ReactElement => {
       console.error('Failed to import file:', error);
     }
   }
-
-  // Update available countries when delegates change; existingCountries changes on every render i think so this does not work. lol
-  // useEffect(() => {
-  //   setAvailableCountries(un_countries)
-  //   setAvailableCountries((prev) =>
-  //     prev.filter((c) => !existingCountries.has(c)),
-  //   );
-  // }, [existingCountries, un_countries]);
 
   function saveImported(
     jsonData: Record<string, unknown>[],
@@ -323,14 +383,50 @@ export const Mock = (): ReactElement => {
 
   return (
     <Container size="md" p="xl" h={'100vh'}>
+      <Modal
+        opened={openedStaffModal}
+        onClose={() => {
+          setStaffValues([]);
+          closeStaffModal();
+        }}
+        title="Who’s on your staff team?"
+        size='md'
+        centered
+      >
+        <Stack
+          justify="flex-start"
+          align="stretch"
+          gap="md"
+          px='xl'
+          pb='lg'>
+          <TagsInput
+            label="Press enter to add a staff email."
+            placeholder="Enter email..."
+            leftSection={<IconAt size={16} />}
+            radius="lg"
+            value={staffValues}
+            autoFocus
+            onChange={setStaffValues}
+          />
+          <Text size="sm" c="dimmed">
+            Unsure? No worries, you can change this anytime after you've created
+            your committee.
+          </Text>
+
+          <Group justify="center">
+              <Button onClick={addStaffRows}>Submit</Button>
+            </Group>
+        </Stack>
+        
+      </Modal>
       <Modal  
-      opened={opened}
+      opened={openedDelegateModal}
       onClose={() => {
         setSelectedValues([]);
         setCustomValues([]);
         setImportedValues([]);
         setUploadedUrl(null)
-        close();
+        closeDelegateModal();
       }} 
       title={activeModal === 'UN'
             ? 'Add UN countries'
@@ -338,11 +434,15 @@ export const Mock = (): ReactElement => {
               ? 'Add custom country'
               : 'Import Spreadsheet'
         }
+        size={'lg'}
         centered
       >
         {activeModal === 'UN' && (
-          <Stack>
+          <Stack
+           p='lg'
+          >
             <MultiSelect
+              ref={multiSelectRef}
               label="Add UN countries"
               placeholder="Type to search..."
               data={availableCountries.sort()}
@@ -422,6 +522,8 @@ export const Mock = (): ReactElement => {
         )}
       </Modal>
 
+      
+
       <Flex direction="column" gap="md" h="100%" w="100%" py="xl">
         <Box component="form" onSubmit={handleSubmit}>
           <Stack flex={1} justify="flex-start" align="center">
@@ -500,22 +602,15 @@ export const Mock = (): ReactElement => {
                           <Table.Th>Role</Table.Th>
                         </Table.Tr>
                       </Table.Thead>
-                      <Table.Tbody>{delegateRows}</Table.Tbody>
+                      <Table.Tbody>{[ownerRow(), ...staffRows]}</Table.Tbody>
                     </Table>
 
-                    <TagsInput
-                      label="Who’s on your staff team?"
-                      placeholder="Press enter to add a staff email..."
-                      leftSection={<IconAt size={16} />}
-                      radius="lg"
-                      value={form.values.staff}
-                      autoFocus
-                      onChange={(list) => form.setFieldValue('staff', list)}
-                    />
-                    <Text size="sm" c="dimmed">
-                      Unsure? No worries, you can change this anytime after you've created
-                      your committee.
-                    </Text>
+                    <Flex justify="flex-end" flex={1}>
+                      <ActionIcon variant="outline" aria-label="Add" onClick={openStaffModal} size="md">
+                        <IconPlus style={{ width: '70%', height: '70%' }} stroke={2.5} />
+                      </ActionIcon>
+                    </Flex>
+
                   </Flex>
                 </Container>
               </Stepper.Step>
@@ -546,11 +641,11 @@ export const Mock = (): ReactElement => {
                         <Group> 
                           <Button onClick={() => {
                           setActiveModal('import')
-                          open()
+                          openDelegateModal()
                           }}>Import spreadsheet?</Button>
                           <Button onClick={() => {
                           setActiveModal('UN')
-                          open()
+                          openDelegateModal()
                         }}>Add UN countries?</Button>
                         </Group>
                       </Stack>
@@ -558,18 +653,18 @@ export const Mock = (): ReactElement => {
 
                     <Flex justify="flex-end" flex={1}>
                       <ExpandableButton 
-                        onClick= {(open)} 
+                        onClick= {(openDelegateModal)} 
                         onFirst= {() => {
                           setActiveModal('UN')
-                          open()
+                          openDelegateModal()
                         }} 
                         onSecond={() => {
                           setActiveModal('custom');
-                          open();
+                          openDelegateModal();
                         }}
                         onThird= {() => {
                           setActiveModal('import')
-                          open()
+                          openDelegateModal()
                           }}>
                       </ExpandableButton>
                       {/* <Group w="100%">
@@ -615,7 +710,7 @@ export const Mock = (): ReactElement => {
               type="submit"
               rightSection={<IconArrowRight size={18} stroke={1.5} />}
               onClick={nextStep}
-              disabled={!form.isValid() || !form.values.committeeLongName.trim() || !form.values.committeeShortName.trim() || !form.values.dateRange[0] || !form.values.dateRange[1]}
+              // disabled={!form.isValid() || !form.values.committeeLongName.trim() || !form.values.committeeShortName.trim() || !form.values.dateRange[0] || !form.values.dateRange[1]}
             >
               Next step
             </Button>
@@ -625,3 +720,4 @@ export const Mock = (): ReactElement => {
     </Container>
   );
 };
+
