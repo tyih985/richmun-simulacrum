@@ -28,6 +28,7 @@ import {
   FileInput,
   Image,
   Select,
+  Loader,
 } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
 import {
@@ -52,10 +53,7 @@ import {
   generateDelegateId,
   generateStaffId,
 } from '@packages/generateIds';
-import {
-  collection,
-  getDocs,
-} from 'firebase/firestore';
+import { collection, getDocs } from 'firebase/firestore';
 import { firestoreDb } from '@packages/firebase/firestoreDb';
 
 type Staff = { role: 'assistant director' | 'director' | 'flex staff'; email: string };
@@ -125,14 +123,21 @@ export const Mock = (): ReactElement => {
   }
 
   const handleSubmit = async () => {
+    setLoading(true);
     try {
       // committee
       const committeeId = generateCommitteeId(form.values.committeeShortName.trim());
       const [startDate, endDate] = form.values.dateRange;
-      await createCommittee(committeeId, form.values.committeeLongName, form.values.committeeShortName, startDate!, endDate!);
+      await createCommittee(
+        committeeId,
+        form.values.committeeLongName,
+        form.values.committeeShortName,
+        startDate!,
+        endDate!,
+      );
 
       // staff
-      const staffTasks = form.values.staff.map(async ( { role, email } ) => {
+      const staffTasks = form.values.staff.map(async ({ role, email }) => {
         const uid = await getOrCreateUidFromEmail(email);
         console.log(`Using user ${uid} for staff email ${email}.`);
 
@@ -161,6 +166,8 @@ export const Mock = (): ReactElement => {
       console.log('Form reset; flow complete.');
     } catch (err) {
       console.error('Error in handleSubmit:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -189,7 +196,10 @@ export const Mock = (): ReactElement => {
 
   // State for flag things
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
-  
+
+  // State for loading state
+  const [loading, setLoading] = useState(false);
+
   // const handleImage = async () => {
   //   if (!flag) return;
   //   setLoading(true);
@@ -382,16 +392,17 @@ export const Mock = (): ReactElement => {
 
   return (
     <Container size="md" p="xl" h={'100vh'}>
-      <Modal  
-      opened={opened}
-      onClose={() => {
-        setSelectedValues([]);
-        setCustomValues([]);
-        setImportedValues([]);
-        setUploadedUrl(null)
-        close();
-      }} 
-      title={activeModal === 'UN'
+      <Modal
+        opened={opened}
+        onClose={() => {
+          setSelectedValues([]);
+          setCustomValues([]);
+          setImportedValues([]);
+          setUploadedUrl(null);
+          close();
+        }}
+        title={
+          activeModal === 'UN'
             ? 'Add UN countries'
             : activeModal === 'custom'
               ? 'Add custom country'
@@ -430,11 +441,11 @@ export const Mock = (): ReactElement => {
             label="Add custom country"
             placeholder="Type a country name"
             /> */}
-            <ImageUploader onChange={() => setUploadedUrl(null)} onUploadSuccess={setUploadedUrl} />
-            {uploadedUrl && <Image w={'200px'}
-            radius="md"
-            src={uploadedUrl}
-            />}
+            <ImageUploader
+              onChange={() => setUploadedUrl(null)}
+              onUploadSuccess={setUploadedUrl}
+            />
+            {uploadedUrl && <Image w={'200px'} radius="md" src={uploadedUrl} />}
 
             <Group justify="center">
               <Button onClick={addCustomRows}>Submit countries</Button>
@@ -596,35 +607,43 @@ export const Mock = (): ReactElement => {
                     {rows.length === 0 && (
                       <Stack align="center" justify="center" bg="gray.0" p="md">
                         <Text c="dimmed">no countries added :c</Text>
-                        <Group> 
-                          <Button onClick={() => {
-                          setActiveModal('import')
-                          open()
-                          }}>Import spreadsheet?</Button>
-                          <Button onClick={() => {
-                          setActiveModal('UN')
-                          open()
-                        }}>Add UN countries?</Button>
+                        <Group>
+                          <Button
+                            onClick={() => {
+                              setActiveModal('import');
+                              open();
+                            }}
+                          >
+                            Import spreadsheet?
+                          </Button>
+                          <Button
+                            onClick={() => {
+                              setActiveModal('UN');
+                              open();
+                            }}
+                          >
+                            Add UN countries?
+                          </Button>
                         </Group>
                       </Stack>
                     )}
 
                     <Flex justify="flex-end" flex={1}>
-                      <ExpandableButton 
-                        onClick= {(open)} 
-                        onFirst= {() => {
-                          setActiveModal('UN')
-                          open()
-                        }} 
+                      <ExpandableButton
+                        onClick={open}
+                        onFirst={() => {
+                          setActiveModal('UN');
+                          open();
+                        }}
                         onSecond={() => {
                           setActiveModal('custom');
                           open();
                         }}
-                        onThird= {() => {
-                          setActiveModal('import')
-                          open()
-                          }}>
-                      </ExpandableButton>
+                        onThird={() => {
+                          setActiveModal('import');
+                          open();
+                        }}
+                      ></ExpandableButton>
                       {/* <Group w="100%">
                         <Button size="compact-xs" flex={1} onClick={() => {
                           setActiveModal('UN');
@@ -659,7 +678,9 @@ export const Mock = (): ReactElement => {
         </Box>
 
         <Flex flex={1} justify="flex-end" align="flex-end" py={'md'}>
-          {active === 2 ? (
+          {loading ? (
+            <Loader size="sm" />
+          ) : active === 2 ? (
             <Button type="submit" onClick={handleSubmit}>
               Complete
             </Button>
@@ -668,7 +689,13 @@ export const Mock = (): ReactElement => {
               type="submit"
               rightSection={<IconArrowRight size={18} stroke={1.5} />}
               onClick={nextStep}
-              disabled={!form.isValid() || !form.values.committeeLongName.trim() || !form.values.committeeShortName.trim() || !form.values.dateRange[0] || !form.values.dateRange[1]}
+              disabled={
+                !form.isValid() ||
+                !form.values.committeeLongName.trim() ||
+                !form.values.committeeShortName.trim() ||
+                !form.values.dateRange[0] ||
+                !form.values.dateRange[1]
+              }
             >
               Next step
             </Button>

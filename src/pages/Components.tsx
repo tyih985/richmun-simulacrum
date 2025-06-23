@@ -1,5 +1,13 @@
 import { ReactEventHandler, useEffect, useState } from 'react';
-import { ActionIcon, Button, Group, FileInput, Image, Loader, Stack } from '@mantine/core';
+import {
+  ActionIcon,
+  Button,
+  Group,
+  FileInput,
+  Image,
+  Loader,
+  Stack,
+} from '@mantine/core';
 import { IconPhoto, IconPlus } from '@tabler/icons-react';
 import { uploadToCloudinary } from './cloudinary';
 
@@ -11,15 +19,15 @@ type Props = {
 export const ImageUploader = ({ onChange, onUploadSuccess }: Props) => {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
-  
+
   const handleUpload = async () => {
-    console.log("uploadin'!")
+    console.log("uploadin'!");
     if (!file) return;
-    console.log(file)
+    console.log(file);
     setLoading(true);
     try {
       const url = await uploadToCloudinary(file);
-      console.log(url)
+      console.log(url);
       onUploadSuccess(url);
     } catch (err) {
       console.error(err);
@@ -31,18 +39,18 @@ export const ImageUploader = ({ onChange, onUploadSuccess }: Props) => {
   return (
     <>
       <FileInput
-            clearable
-            value={file}
-            onChange={(selectedFile) => {
-              setFile(selectedFile);
-              if (onChange) onChange(selectedFile);
-            }}
-            label="Add a flag"
-            // disabled={loading}
-            placeholder="Upload image"
-            leftSection={<IconPhoto size={18} stroke={1.5} />}
-            accept=".jpg,.png,.webp"
-            />
+        clearable
+        value={file}
+        onChange={(selectedFile) => {
+          setFile(selectedFile);
+          if (onChange) onChange(selectedFile);
+        }}
+        label="Add a flag"
+        // disabled={loading}
+        placeholder="Upload image"
+        leftSection={<IconPhoto size={18} stroke={1.5} />}
+        accept=".jpg,.png,.webp"
+      />
       <Button onClick={handleUpload} disabled={loading || !file}>
         {loading ? <Loader size="xs" /> : 'Upload'}
       </Button>
@@ -64,7 +72,7 @@ export function ExpandableButton({
   const [hovered, setHovered] = useState(false);
 
   return (
-    <Group 
+    <Group
       p={'md'}
       gap="xs"
       onMouseEnter={() => setHovered(true)}
@@ -75,11 +83,19 @@ export function ExpandableButton({
       }}
     >
       {hovered ? (
-        <Stack 
-        >
-          <Button variant='outline' size="xs" onClick={onFirst} > add UN country</Button>
-          <Button variant='outline' size="xs" onClick={onSecond} > add custom country</Button>
-          <Button variant='outline' size="xs" onClick={onThird} > import spreadsheet</Button>
+        <Stack>
+          <Button variant="outline" size="xs" onClick={onFirst}>
+            {' '}
+            add UN country
+          </Button>
+          <Button variant="outline" size="xs" onClick={onSecond}>
+            {' '}
+            add custom country
+          </Button>
+          <Button variant="outline" size="xs" onClick={onThird}>
+            {' '}
+            import spreadsheet
+          </Button>
         </Stack>
       ) : (
         <ActionIcon variant="outline" aria-label="Add" onClick={onClick} size="md">

@@ -13,7 +13,15 @@ import {
   userCommitteesPath,
   userCommitteePath,
 } from '@packages/firestorePaths';
-import { addDoc, collection, FirestoreError, getDocs, query, serverTimestamp, where } from 'firebase/firestore';
+import {
+  addDoc,
+  collection,
+  FirestoreError,
+  getDocs,
+  query,
+  serverTimestamp,
+  where,
+} from 'firebase/firestore';
 
 // ─── COMMITTEE CRUD ────────────────────────────────────────────────────────────
 export async function createCommittee(
@@ -32,7 +40,13 @@ export async function createCommittee(
 
 export async function getCommittee(
   committeeId: string,
-): Promise<{ id: string;  longName: string; shortName: string; startDate: Date; endDate: Date } | null> {
+): Promise<{
+  id: string;
+  longName: string;
+  shortName: string;
+  startDate: Date;
+  endDate: Date;
+} | null> {
   const path = committeePath(committeeId);
   const doc = await getFirestoreDocument<{
     longName: string;
@@ -41,7 +55,13 @@ export async function getCommittee(
     endDate: Date;
   }>(path);
   return doc
-    ? { id: committeeId, longName: doc.longName, shortName: doc.shortName, startDate: doc.startDate, endDate: doc.endDate }
+    ? {
+        id: committeeId,
+        longName: doc.longName,
+        shortName: doc.shortName,
+        startDate: doc.startDate,
+        endDate: doc.endDate,
+      }
     : null;
 }
 
