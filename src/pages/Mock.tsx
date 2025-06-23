@@ -133,7 +133,7 @@ export const Mock = (): ReactElement => {
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
 
   // State for custom countries
-  const [customValues, setCustomValues] = useState<string[]>([]);
+  const [customValues, setCustomValues] = useState<string>('');
 
   // State for imported countries
   const [importedValues, setImportedValues] = useState<unknown[]>([]);
@@ -213,6 +213,7 @@ export const Mock = (): ReactElement => {
           data={['assistant director', 'director', 'flex staff']}
           placeholder="Add staff role here..."
           value='director'
+          allowDeselect={false}
           // onChange={() =>{
           //   const list = [...form.values.staff]; 
           //   list[0].role = 'director';
@@ -232,6 +233,7 @@ export const Mock = (): ReactElement => {
           data={['assistant director', 'director', 'flex staff']}
           placeholder="Add staff role here..."
           value={role}
+          allowDeselect={false}
           onChange={(role) =>{
             const list = [...form.values.staff];
             list[idx].role = (role as Staff['role']) || 'flex staff'; // default to 'flex staff' if role is null
@@ -271,19 +273,17 @@ export const Mock = (): ReactElement => {
   };
 
   const addCustomRows = () => {
-    const selectedCustomDelegates = customValues.map((country) => ({
-      country,
-      email: '',
-    }));
-
-    // handleImage();
+    const selectedCustomDelegates = [customValues].map((country) => ({
+        country: country,
+        email: '',
+      }));
 
     setAndSort(selectedCustomDelegates);
 
     setAvailableCountries((prev) =>
       prev.filter((c) => !selectedCustomDelegates.some((d) => d.country === c)),
     );
-    setCustomValues([]);
+    setCustomValues('');
   };
 
   const addUNRows = () => {
@@ -435,7 +435,7 @@ export const Mock = (): ReactElement => {
       opened={openedDelegateModal}
       onClose={() => {
         setSelectedValues([]);
-        setCustomValues([]);
+        setCustomValues('');
         setImportedValues([]);
         setUploadedUrl(null)
         closeDelegateModal();
@@ -472,12 +472,16 @@ export const Mock = (): ReactElement => {
 
         {activeModal === 'custom' && (
           <Stack>
-            <TagsInput
-              label="Add custom countries"
-              placeholder="Type a country name and press enter..." // this is kinda wordy lmao but alas
+            <TextInput
+              label="Add custom country"
+              placeholder="e.g. Candyland" // this is kinda wordy lmao but alas
               value={customValues}
-              onChange={setCustomValues}
-              clearable
+              onChange={(e) => setCustomValues(e.currentTarget.value)}
+            />
+            <TextInput
+              label="Alias for the country (optional)"
+              placeholder="e.g. 'United States' can be 'USA'"
+              
             />
             {/* <TextInput
             label="Add custom country"
