@@ -622,7 +622,7 @@ export const Mock = (): ReactElement => {
                     <Table stickyHeader highlightOnHover>
                       <Table.Thead>
                         <Table.Tr>
-                          <Table.Th>Staff</Table.Th>
+                          <Table.Th style={{ width: '50%' }}>Staff</Table.Th>
                           <Table.Th>Role</Table.Th>
                         </Table.Tr>
                       </Table.Thead>
@@ -652,7 +652,7 @@ export const Mock = (): ReactElement => {
                     <Table stickyHeader highlightOnHover>
                       <Table.Thead>
                         <Table.Tr>
-                          <Table.Th>Country</Table.Th>
+                          <Table.Th style={{ width: '30%' }}>Country</Table.Th>
                           <Table.Th>Delegate</Table.Th>
                         </Table.Tr>
                       </Table.Thead>
