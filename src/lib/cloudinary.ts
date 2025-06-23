@@ -16,6 +16,5 @@ export const uploadToCloudinary = async (file: File): Promise<string> => {
 
   console.log('Cloudinary response:', data);
 
-
   return data.secure_url;
 };

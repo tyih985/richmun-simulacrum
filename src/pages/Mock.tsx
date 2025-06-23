@@ -23,6 +23,7 @@ import {
   Image,
   Select,
   ActionIcon,
+  Loader,
 } from '@mantine/core';
 import {
   IconArrowRight,
@@ -69,14 +70,21 @@ export const Mock = (): ReactElement => {
   });
 
   const handleSubmit = async () => {
+    setLoading(true);
     try {
       // committee
       const committeeId = generateCommitteeId(form.values.committeeShortName.trim());
       const [startDate, endDate] = form.values.dateRange;
-      await createCommittee(committeeId, form.values.committeeLongName, form.values.committeeShortName, startDate!, endDate!);
+      await createCommittee(
+        committeeId,
+        form.values.committeeLongName,
+        form.values.committeeShortName,
+        startDate!,
+        endDate!,
+      );
 
       // staff
-      const staffTasks = form.values.staff.map(async ( { role, email } ) => {
+      const staffTasks = form.values.staff.map(async ({ role, email }) => {
         const uid = await getOrCreateUidFromEmail(email);
         console.log(`Using user ${uid} for staff email ${email}.`);
 
@@ -105,6 +113,8 @@ export const Mock = (): ReactElement => {
       console.log('Form reset; flow complete.');
     } catch (err) {
       console.error('Error in handleSubmit:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -138,8 +148,10 @@ export const Mock = (): ReactElement => {
 
   // State for flag things
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
-
-  // Enter key to blur active element ?? idk how useful this will be
+    // State for loading state
+  const [loading, setLoading] = useState(false);
+  
+// Enter key to blur active element ?? idk how useful this will be
   const multiSelectRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -471,11 +483,11 @@ export const Mock = (): ReactElement => {
             label="Add custom country"
             placeholder="Type a country name"
             /> */}
-            <ImageUploader onChange={() => setUploadedUrl(null)} onUploadSuccess={setUploadedUrl} />
-            {uploadedUrl && <Image w={'200px'}
-            radius="md"
-            src={uploadedUrl}
-            />}
+            <ImageUploader
+              onChange={() => setUploadedUrl(null)}
+              onUploadSuccess={setUploadedUrl}
+            />
+            {uploadedUrl && <Image w={'200px'} radius="md" src={uploadedUrl} />}
 
             <Group justify="center">
               <Button onClick={addCustomRows}>Submit countries</Button>
@@ -701,7 +713,9 @@ export const Mock = (): ReactElement => {
         </Box>
 
         <Flex flex={1} justify="flex-end" align="flex-end" py={'md'}>
-          {active === 2 ? (
+          {loading ? (
+            <Loader size="sm" />
+          ) : active === 2 ? (
             <Button type="submit" onClick={handleSubmit}>
               Complete
             </Button>
