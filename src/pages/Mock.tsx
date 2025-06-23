@@ -83,6 +83,14 @@ export const Mock = (): ReactElement => {
         endDate!,
       );
 
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      const ownerUid = currentUser.uid;
+      const ownerStaffId = generateStaffId();
+      await addStaffToCommittee(committeeId, ownerStaffId, true, 'director', ownerUid);
+      await addUserCommittee(ownerUid, committeeId, 'staff');
+    }
+
       // staff
       const staffTasks = form.values.staff.map(async ({ role, email }) => {
         const uid = await getOrCreateUidFromEmail(email);
