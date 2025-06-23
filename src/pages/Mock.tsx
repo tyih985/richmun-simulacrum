@@ -51,7 +51,9 @@ import { ImageUploader } from '@components/ImageUploader';
 import { UN_COUNTRIES } from './countriesData';
 import { auth } from '@packages/firebase/firebaseAuth';
 
-type Staff = { role: 'assistant director' | 'director' | 'flex staff'; email: string };
+const ROLE_OPTIONS = ['director', 'assistant director', 'flex staff'] as const;
+type RoleOption = (typeof ROLE_OPTIONS)[number];
+type Staff = { role: 'director' | 'assistant director' | 'flex staff'; email: string };
 type Delegate = { country: string; email: string };
 
 export const Mock = (): ReactElement => {
@@ -69,6 +71,12 @@ export const Mock = (): ReactElement => {
     },
   });
 
+  // State for owner role
+  const [ownerRole, setOwnerRole] = useState<RoleOption>('director');
+
+  // State for loading state
+  const [loading, setLoading] = useState(false);
+
   const handleSubmit = async () => {
     setLoading(true);
     try {
@@ -83,13 +91,13 @@ export const Mock = (): ReactElement => {
         endDate!,
       );
 
-    const currentUser = auth.currentUser;
-    if (currentUser) {
-      const ownerUid = currentUser.uid;
-      const ownerStaffId = generateStaffId();
-      await addStaffToCommittee(committeeId, ownerStaffId, true, 'director', ownerUid);
-      await addUserCommittee(ownerUid, committeeId, 'staff');
-    }
+      const ownerUid = auth.currentUser?.uid || '';
+      if (ownerUid) {
+        const ownerStaffId = generateStaffId();
+        await addStaffToCommittee(committeeId, ownerStaffId, true, ownerRole, ownerUid);
+        await addUserCommittee(ownerUid, committeeId, 'staff');
+        console.log('Added owner to committee:', { ownerUid, ownerStaffId, ownerRole });
+      }
 
       // staff
       const staffTasks = form.values.staff.map(async ({ role, email }) => {
@@ -129,13 +137,14 @@ export const Mock = (): ReactElement => {
   const un_countries = UN_COUNTRIES;
 
   // State for delegate modal
-  const [openedDelegateModal, { open: openDelegateModal, close: closeDelegateModal }] = useDisclosure(false);
+  const [openedDelegateModal, { open: openDelegateModal, close: closeDelegateModal }] =
+    useDisclosure(false);
   const [activeModal, setActiveModal] = useState<'UN' | 'custom' | 'import' | null>(null);
 
   // State for staff
   const [staffValues, setStaffValues] = useState<string[]>([]);
-  const [openedStaffModal, { open: openStaffModal, close: closeStaffModal }] = useDisclosure(false);
-
+  const [openedStaffModal, { open: openStaffModal, close: closeStaffModal }] =
+    useDisclosure(false);
 
   // State for UN countries
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
@@ -156,10 +165,8 @@ export const Mock = (): ReactElement => {
 
   // State for flag things
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
-    // State for loading state
-  const [loading, setLoading] = useState(false);
-  
-// Enter key to blur active element ?? idk how useful this will be
+
+  // Enter key to blur active element ?? idk how useful this will be
   const multiSelectRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -214,25 +221,23 @@ export const Mock = (): ReactElement => {
   ));
 
   const ownerRow = () => (
-    <Table.Tr key={`owner-row`}>
-      <Table.Td>{auth.currentUser && auth.currentUser.email || '' }(you)</Table.Td>
+    <Table.Tr key="owner-row">
+      <Table.Td>{auth.currentUser?.email ?? 'You'} (you)</Table.Td>
       <Table.Td>
         <Select
-          data={['assistant director', 'director', 'flex staff']}
-          placeholder="Add staff role here..."
-          value='director'
-          // onChange={() =>{
-          //   const list = [...form.values.staff]; 
-          //   list[0].role = 'director';
-          //   form.setFieldValue('staff', list);
-          // }}
+          data={ROLE_OPTIONS}
+          value={ownerRole}
+          onChange={(val) => {
+            // Mantine types this as string | null
+            if (val) setOwnerRole(val as RoleOption);
+          }}
+          placeholder="Select your role"
         />
       </Table.Td>
     </Table.Tr>
   );
 
   const staffRows = form.values.staff.map(({ email, role }, idx) => (
-    
     <Table.Tr key={`${email}-${idx}`}>
       <Table.Td>{email}</Table.Td>
       <Table.Td>
@@ -240,7 +245,7 @@ export const Mock = (): ReactElement => {
           data={['assistant director', 'director', 'flex staff']}
           placeholder="Add staff role here..."
           value={role}
-          onChange={(role) =>{
+          onChange={(role) => {
             const list = [...form.values.staff];
             list[idx].role = (role as Staff['role']) || 'flex staff'; // default to 'flex staff' if role is null
             form.setFieldValue('staff', list);
@@ -251,7 +256,6 @@ export const Mock = (): ReactElement => {
         <CloseButton variant="outline" onClick={() => removeStaffRow(idx)} />
       </Table.Td>
     </Table.Tr>
- 
   ));
 
   const setAndSort = (newDelegates: Delegate[]) => {
@@ -314,7 +318,7 @@ export const Mock = (): ReactElement => {
     form.setFieldValue('staff', [...form.values.staff, ...staffEmails]);
     console.log('Added staff rows:', form.values.staff);
     setStaffValues([]);
-    closeStaffModal();    
+    closeStaffModal();
   };
 
   const removeDelegateRow = (idx: number) => {
@@ -326,13 +330,12 @@ export const Mock = (): ReactElement => {
     setAvailableCountries((prev) => [...prev, removed.country]);
   };
 
-
-  const removeStaffRow = (idx: number) =>{
+  const removeStaffRow = (idx: number) => {
     form.setFieldValue(
       'staff',
       form.values.staff.filter((_, i) => i !== idx),
     );
-  }
+  };
 
   async function readImported(payload: File | null) {
     if (!payload) {
@@ -410,15 +413,10 @@ export const Mock = (): ReactElement => {
           closeStaffModal();
         }}
         title="Who’s on your staff team?"
-        size='md'
+        size="md"
         centered
       >
-        <Stack
-          justify="flex-start"
-          align="stretch"
-          gap="md"
-          px='xl'
-          pb='lg'>
+        <Stack justify="flex-start" align="stretch" gap="md" px="xl" pb="lg">
           <TagsInput
             label="Press enter to add a staff email."
             placeholder="Enter email..."
@@ -429,26 +427,26 @@ export const Mock = (): ReactElement => {
             onChange={setStaffValues}
           />
           <Text size="sm" c="dimmed">
-            Unsure? No worries, you can change this anytime after you've created
-            your committee.
+            Unsure? No worries, you can change this anytime after you've created your
+            committee.
           </Text>
 
           <Group justify="center">
-              <Button onClick={addStaffRows}>Submit</Button>
-            </Group>
+            <Button onClick={addStaffRows}>Submit</Button>
+          </Group>
         </Stack>
-        
       </Modal>
-      <Modal  
-      opened={openedDelegateModal}
-      onClose={() => {
-        setSelectedValues([]);
-        setCustomValues([]);
-        setImportedValues([]);
-        setUploadedUrl(null)
-        closeDelegateModal();
-      }} 
-      title={activeModal === 'UN'
+      <Modal
+        opened={openedDelegateModal}
+        onClose={() => {
+          setSelectedValues([]);
+          setCustomValues([]);
+          setImportedValues([]);
+          setUploadedUrl(null);
+          closeDelegateModal();
+        }}
+        title={
+          activeModal === 'UN'
             ? 'Add UN countries'
             : activeModal === 'custom'
               ? 'Add custom country'
@@ -458,9 +456,7 @@ export const Mock = (): ReactElement => {
         centered
       >
         {activeModal === 'UN' && (
-          <Stack
-           p='lg'
-          >
+          <Stack p="lg">
             <MultiSelect
               ref={multiSelectRef}
               label="Add UN countries"
@@ -541,8 +537,6 @@ export const Mock = (): ReactElement => {
           </Stack>
         )}
       </Modal>
-
-      
 
       <Flex direction="column" gap="md" h="100%" w="100%" py="xl">
         <Box component="form" onSubmit={handleSubmit}>
@@ -626,11 +620,15 @@ export const Mock = (): ReactElement => {
                     </Table>
 
                     <Flex justify="flex-end" flex={1}>
-                      <ActionIcon variant="outline" aria-label="Add" onClick={openStaffModal} size="md">
+                      <ActionIcon
+                        variant="outline"
+                        aria-label="Add"
+                        onClick={openStaffModal}
+                        size="md"
+                      >
                         <IconPlus style={{ width: '70%', height: '70%' }} stroke={2.5} />
                       </ActionIcon>
                     </Flex>
-
                   </Flex>
                 </Container>
               </Stepper.Step>
@@ -658,35 +656,43 @@ export const Mock = (): ReactElement => {
                     {delegateRows.length === 0 && (
                       <Stack align="center" justify="center" bg="gray.0" p="md">
                         <Text c="dimmed">no countries added :c</Text>
-                        <Group> 
-                          <Button onClick={() => {
-                          setActiveModal('import')
-                          openDelegateModal()
-                          }}>Import spreadsheet?</Button>
-                          <Button onClick={() => {
-                          setActiveModal('UN')
-                          openDelegateModal()
-                        }}>Add UN countries?</Button>
+                        <Group>
+                          <Button
+                            onClick={() => {
+                              setActiveModal('import');
+                              openDelegateModal();
+                            }}
+                          >
+                            Import spreadsheet?
+                          </Button>
+                          <Button
+                            onClick={() => {
+                              setActiveModal('UN');
+                              openDelegateModal();
+                            }}
+                          >
+                            Add UN countries?
+                          </Button>
                         </Group>
                       </Stack>
                     )}
 
                     <Flex justify="flex-end" flex={1}>
-                      <ExpandableButton 
-                        onClick= {(openDelegateModal)} 
-                        onFirst= {() => {
-                          setActiveModal('UN')
-                          openDelegateModal()
-                        }} 
+                      <ExpandableButton
+                        onClick={openDelegateModal}
+                        onFirst={() => {
+                          setActiveModal('UN');
+                          openDelegateModal();
+                        }}
                         onSecond={() => {
                           setActiveModal('custom');
                           openDelegateModal();
                         }}
-                        onThird= {() => {
-                          setActiveModal('import')
-                          openDelegateModal()
-                          }}>
-                      </ExpandableButton>
+                        onThird={() => {
+                          setActiveModal('import');
+                          openDelegateModal();
+                        }}
+                      ></ExpandableButton>
                       {/* <Group w="100%">
                         <Button size="compact-xs" flex={1} onClick={() => {
                           setActiveModal('UN');
@@ -742,4 +748,3 @@ export const Mock = (): ReactElement => {
     </Container>
   );
 };
-

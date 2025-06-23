@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { ActionIcon, Button, Group, Stack } from '@mantine/core';
-import {IconPlus } from '@tabler/icons-react';
-
-
+import { IconPlus } from '@tabler/icons-react';
 
 export function ExpandableButton({
   onClick,
@@ -18,7 +16,7 @@ export function ExpandableButton({
   const [hovered, setHovered] = useState(false);
 
   return (
-    <Group 
+    <Group
       p={'md'}
       gap="xs"
       onMouseEnter={() => setHovered(true)}
@@ -29,11 +27,19 @@ export function ExpandableButton({
       }}
     >
       {hovered ? (
-        <Stack 
-        >
-          <Button variant='outline' size="xs" onClick={onFirst} > add UN country</Button>
-          <Button variant='outline' size="xs" onClick={onSecond} > add custom country</Button>
-          <Button variant='outline' size="xs" onClick={onThird} > import spreadsheet</Button>
+        <Stack>
+          <Button variant="outline" size="xs" onClick={onFirst}>
+            {' '}
+            add UN country
+          </Button>
+          <Button variant="outline" size="xs" onClick={onSecond}>
+            {' '}
+            add custom country
+          </Button>
+          <Button variant="outline" size="xs" onClick={onThird}>
+            {' '}
+            import spreadsheet
+          </Button>
         </Stack>
       ) : (
         <ActionIcon variant="outline" aria-label="Add" onClick={onClick} size="md">
