@@ -50,7 +50,7 @@ import {
 } from '@packages/generateIds';
 import { DateInputComponent } from '@components/DateInput';
 import { ImageUploader } from '@components/ImageUploader';
-import { UN_COUNTRIES } from './countriesData';
+import { UN_COUNTRIES, UN_COUNTRY_LONG_NAMES } from './countriesData';
 import { auth } from '@packages/firebase/firebaseAuth';
 import { parseFile, parseTSV } from '@lib/SpreadsheetThings';
 import { parse } from 'path';
@@ -219,7 +219,16 @@ export const Mock = (): ReactElement => {
 
   const delegateRows = form.values.delegates.map(({ country, email }, idx) => (
     <Table.Tr key={`${country}-${idx}`}>
-      <Table.Td>{country}</Table.Td>
+      <Table.Td>
+        <Stack gap={2}>
+          <Text size="sm">{country}</Text>
+          {UN_COUNTRY_LONG_NAMES[country]?.trim() && (
+            <Text size="xs" c="dimmed">
+              ({UN_COUNTRY_LONG_NAMES[country]})
+              </Text>
+            )}
+        </Stack>
+      </Table.Td>
       <Table.Td>
         <TextInput
           placeholder="Add delegate email here..."
