@@ -24,6 +24,8 @@ import {
   Select,
   ActionIcon,
   Loader,
+  Textarea,
+  SegmentedControl,
 } from '@mantine/core';
 import {
   IconArrowRight,
@@ -50,6 +52,9 @@ import { DateInputComponent } from '@components/DateInput';
 import { ImageUploader } from '@components/ImageUploader';
 import { UN_COUNTRIES } from './countriesData';
 import { auth } from '@packages/firebase/firebaseAuth';
+import { parseFile, parseTSV } from '@lib/SpreadsheetThings';
+import { parse } from 'path';
+import { read } from 'fs';
 
 type Staff = { role: 'assistant director' | 'director' | 'flex staff'; email: string };
 type Delegate = { country: string; email: string };
@@ -131,6 +136,7 @@ export const Mock = (): ReactElement => {
   // State for delegate modal
   const [openedDelegateModal, { open: openDelegateModal, close: closeDelegateModal }] = useDisclosure(false);
   const [activeModal, setActiveModal] = useState<'UN' | 'custom' | 'import' | null>(null);
+  const [segVal, setSegVal] = useState<'paste from spreadsheet' | 'import file'>('paste from spreadsheet');
 
   // State for staff
   const [staffValues, setStaffValues] = useState<string[]>([]);
@@ -158,10 +164,19 @@ export const Mock = (): ReactElement => {
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
     // State for loading state
   const [loading, setLoading] = useState(false);
+
+  // // State for CSV output from PasteToCSV
+  // const [csv, setCsv] = useState('');
+
+  const handlePaste = (event: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const raw = event.clipboardData.getData('Text');
+    const json = parseTSV(raw);
+    console.log('Parsed JSON from pasted:', json);
+    readImported(json);
+  };
   
 // Enter key to blur active element ?? idk how useful this will be
   const multiSelectRef = useRef<HTMLInputElement>(null);
-
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Enter') {
@@ -232,13 +247,12 @@ export const Mock = (): ReactElement => {
     </Table.Tr>
   );
 
-  const staffRows = form.values.staff.map(({ email, role }, idx) => (
-    
+  const staffRows = form.values.staff.map(({ email, role }, idx) => ( 
     <Table.Tr key={`${email}-${idx}`}>
       <Table.Td>{email}</Table.Td>
       <Table.Td>
         <Select
-          data={['assistant director', 'director', 'flex staff']}
+          data={['director', 'assistant director', 'flex staff']}
           placeholder="Add staff role here..."
           value={role}
           allowDeselect={false}
@@ -267,19 +281,6 @@ export const Mock = (): ReactElement => {
     closeDelegateModal();
   };
 
-  const addImportedRows = () => {
-    const importedDelegates = saveImported(importedValues as Record<string, string>[]);
-    setAndSort(importedDelegates);
-
-    setAvailableCountries((prev) =>
-      prev.filter((c) => !importedDelegates.some((d) => d.country === c)),
-    );
-    setImportedValues([]);
-    setSheetHeaders([]);
-    setCountryCol(null);
-    setDelegateCol(null);
-  };
-
   const addCustomRows = () => {
     const selectedCustomDelegates = [customValues].map((country) => ({
         country: country,
@@ -305,6 +306,91 @@ export const Mock = (): ReactElement => {
     setSelectedValues([]);
   };
 
+  function resetImportState() {
+    setImportedValues([]);
+    setSheetHeaders([]);
+    setCountryCol(null);
+    setDelegateCol(null);
+  }
+
+  function transformImportedData(
+    data: Record<string, unknown>[],
+    countryCol: string | null,
+    delegateCol: string | null,
+    existingCountries: Set<string>
+  ): { country: string; email: string }[] {
+    if (!Array.isArray(data)) return [];
+
+    return data
+      .map((row) => {
+        const country =
+          countryCol && typeof row[countryCol] === 'string'
+            ? row[countryCol].trim()
+            : '';
+        const email =
+          delegateCol && typeof row[delegateCol] === 'string'
+            ? row[delegateCol].trim()
+            : '';
+        return { country, email };
+      })
+      .filter((d) => d.country && !existingCountries.has(d.country));
+  }
+
+  const addImportedRows = () => {
+    if (!importedValues.length || !countryCol || !delegateCol) {
+      console.warn('Missing imported values or column mapping.');
+      return;
+    }
+    const newDelegates = transformImportedData(importedValues as Record<string, unknown>[], countryCol, delegateCol, existingCountries);
+
+    if (!newDelegates.length) {
+      console.warn('No new delegates to add.');
+      resetImportState();
+      return;
+    }
+
+    setAndSort(newDelegates);
+
+    setAvailableCountries((prev) =>
+      prev.filter((c) => !newDelegates.some((d) => d.country === c))
+    );
+
+    resetImportState();
+  };
+
+  function extractHeaders(
+    data: Record<string, string>[],
+    setSheetHeaders: (headers: string[]) => void,
+    setCountryCol: (col: string) => void,
+    setDelegateCol: (col: string) => void,
+  ): string[] {
+    if (!data.length) return [];
+
+    const headers = Object.keys(data[0]);
+    setSheetHeaders(headers);
+
+    if (headers.includes('Country')) setCountryCol('Country');
+    if (headers.includes('Delegate')) setDelegateCol('Delegate');
+
+    return headers;
+  }
+
+  function readImported(json: Record<string, string>[]) {
+    if (!json.length) return;
+
+    extractHeaders(json, setSheetHeaders, setCountryCol, setDelegateCol);
+    setImportedValues(json);
+  }
+
+  const removeDelegateRow = (idx: number) => {
+    const removed = form.values.delegates[idx];
+    form.setFieldValue(
+      'delegates',
+      form.values.delegates.filter((_, i) => i !== idx),
+    );
+    setAvailableCountries((prev) => [...prev, removed.country]);
+  };
+
   const addStaffRows = () => {
     const staffEmails: Staff[] = staffValues.map((email) => ({
       role: 'flex staff', // default role, can be changed later
@@ -317,84 +403,11 @@ export const Mock = (): ReactElement => {
     closeStaffModal();    
   };
 
-  const removeDelegateRow = (idx: number) => {
-    const removed = form.values.delegates[idx];
-    form.setFieldValue(
-      'delegates',
-      form.values.delegates.filter((_, i) => i !== idx),
-    );
-    setAvailableCountries((prev) => [...prev, removed.country]);
-  };
-
-
   const removeStaffRow = (idx: number) =>{
     form.setFieldValue(
       'staff',
       form.values.staff.filter((_, i) => i !== idx),
     );
-  }
-
-  async function readImported(payload: File | null) {
-    if (!payload) {
-      setImportedValues([]);
-      return;
-    }
-    try {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const data = new Uint8Array(e.target!.result as ArrayBuffer);
-        const workbook = XLSX.read(data, { type: 'array' });
-
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const json = XLSX.utils.sheet_to_json(sheet, { raw: true, defval: '' });
-
-        if (!json.length) return;
-
-        const headers = Object.keys(json[0] as object);
-        setSheetHeaders(headers);
-
-        if (headers.includes('Country')) setCountryCol('Country');
-        if (headers.includes('Delegate')) setDelegateCol('Delegate');
-
-        setImportedValues(json as { Country: string; Delegate: string }[]);
-      };
-      reader.readAsArrayBuffer(payload);
-    } catch (error) {
-      console.error('Failed to import file:', error);
-    }
-  }
-
-  function saveImported(
-    jsonData: Record<string, unknown>[],
-  ): { country: string; email: string }[] {
-    if (!Array.isArray(jsonData)) return [];
-    console.log('ahaha:', jsonData);
-
-    const mapped = jsonData
-      .map((row) => {
-        const country =
-          countryCol && typeof row[countryCol] === 'string' ? row[countryCol].trim() : '';
-        const email =
-          delegateCol && typeof row[delegateCol] === 'string'
-            ? row[delegateCol].trim()
-            : '';
-        return { country, email };
-      })
-
-      .filter((d) => !existingCountries.has(d.country));
-
-    console.log('Mapped delegates:', mapped);
-
-    if (mapped.length) {
-      // Remove imported countries from availableCountries if they are in the UN list
-      setAvailableCountries((prev) =>
-        prev.filter((c) => !mapped.some((d) => d.country === c)),
-      );
-      return mapped;
-    } else {
-      console.warn('No new delegates to add, all are already present.');
-      return [];
-    }
   }
 
   // State for stepper
@@ -403,6 +416,13 @@ export const Mock = (): ReactElement => {
 
   return (
     <Container size="md" p="xl" h={'100vh'}>
+      <Textarea
+        label="Paste spreadsheet data"
+        placeholder="Paste here..."
+        autosize
+        onPaste={handlePaste}
+        readOnly
+      />
       <Modal
         opened={openedStaffModal}
         onClose={() => {
@@ -509,40 +529,70 @@ export const Mock = (): ReactElement => {
 
         {activeModal === 'import' && (
           <Stack>
-            <div>
-              <FileInput
-                clearable
-                label="Import spreadsheet"
-                placeholder="Upload spreadsheet"
-                leftSection={<IconFileSpreadsheet size={18} stroke={1.5} />}
-                onChange={readImported}
-                accept=".xlsx,.xls,.csv"
+            <SegmentedControl
+              data={['paste from spreadsheet', 'import file']}
+              onChange={(value) => setSegVal(value as 'paste from spreadsheet' | 'import file')}
+              value={segVal}
+            />
+            {segVal === 'paste from spreadsheet' && (
+              <Textarea
+                label="Paste spreadsheet data"
+                placeholder="Paste here..."
+                autosize
+                onPaste={handlePaste}
               />
-              {importedValues.length > 0 && (
-                <Group grow>
-                  <Select
-                    label="Which column is Country?"
-                    data={sheetHeaders}
-                    value={countryCol}
-                    onChange={setCountryCol}
-                    placeholder="Choose column"
-                  />
-
-                  <Select
-                    label="Which column is Delegate?"
-                    data={sheetHeaders}
-                    value={delegateCol}
-                    onChange={setDelegateCol}
-                    placeholder="Choose column"
-                  />
-                </Group>
+            )}
+            {segVal === 'import file' && (
+              <><Text size="sm" c="dimmed">
+                Upload a spreadsheet file with columns for Country and Delegate. The first row should contain headers.</Text><FileInput
+                  clearable
+                  label="Import spreadsheet"
+                  placeholder="Upload spreadsheet"
+                  leftSection={<IconFileSpreadsheet size={18} stroke={1.5} />}
+                  onChange={(file) => {
+                    if (!file) return;
+                    setLoading(true);
+                    parseFile(file)
+                      .then((data) => {
+                        if (!data) {
+                          console.warn('No data parsed from file.');
+                          return;
+                        }
+                        readImported(data);
+                        setLoading(false);
+                      })
+                      .catch((err) => {
+                        console.error('Error parsing file:', err);
+                        setLoading(false);
+                      });
+                  } }
+                  accept=".xlsx,.xls,.csv" /></>
               )}
-            </div>
+            
+            {importedValues.length > 0 && (
+              <Group grow>
+                <Select
+                  label="Which column is Country?"
+                  data={sheetHeaders}
+                  value={countryCol}
+                  onChange={setCountryCol}
+                  placeholder="Choose column"
+                />
 
-            <Group justify="center">
-              <Button onClick={addImportedRows}>Submit countries</Button>
-            </Group>
-          </Stack>
+                <Select
+                  label="Which column is Delegate?"
+                  data={sheetHeaders}
+                  value={delegateCol}
+                  onChange={setDelegateCol}
+                  placeholder="Choose column"
+                />
+              </Group>
+            )}
+
+          <Group justify="center">
+            <Button onClick={addImportedRows}>Submit countries</Button>
+          </Group>
+        </Stack>
         )}
       </Modal>
 
@@ -746,4 +796,5 @@ export const Mock = (): ReactElement => {
     </Container>
   );
 };
+
 
