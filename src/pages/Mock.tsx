@@ -521,7 +521,9 @@ export const Mock = (): ReactElement => {
               nothingFoundMessage="Nothing found..."
             />
             <Group justify="center">
-              <Button onClick={addUNRows}>Submit countries</Button>
+              <Button onClick={addUNRows} disabled={selectedValues.length === 0}>
+                Submit countries
+              </Button>
             </Group>
           </Stack>
         )}
