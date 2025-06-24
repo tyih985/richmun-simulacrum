@@ -55,6 +55,8 @@ import { auth } from '@packages/firebase/firebaseAuth';
 import { parseFile, parseTSV } from '@lib/SpreadsheetThings';
 import { parse } from 'path';
 import { read } from 'fs';
+import EmojiPicker from '@emoji-mart/react';
+import { CountryMultiSelect } from '@components/CountryMultiSelect';
 
 const ROLE_OPTIONS = ['director', 'assistant director', 'flex staff'] as const;
 type RoleOption = (typeof ROLE_OPTIONS)[number];
@@ -413,6 +415,7 @@ export const Mock = (): ReactElement => {
 
   return (
     <Container size="md" p="xl" h={'100vh'}>
+      <CountryMultiSelect></CountryMultiSelect>
       <Modal
         opened={openedStaffModal}
         onClose={() => {
@@ -495,6 +498,7 @@ export const Mock = (): ReactElement => {
               placeholder="e.g. 'United States' can be 'USA'"
               
             />
+            {/* <EmojiPicker></EmojiPicker> */}
             {/* <TextInput
             label="Add custom country"
             placeholder="Type a country name"
