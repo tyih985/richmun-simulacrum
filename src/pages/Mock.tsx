@@ -413,13 +413,6 @@ export const Mock = (): ReactElement => {
 
   return (
     <Container size="md" p="xl" h={'100vh'}>
-      <Textarea
-        label="Paste spreadsheet data"
-        placeholder="Paste here..."
-        autosize
-        onPaste={handlePaste}
-        readOnly
-      />
       <Modal
         opened={openedStaffModal}
         onClose={() => {
