@@ -1,5 +1,4 @@
 import { ReactElement, useEffect, useRef, useState } from 'react';
-import * as XLSX from 'xlsx';
 import '@mantine/dates/styles.css';
 import { useForm } from '@mantine/form';
 import {
@@ -62,6 +61,8 @@ const ROLE_OPTIONS = ['director', 'assistant director', 'flex staff'] as const;
 type RoleOption = (typeof ROLE_OPTIONS)[number];
 type Staff = { role: 'director' | 'assistant director' | 'flex staff'; email: string };
 type Delegate = { country: string; email: string };
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const isValidEmail = (email: string) => emailRegex.test(email);
 
 export const Mock = (): ReactElement => {
   const form = useForm({
@@ -83,6 +84,12 @@ export const Mock = (): ReactElement => {
 
   // State for loading state
   const [loading, setLoading] = useState(false);
+
+  // State for modal error
+  const [staffModalError, setStaffModalError] = useState<string | null>(null);
+
+  // State for focused delegate index
+  const [focusedDelegateIdx, setFocusedDelegateIdx] = useState<number | null>(null);
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -247,6 +254,13 @@ export const Mock = (): ReactElement => {
             list[idx].email = e.currentTarget.value;
             form.setFieldValue('delegates', list);
           }}
+          onFocus={() => setFocusedDelegateIdx(idx)}
+          onBlur={() => setFocusedDelegateIdx(null)}
+          error={
+            idx !== focusedDelegateIdx && email.trim() !== '' && !isValidEmail(email)
+              ? 'Invalid email'
+              : undefined
+          }
         />
       </Table.Td>
       <Table.Td>
@@ -415,6 +429,15 @@ export const Mock = (): ReactElement => {
   };
 
   const addStaffRows = () => {
+    setStaffModalError(null);
+
+    const invalids = staffValues.filter((email) => !isValidEmail(email));
+    if (invalids.length) {
+      setStaffModalError(
+        `Invalid email${invalids.length > 1 ? 's' : ''}: ${invalids.join(', ')}`,
+      );
+      return;
+    }
     const staffEmails: Staff[] = staffValues.map((email) => ({
       role: 'flex staff', // default role, can be changed later
       email,
@@ -436,12 +459,17 @@ export const Mock = (): ReactElement => {
   const [active, setActive] = useState(0);
   const nextStep = () => setActive((current) => (current < 2 ? current + 1 : current));
 
+  const hasInvalidDelegateEmail = form.values.delegates.some(
+    (d) => d.email.trim() !== '' && !isValidEmail(d.email),
+  );
+
   return (
     <Container size="md" p="xl" h={'100vh'}>
       <Modal
         opened={openedStaffModal}
         onClose={() => {
           setStaffValues([]);
+          setStaffModalError(null);
           closeStaffModal();
         }}
         title="Who’s on your staff team?"
@@ -456,7 +484,11 @@ export const Mock = (): ReactElement => {
             radius="lg"
             value={staffValues}
             autoFocus
-            onChange={setStaffValues}
+            onChange={(vals) => {
+              const cleaned = vals.map((v) => v.trim()).filter((v) => v !== '');
+              setStaffValues(cleaned);
+            }}
+            error={staffModalError}
           />
           <Text size="sm" c="dimmed">
             Unsure? No worries, you can change this anytime after you've created your
@@ -464,7 +496,9 @@ export const Mock = (): ReactElement => {
           </Text>
 
           <Group justify="center">
-            <Button onClick={addStaffRows}>Submit</Button>
+            <Button onClick={addStaffRows} disabled={staffValues.length === 0}>
+              Submit
+            </Button>
           </Group>
         </Stack>
       </Modal>
@@ -507,7 +541,9 @@ export const Mock = (): ReactElement => {
               onChange={setSelectedValues}
             ></CountryMultiSelect>
             <Group justify="center">
-              <Button onClick={addUNRows}>Submit countries</Button>
+              <Button onClick={addUNRows} disabled={selectedValues.length === 0}>
+                Submit countries
+              </Button>
             </Group>
           </Stack>
         )}
@@ -821,15 +857,35 @@ export const Mock = (): ReactElement => {
           {loading ? (
             <Loader size="sm" />
           ) : active === 2 ? (
-            <Button type="submit" onClick={handleSubmit}>
-              Complete
-            </Button>
+            <>
+              <Button
+                type="submit"
+                onClick={handleSubmit}
+                disabled={
+                  !form.isValid() ||
+                  !form.values.committeeLongName.trim() ||
+                  !form.values.committeeShortName.trim() ||
+                  !form.values.dateRange[0] ||
+                  !form.values.dateRange[1] ||
+                  hasInvalidDelegateEmail
+                }
+              >
+                Complete
+              </Button>
+              {hasInvalidDelegateEmail}
+            </>
           ) : (
             <Button
               type="submit"
               rightSection={<IconArrowRight size={18} stroke={1.5} />}
               onClick={nextStep}
-              // disabled={!form.isValid() || !form.values.committeeLongName.trim() || !form.values.committeeShortName.trim() || !form.values.dateRange[0] || !form.values.dateRange[1]}
+              disabled={
+                !form.isValid() ||
+                !form.values.committeeLongName.trim() ||
+                !form.values.committeeShortName.trim() ||
+                !form.values.dateRange[0] ||
+                !form.values.dateRange[1]
+              }
             >
               Next step
             </Button>
