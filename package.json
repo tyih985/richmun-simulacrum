@@ -13,6 +13,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@emoji-mart/data": "^1.2.1",
+    "@emoji-mart/react": "^1.1.1",
     "@mantine/colors-generator": "^7.16.2",
     "@mantine/core": "^7.16.2",
     "@mantine/dates": "^7.17.8",
@@ -29,6 +31,7 @@
     "cross-env": "^7.0.3",
     "dagre": "^0.8.5",
     "dayjs": "^1.11.13",
+    "emoji-mart": "^5.6.0",
     "firebase": "^11.6.0",
     "nanoid": "^5.1.5",
     "node-fetch": "^3.3.2",
