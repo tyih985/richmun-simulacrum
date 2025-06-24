@@ -29,8 +29,8 @@ export const ImageUploader = ({ onChange, onUploadSuccess }: ImageUploaderProps)
   };
 
   return (
-    <Group justify='stretch' align='flex-end' gap='xs'>
-      <FileInput 
+    <Group justify="stretch" align="flex-end" gap="xs">
+      <FileInput
         flex={1}
         clearable
         value={file}

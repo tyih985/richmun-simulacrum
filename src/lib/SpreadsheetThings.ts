@@ -4,7 +4,10 @@ import * as XLSX from 'xlsx';
  * Converts a TSV string to JSON using XLSX.
  */
 export function parseTSV(tsv: string): Record<string, string>[] {
-  const rows = tsv.trim().split(/\r?\n/).map(line => line.split('\t'));
+  const rows = tsv
+    .trim()
+    .split(/\r?\n/)
+    .map((line) => line.split('\t'));
   const worksheet = XLSX.utils.aoa_to_sheet(rows);
   return XLSX.utils.sheet_to_json(worksheet, { defval: '' });
 }
@@ -12,7 +15,9 @@ export function parseTSV(tsv: string): Record<string, string>[] {
 /**
  * Reads and parses a spreadsheet file into JSON using XLSX.
  */
-export async function parseFile(payload: File | null): Promise<Record<string, string>[] | null> {
+export async function parseFile(
+  payload: File | null,
+): Promise<Record<string, string>[] | null> {
   if (!payload) return null;
 
   return new Promise((resolve, reject) => {
