@@ -50,7 +50,7 @@ import {
 } from '@packages/generateIds';
 import { DateInputComponent } from '@components/DateInput';
 import { ImageUploader } from '@components/ImageUploader';
-import { UN_COUNTRIES, UN_COUNTRY_LONG_NAMES } from './countriesData';
+import { countriesData, Country } from './countriesData';
 import { auth } from '@packages/firebase/firebaseAuth';
 import { parseFile, parseTSV } from '@lib/SpreadsheetThings';
 import { parse } from 'path';
@@ -141,13 +141,22 @@ export const Mock = (): ReactElement => {
     }
   };
 
-  const un_countries = UN_COUNTRIES;
+  const un_countries = countriesData;
+  const UN_COUNTRY_LONG_NAMES = countriesData.reduce(
+    (acc, { value, longName }) => {
+      acc[value] = longName;
+      return acc;
+    },
+    {} as Record<string, string>,
+  );
 
   // State for delegate modal
   const [openedDelegateModal, { open: openDelegateModal, close: closeDelegateModal }] =
     useDisclosure(false);
   const [activeModal, setActiveModal] = useState<'UN' | 'custom' | 'import' | null>(null);
-  const [segVal, setSegVal] = useState<'paste from spreadsheet' | 'import file'>('paste from spreadsheet');
+  const [segVal, setSegVal] = useState<'paste from spreadsheet' | 'import file'>(
+    'paste from spreadsheet',
+  );
 
   // State for staff
   const [staffValues, setStaffValues] = useState<string[]>([]);
@@ -167,7 +176,7 @@ export const Mock = (): ReactElement => {
   const [delegateCol, setDelegateCol] = useState<string | null>(null);
 
   // State for available countries
-  const [availableCountries, setAvailableCountries] = useState<string[]>(un_countries);
+  const [availableCountries, setAvailableCountries] = useState<Country[]>(un_countries);
 
   const existingCountries = new Set(form.values.delegates.map((d) => d.country));
 
@@ -225,8 +234,8 @@ export const Mock = (): ReactElement => {
           {UN_COUNTRY_LONG_NAMES[country]?.trim() && (
             <Text size="xs" c="dimmed">
               ({UN_COUNTRY_LONG_NAMES[country]})
-              </Text>
-            )}
+            </Text>
+          )}
         </Stack>
       </Table.Td>
       <Table.Td>
@@ -264,7 +273,7 @@ export const Mock = (): ReactElement => {
     </Table.Tr>
   );
 
-  const staffRows = form.values.staff.map(({ email, role }, idx) => ( 
+  const staffRows = form.values.staff.map(({ email, role }, idx) => (
     <Table.Tr key={`${email}-${idx}`}>
       <Table.Td>{email}</Table.Td>
       <Table.Td>
@@ -299,14 +308,14 @@ export const Mock = (): ReactElement => {
 
   const addCustomRows = () => {
     const selectedCustomDelegates = [customValues].map((country) => ({
-        country: country,
-        email: '',
-      }));
+      country: country,
+      email: '',
+    }));
 
     setAndSort(selectedCustomDelegates);
 
     setAvailableCountries((prev) =>
-      prev.filter((c) => !selectedCustomDelegates.some((d) => d.country === c)),
+      prev.filter((c) => !selectedCustomDelegates.some((d) => d.country === c.label)),
     );
     setCustomValues('');
   };
@@ -318,8 +327,8 @@ export const Mock = (): ReactElement => {
     }));
     setAndSort(selectedUNDelegates);
 
-    setAvailableCountries((prev) => prev.filter((c) => !selectedValues.includes(c)));
-    
+    setAvailableCountries((prev) => prev.filter((c) => !selectedValues.includes(c.label)));
+
     setSelectedValues([]);
   };
 
@@ -330,15 +339,15 @@ export const Mock = (): ReactElement => {
     setDelegateCol(null);
   }
 
-  function transformImportedData(data: Record<string, unknown>[]): { country: string; email: string }[] {
+  function transformImportedData(
+    data: Record<string, unknown>[],
+  ): { country: string; email: string }[] {
     if (!Array.isArray(data)) return [];
 
     return data
       .map((row) => {
         const country =
-          countryCol && typeof row[countryCol] === 'string'
-            ? row[countryCol].trim()
-            : '';
+          countryCol && typeof row[countryCol] === 'string' ? row[countryCol].trim() : '';
         const email =
           delegateCol && typeof row[delegateCol] === 'string'
             ? row[delegateCol].trim()
@@ -353,7 +362,9 @@ export const Mock = (): ReactElement => {
       console.warn('Missing imported values or column mapping.');
       return;
     }
-    const newDelegates = transformImportedData(importedValues as Record<string, unknown>[]);
+    const newDelegates = transformImportedData(
+      importedValues as Record<string, unknown>[],
+    );
 
     if (!newDelegates.length) {
       console.warn('No new delegates to add.');
@@ -364,7 +375,7 @@ export const Mock = (): ReactElement => {
     setAndSort(newDelegates);
 
     setAvailableCountries((prev) =>
-      prev.filter((c) => !newDelegates.some((d) => d.country === c))
+      prev.filter((c) => !newDelegates.some((d) => d.country === c.label)),
     );
 
     resetImportState();
@@ -395,8 +406,11 @@ export const Mock = (): ReactElement => {
       'delegates',
       form.values.delegates.filter((_, i) => i !== idx),
     );
-    if (un_countries.includes(removed.country)) {
-      setAvailableCountries((prev) => [...prev, removed.country]);
+    if (un_countries.map((c) => c.value).includes(removed.country)) {
+      const countryObj = un_countries.find((c) => c.label === removed.country);
+      if (countryObj) {
+        setAvailableCountries((prev) => [...prev, countryObj]);
+      }
     }
   };
 
@@ -424,7 +438,6 @@ export const Mock = (): ReactElement => {
 
   return (
     <Container size="md" p="xl" h={'100vh'}>
-      <CountryMultiSelect></CountryMultiSelect>
       <Modal
         opened={openedStaffModal}
         onClose={() => {
@@ -455,16 +468,17 @@ export const Mock = (): ReactElement => {
           </Group>
         </Stack>
       </Modal>
-      <Modal  
-      opened={openedDelegateModal}
-      onClose={() => {
-        setSelectedValues([]);
-        setCustomValues('');
-        setImportedValues([]);
-        setUploadedUrl(null)
-        closeDelegateModal();
-      }} 
-      title={activeModal === 'UN'
+      <Modal
+        opened={openedDelegateModal}
+        onClose={() => {
+          setSelectedValues([]);
+          setCustomValues('');
+          setImportedValues([]);
+          setUploadedUrl(null);
+          closeDelegateModal();
+        }}
+        title={
+          activeModal === 'UN'
             ? 'Add UN countries'
             : activeModal === 'custom'
               ? 'Add custom country'
@@ -475,7 +489,7 @@ export const Mock = (): ReactElement => {
       >
         {activeModal === 'UN' && (
           <Stack p="lg">
-            <MultiSelect
+            {/* <MultiSelect
               ref={multiSelectRef}
               label="Add UN countries"
               placeholder="Type to search..."
@@ -485,7 +499,13 @@ export const Mock = (): ReactElement => {
               clearable
               searchable
               nothingFoundMessage="Nothing found..."
-            />
+            /> */}
+            <CountryMultiSelect
+              ref = {multiSelectRef}
+              data={availableCountries.sort()}
+              value={selectedValues}
+              onChange={setSelectedValues}
+            ></CountryMultiSelect>
             <Group justify="center">
               <Button onClick={addUNRows}>Submit countries</Button>
             </Group>
@@ -505,7 +525,6 @@ export const Mock = (): ReactElement => {
             <TextInput
               label="Alias for the country (optional)"
               placeholder="e.g. 'United States' can be 'USA'"
-              
             />
             {/* <EmojiPicker></EmojiPicker> */}
             {/* <TextInput
@@ -519,9 +538,9 @@ export const Mock = (): ReactElement => {
             {uploadedUrl && <Image w={'200px'} radius="md" src={uploadedUrl} />}
 
             <Group justify="center">
-              <Button 
-              disabled={customValues.trim() === ''} 
-              onClick={addCustomRows}>Submit countries</Button>
+              <Button disabled={customValues.trim() === ''} onClick={addCustomRows}>
+                Submit countries
+              </Button>
             </Group>
           </Stack>
         )}
@@ -530,7 +549,9 @@ export const Mock = (): ReactElement => {
           <Stack>
             <SegmentedControl
               data={['paste from spreadsheet', 'import file']}
-              onChange={(value) => setSegVal(value as 'paste from spreadsheet' | 'import file')}
+              onChange={(value) =>
+                setSegVal(value as 'paste from spreadsheet' | 'import file')
+              }
               value={segVal}
             />
             {segVal === 'paste from spreadsheet' && (
@@ -542,8 +563,12 @@ export const Mock = (): ReactElement => {
               />
             )}
             {segVal === 'import file' && (
-              <><Text size="sm" c="dimmed">
-                Upload a spreadsheet file with columns for Country and Delegate. The first row should contain headers.</Text><FileInput
+              <>
+                <Text size="sm" c="dimmed">
+                  Upload a spreadsheet file with columns for Country and Delegate. The
+                  first row should contain headers.
+                </Text>
+                <FileInput
                   clearable
                   label="Import spreadsheet"
                   placeholder="Upload spreadsheet"
@@ -564,10 +589,12 @@ export const Mock = (): ReactElement => {
                         console.error('Error parsing file:', err);
                         setLoading(false);
                       });
-                  } }
-                  accept=".xlsx,.xls,.csv" /></>
-              )}
-            
+                  }}
+                  accept=".xlsx,.xls,.csv"
+                />
+              </>
+            )}
+
             {importedValues.length > 0 && (
               <Group grow>
                 <Select
@@ -588,13 +615,17 @@ export const Mock = (): ReactElement => {
               </Group>
             )}
 
-          <Group justify="center">
-            <Button onClick={() => {
-              closeDelegateModal();
-              addImportedRows();
-            }}>Submit countries</Button>
-          </Group>
-        </Stack>
+            <Group justify="center">
+              <Button
+                onClick={() => {
+                  closeDelegateModal();
+                  addImportedRows();
+                }}
+              >
+                Submit countries
+              </Button>
+            </Group>
+          </Stack>
         )}
       </Modal>
 

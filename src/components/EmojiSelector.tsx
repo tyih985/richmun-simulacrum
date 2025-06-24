@@ -1,8 +1,8 @@
 // EmojiSelector.tsx
 import { useState } from 'react';
 import { ActionIcon, Popover } from '@mantine/core';
-import data from '@emoji-mart/data'
-import Picker from '@emoji-mart/react'
+import data from '@emoji-mart/data';
+import Picker from '@emoji-mart/react';
 import 'emoji-mart/css/emoji-mart.css';
 
 interface EmojiSelectorProps {
@@ -27,7 +27,7 @@ export function EmojiSelector({ onSelect, value }: EmojiSelectorProps) {
       </Popover.Target>
 
       <Popover.Dropdown p={0}>
-        <Picker 
+        <Picker
           data={data}
           onEmojiSelect={(emoji: unknown) => {
             const nativeEmoji = (emoji as { native: string }).native;
@@ -35,8 +35,8 @@ export function EmojiSelector({ onSelect, value }: EmojiSelectorProps) {
             setOpened(false);
           }}
           theme="light"
-          navPosition="top"/>
-      
+          navPosition="top"
+        />
       </Popover.Dropdown>
     </Popover>
   );
