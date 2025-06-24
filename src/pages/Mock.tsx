@@ -317,6 +317,7 @@ export const Mock = (): ReactElement => {
     setAndSort(selectedUNDelegates);
 
     setAvailableCountries((prev) => prev.filter((c) => !selectedValues.includes(c)));
+    
     setSelectedValues([]);
   };
 
@@ -327,12 +328,7 @@ export const Mock = (): ReactElement => {
     setDelegateCol(null);
   }
 
-  function transformImportedData(
-    data: Record<string, unknown>[],
-    countryCol: string | null,
-    delegateCol: string | null,
-    existingCountries: Set<string>
-  ): { country: string; email: string }[] {
+  function transformImportedData(data: Record<string, unknown>[]): { country: string; email: string }[] {
     if (!Array.isArray(data)) return [];
 
     return data
@@ -355,7 +351,7 @@ export const Mock = (): ReactElement => {
       console.warn('Missing imported values or column mapping.');
       return;
     }
-    const newDelegates = transformImportedData(importedValues as Record<string, unknown>[], countryCol, delegateCol, existingCountries);
+    const newDelegates = transformImportedData(importedValues as Record<string, unknown>[]);
 
     if (!newDelegates.length) {
       console.warn('No new delegates to add.');
@@ -372,12 +368,7 @@ export const Mock = (): ReactElement => {
     resetImportState();
   };
 
-  function extractHeaders(
-    data: Record<string, string>[],
-    setSheetHeaders: (headers: string[]) => void,
-    setCountryCol: (col: string) => void,
-    setDelegateCol: (col: string) => void,
-  ): string[] {
+  function extractHeaders(data: Record<string, string>[]): string[] {
     if (!data.length) return [];
 
     const headers = Object.keys(data[0]);
@@ -392,7 +383,7 @@ export const Mock = (): ReactElement => {
   function readImported(json: Record<string, string>[]) {
     if (!json.length) return;
 
-    extractHeaders(json, setSheetHeaders, setCountryCol, setDelegateCol);
+    extractHeaders(json);
     setImportedValues(json);
   }
 
@@ -431,13 +422,6 @@ export const Mock = (): ReactElement => {
 
   return (
     <Container size="md" p="xl" h={'100vh'}>
-      <Textarea
-        label="Paste spreadsheet data"
-        placeholder="Paste here..."
-        autosize
-        onPaste={handlePaste}
-        readOnly
-      />
       <Modal
         opened={openedStaffModal}
         onClose={() => {
@@ -512,6 +496,8 @@ export const Mock = (): ReactElement => {
               placeholder="e.g. Candyland" // this is kinda wordy lmao but alas
               value={customValues}
               onChange={(e) => setCustomValues(e.currentTarget.value)}
+              required
+              autoFocus
             />
             <TextInput
               label="Alias for the country (optional)"
@@ -529,7 +515,9 @@ export const Mock = (): ReactElement => {
             {uploadedUrl && <Image w={'200px'} radius="md" src={uploadedUrl} />}
 
             <Group justify="center">
-              <Button onClick={addCustomRows}>Submit countries</Button>
+              <Button 
+              disabled={customValues.trim() === ''} 
+              onClick={addCustomRows}>Submit countries</Button>
             </Group>
           </Stack>
         )}

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button, FileInput, Loader } from '@mantine/core';
+import { Button, FileInput, Group, Loader } from '@mantine/core';
 import { IconPhoto } from '@tabler/icons-react';
 import { uploadToCloudinary } from '../lib/cloudinary';
 
@@ -29,8 +29,9 @@ export const ImageUploader = ({ onChange, onUploadSuccess }: ImageUploaderProps)
   };
 
   return (
-    <>
-      <FileInput
+    <Group justify='stretch' align='flex-end' gap='xs'>
+      <FileInput 
+        flex={1}
         clearable
         value={file}
         onChange={(selectedFile) => {
@@ -46,6 +47,6 @@ export const ImageUploader = ({ onChange, onUploadSuccess }: ImageUploaderProps)
       <Button onClick={handleUpload} disabled={loading || !file}>
         {loading ? <Loader size="xs" /> : 'Upload'}
       </Button>
-    </>
+    </Group>
   );
 };
