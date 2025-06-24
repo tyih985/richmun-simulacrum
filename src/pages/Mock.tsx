@@ -393,7 +393,9 @@ export const Mock = (): ReactElement => {
       'delegates',
       form.values.delegates.filter((_, i) => i !== idx),
     );
-    setAvailableCountries((prev) => [...prev, removed.country]);
+    if (un_countries.includes(removed.country)) {
+      setAvailableCountries((prev) => [...prev, removed.country]);
+    }
   };
 
   const addStaffRows = () => {
@@ -586,7 +588,10 @@ export const Mock = (): ReactElement => {
             )}
 
           <Group justify="center">
-            <Button onClick={addImportedRows}>Submit countries</Button>
+            <Button onClick={() => {
+              closeDelegateModal();
+              addImportedRows();
+            }}>Submit countries</Button>
           </Group>
         </Stack>
         )}
