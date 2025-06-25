@@ -64,6 +64,8 @@ type Delegate = { country: string; email: string };
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const isValidEmail = (email: string) => emailRegex.test(email);
 
+const un_countries = countriesData;
+
 export const Mock = (): ReactElement => {
   const form = useForm({
     initialValues: {
@@ -148,15 +150,6 @@ export const Mock = (): ReactElement => {
     }
   };
 
-  const un_countries = countriesData;
-  const UN_COUNTRY_LONG_NAMES = countriesData.reduce(
-    (acc, { value, longName }) => {
-      acc[value] = longName;
-      return acc;
-    },
-    {} as Record<string, string>,
-  );
-
   // State for delegate modal
   const [openedDelegateModal, { open: openDelegateModal, close: closeDelegateModal }] =
     useDisclosure(false);
@@ -238,11 +231,11 @@ export const Mock = (): ReactElement => {
       <Table.Td>
         <Stack gap={2}>
           <Text size="sm">{country}</Text>
-          {UN_COUNTRY_LONG_NAMES[country]?.trim() && (
+          {/* {un_countries.?.trim() && (
             <Text size="xs" c="dimmed">
               ({UN_COUNTRY_LONG_NAMES[country]})
             </Text>
-          )}
+          )} */}
         </Stack>
       </Table.Td>
       <Table.Td>
@@ -329,7 +322,7 @@ export const Mock = (): ReactElement => {
     setAndSort(selectedCustomDelegates);
 
     setAvailableCountries((prev) =>
-      prev.filter((c) => !selectedCustomDelegates.some((d) => d.country === c.label)),
+      prev.filter((c) => !selectedCustomDelegates.some((d) => d.country === c.value)),
     );
     setCustomValues('');
   };
@@ -341,7 +334,7 @@ export const Mock = (): ReactElement => {
     }));
     setAndSort(selectedUNDelegates);
 
-    setAvailableCountries((prev) => prev.filter((c) => !selectedValues.includes(c.label)));
+    setAvailableCountries((prev) => prev.filter((c) => !selectedValues.includes(c.value)));
 
     setSelectedValues([]);
   };
@@ -389,7 +382,7 @@ export const Mock = (): ReactElement => {
     setAndSort(newDelegates);
 
     setAvailableCountries((prev) =>
-      prev.filter((c) => !newDelegates.some((d) => d.country === c.label)),
+      prev.filter((c) => !newDelegates.some((d) => d.country === c.value)),
     );
 
     resetImportState();
@@ -421,7 +414,7 @@ export const Mock = (): ReactElement => {
       form.values.delegates.filter((_, i) => i !== idx),
     );
     if (un_countries.map((c) => c.value).includes(removed.country)) {
-      const countryObj = un_countries.find((c) => c.label === removed.country);
+      const countryObj = un_countries.find((c) => c.value === removed.country);
       if (countryObj) {
         setAvailableCountries((prev) => [...prev, countryObj]);
       }
@@ -879,13 +872,13 @@ export const Mock = (): ReactElement => {
               type="submit"
               rightSection={<IconArrowRight size={18} stroke={1.5} />}
               onClick={nextStep}
-              disabled={
-                !form.isValid() ||
-                !form.values.committeeLongName.trim() ||
-                !form.values.committeeShortName.trim() ||
-                !form.values.dateRange[0] ||
-                !form.values.dateRange[1]
-              }
+              // disabled={
+              //   !form.isValid() ||
+              //   !form.values.committeeLongName.trim() ||
+              //   !form.values.committeeShortName.trim() ||
+              //   !form.values.dateRange[0] ||
+              //   !form.values.dateRange[1]
+              // }
             >
               Next step
             </Button>

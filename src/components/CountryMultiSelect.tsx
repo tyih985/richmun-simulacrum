@@ -15,7 +15,7 @@ import { CountryPill } from './CountryPill';
 
 type CountryMultiSelectProps = {
     ref?: React.ForwardedRef<HTMLInputElement>
-    data: { value: string; label: string; longName: string; flag: string }[]
+    data: { value: string; longName: string; flag: string }[]
     value: string[]
     onChange: (value: string[]) => void
 }
@@ -49,7 +49,7 @@ export function CountryMultiSelect(props: CountryMultiSelectProps) {
   ));
 
   const options = data
-    .filter((item) => item.label.toLowerCase().includes(search.trim().toLowerCase()) || 
+    .filter((item) => item.value.toLowerCase().includes(search.trim().toLowerCase()) || 
                       item.longName.toLowerCase().includes(search.trim().toLowerCase()))
     .map((item) => (
         <Combobox.Option
@@ -61,7 +61,7 @@ export function CountryMultiSelect(props: CountryMultiSelectProps) {
             {value.includes(item.value) ? <CheckIcon size={12} /> : null}
             <Group gap={7} align='flex-end'>
                 <Text size="sm">{item.flag}</Text>
-                <Text size="sm">{item.label}</Text>
+                <Text size="sm">{item.value}</Text>
                 <Text size="xs" c="dimmed">
                 {item.longName}
                 </Text>
@@ -73,7 +73,7 @@ export function CountryMultiSelect(props: CountryMultiSelectProps) {
     
 
   return (
-    <Combobox store={combobox} onOptionSubmit={handleValueSelect} withinPortal={false} >
+    <Combobox store={combobox} onOptionSubmit={handleValueSelect} withinPortal={true} >
       <Combobox.DropdownTarget>
         <PillsInput pointer onClick={() => combobox.toggleDropdown() } >
           <Group justify='stretch'>

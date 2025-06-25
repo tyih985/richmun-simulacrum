@@ -36,7 +36,7 @@ export function CountryPill({ value, onRemove, ...others }: CountryPillProps) {
             <div className={'flag'}>
                 {country?.flag}
             </div>
-            <div className={'label'}>{country?.label}</div>
+            <div className={'label'}>{country?.value}</div>
             <CloseButton
                 onMouseDown={onRemove}
                 variant="transparent"
