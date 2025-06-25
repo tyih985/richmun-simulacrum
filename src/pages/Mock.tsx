@@ -34,14 +34,7 @@ import {
 } from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
 import { ExpandableButton } from '../components/ExpandableButton';
-import {
-  createCommittee,
-  addStaffToCommittee,
-  addDelegateToCommittee,
-  addUserCommittee,
-  getOrCreateUidFromEmail,
-  ultimateConsoleLog,
-} from './yeahglo';
+import { committeeMutations } from '@mutations/setUpMutation';
 import {
   generateCommitteeId,
   generateDelegateId,
@@ -52,9 +45,6 @@ import { ImageUploader } from '@components/ImageUploader';
 import { countriesData, Country } from './countriesData';
 import { auth } from '@packages/firebase/firebaseAuth';
 import { parseFile, parseTSV } from '@lib/SpreadsheetThings';
-import { parse } from 'path';
-import { read } from 'fs';
-import EmojiPicker from '@emoji-mart/react';
 import { CountryMultiSelect } from '@components/CountryMultiSelect';
 
 const ROLE_OPTIONS = ['director', 'assistant director', 'flex staff'] as const;
@@ -65,6 +55,15 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const isValidEmail = (email: string) => emailRegex.test(email);
 
 const un_countries = countriesData;
+
+const {
+  createCommittee,
+  addStaffToCommittee,
+  addDelegateToCommittee,
+  addUserCommittee,
+  getOrCreateUidFromEmail,
+  ultimateConsoleLog,
+} = committeeMutations();
 
 export const Mock = (): ReactElement => {
   const form = useForm({
