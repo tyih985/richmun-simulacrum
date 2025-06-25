@@ -1,4 +1,4 @@
-import { countriesData } from '@pages/countriesData';
+import { countriesData } from '@lib/countriesData';
 import { CloseButton } from '@mantine/core';
 
 interface CountryPillProps extends React.ComponentPropsWithoutRef<'div'> {

@@ -9,7 +9,6 @@ import {
   Text,
   CloseButton,
 } from '@mantine/core';
-import { countriesData } from '@pages/countriesData';
 import { useState } from 'react';
 import { CountryPill } from './CountryPill';
 
