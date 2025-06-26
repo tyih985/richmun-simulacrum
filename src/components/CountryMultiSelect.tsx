@@ -65,7 +65,7 @@ export function CountryMultiSelect(props: CountryMultiSelectProps) {
 
   const options = dropdownData
     .filter((country) => country.name.toLowerCase().includes(search.trim().toLowerCase()) || 
-                      country.longName.toLowerCase().includes(search.trim().toLowerCase()))
+                      country.longName?.toLowerCase().includes(search.trim().toLowerCase()))
     .map((country) => (
         <Combobox.Option
             value={country.name}
