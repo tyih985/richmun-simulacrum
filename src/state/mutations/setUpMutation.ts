@@ -21,9 +21,7 @@ import {
   serverTimestamp,
   where,
 } from 'firebase/firestore';
-
-type Role = 'staff' | 'delegate';
-type StaffRole = 'assistant director' | 'director' | 'flex staff';
+import { Role, StaffRole } from 'src/features/types';
 
 export const committeeMutations = () => {
   const createCommittee = (
@@ -34,7 +32,11 @@ export const committeeMutations = () => {
     endDate: Date,
   ) => {
     const path = committeePath(committeeId);
-    return createFirestoreDocument(path, { longName, shortName, startDate, endDate }, true);
+    return createFirestoreDocument(
+      path,
+      { longName, shortName, startDate, endDate },
+      true,
+    );
   };
 
   const getCommittee = async (
@@ -67,7 +69,9 @@ export const committeeMutations = () => {
     return createFirestoreDocument(path, { role }, true);
   };
 
-  const getUserCommittees = (uid: string): Promise<Array<{ committeeId: string; role: Role }>> => {
+  const getUserCommittees = (
+    uid: string,
+  ): Promise<Array<{ committeeId: string; role: Role }>> => {
     const path = userCommitteesPath(uid);
     return getFirestoreCollection<{ id: string; role: Role }>(path).then((docs) =>
       docs.map((d) => ({ committeeId: d.id, role: d.role })),
@@ -149,7 +153,9 @@ export const committeeMutations = () => {
     console.log(`Found ${usersSnap.size} users.`);
     for (const uDoc of usersSnap.docs) {
       console.log(`User [${uDoc.id}]:`, uDoc.data());
-      const ucSnap = await getDocs(collection(firestoreDb, 'users', uDoc.id, 'committees'));
+      const ucSnap = await getDocs(
+        collection(firestoreDb, 'users', uDoc.id, 'committees'),
+      );
       console.log(`  ↳ user-committees (${ucSnap.size}):`);
       ucSnap.docs.forEach((uc) => console.log(`    • [${uc.id}]`, uc.data()));
     }

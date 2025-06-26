@@ -680,7 +680,6 @@ export const Mock = (): ReactElement => {
               </Stepper.Step>
               <Stepper.Step label="Final step" description="Add Countries + Delegates">
                 <StepThree
-                  form={form}
                   delegateRows={delegateRows}
                   openDelegateModal={openDelegateModal}
                   setActiveModal={setActiveModal}
