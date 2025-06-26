@@ -18,7 +18,7 @@ import {
   SetupFormValues,
   ROLE_OPTIONS,
   RoleOption,
-} from '/Users/Angela1Li/Desktop/projects/simulacrum/src/features/types';
+} from '/Users/tyleryih/simulacrum/src/features/types.ts';
 import { auth } from '@packages/firebase/firebaseAuth';
 import { useDisclosure } from '@mantine/hooks';
 import { StaffModalContent } from './StaffModalContent';

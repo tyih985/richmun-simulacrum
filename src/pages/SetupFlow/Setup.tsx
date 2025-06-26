@@ -10,9 +10,9 @@ import {
   generateStaffId,
 } from '@packages/generateIds';
 import { auth } from '@packages/firebase/firebaseAuth';
-import { StepOne } from '/Users/Angela1Li/Desktop/projects/simulacrum/src/features/setup/components/StepOne.tsx';
-import { StepTwo } from '/Users/Angela1Li/Desktop/projects/simulacrum/src/features/setup/components/StepTwo.tsx';
-import { StepThree } from '/Users/Angela1Li/Desktop/projects/simulacrum/src/features/setup/components/StepThree.tsx';
+import { StepOne } from '/Users/tyleryih/simulacrum/src/features/setup/components/StepOne.tsx';
+import { StepTwo } from '/Users/tyleryih/simulacrum/src/features/setup/components/StepTwo.tsx';
+import { StepThree } from '/Users/tyleryih/simulacrum/src/features/setup/components/StepThree.tsx';
 import { Delegate, RoleOption, Staff } from 'src/features/types';
 
 const {
@@ -23,6 +23,7 @@ const {
   getOrCreateUidFromEmail,
   ultimateConsoleLog,
 } = committeeMutations();
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export const Mock = (): ReactElement => {
   const form = useForm({
@@ -172,7 +173,10 @@ export const Mock = (): ReactElement => {
                   !form.values.committeeLongName.trim() ||
                   !form.values.committeeShortName.trim() ||
                   !form.values.dateRange[0] ||
-                  !form.values.dateRange[1]
+                  !form.values.dateRange[1] ||
+                  form.values.delegates.some(
+                    (d) => d.email.trim() === '' || !emailRegex.test(d.email),
+                  )
                 }
               >
                 Complete

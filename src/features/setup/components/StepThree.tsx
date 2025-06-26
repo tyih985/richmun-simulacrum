@@ -23,6 +23,8 @@ import { CustomModalContent } from './CustomModalContent';
 import { ImportSheetContent } from './ImportSheetContent';
 
 const un_countries = countriesData;
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const isValidEmail = (email: string) => emailRegex.test(email);
 
 export interface StepThreeProps {
   form: UseFormReturnType<SetupFormValues>;
@@ -86,11 +88,11 @@ export function StepThree({ form }: StepThreeProps): ReactElement {
           }}
           onFocus={() => setFocusedDelegateIdx(idx)}
           onBlur={() => setFocusedDelegateIdx(null)}
-          // error={
-          //   idx !== focusedDelegateIdx && email.trim() !== '' && !isValidEmail(email)
-          //     ? 'Invalid email'
-          //     : undefined
-          // }
+          error={
+            idx !== focusedDelegateIdx && email.trim() !== '' && !isValidEmail(email)
+              ? 'Invalid email'
+              : undefined
+          }
         />
       </Table.Td>
       <Table.Td>
