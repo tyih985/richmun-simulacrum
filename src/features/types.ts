@@ -25,3 +25,6 @@ export type SetupFormValues = {
 
 export type Role = 'staff' | 'delegate';
 export type StaffRole = 'assistant director' | 'director' | 'flex staff';
+
+export const ROLE_OPTIONS = ['director', 'assistant director', 'flex staff'] as const;
+export type RoleOption = (typeof ROLE_OPTIONS)[number];

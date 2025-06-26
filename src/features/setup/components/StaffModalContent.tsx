@@ -1,8 +1,8 @@
-import { Button, Group, Stack, TagsInput, Text } from "@mantine/core";
-import { useForm } from "@mantine/form";
-import { IconAt } from "@tabler/icons-react";
-import { ReactElement, useEffect } from "react";
-
+import { Button, Group, Stack, TagsInput, Text } from '@mantine/core';
+import { useForm, UseFormReturnType } from '@mantine/form';
+import { IconAt } from '@tabler/icons-react';
+import { ReactElement, useEffect, useState } from 'react';
+import { SetupFormValues } from 'src/features/types';
 
 type StaffModalProps = {
   onTagChange: (values: string[]) => void;
@@ -12,7 +12,7 @@ type StaffModalProps = {
 export const StaffModalContent = (props: StaffModalProps): ReactElement => {
   const { onTagChange, onSubmit } = props;
 
-  const form = useForm({
+  const staffForm = useForm({
     initialValues: {
       staff: [] as string[],
     },
@@ -30,8 +30,8 @@ export const StaffModalContent = (props: StaffModalProps): ReactElement => {
   });
 
   useEffect(() => {
-    form.validateField('staff');
-  }, [form, form.values.staff]);
+    staffForm.validateField('staff');
+  }, [staffForm, staffForm.values.staff]);
 
   return (
     <Stack justify="flex-start" align="stretch" gap="md" px="xl" pb="lg">
@@ -40,11 +40,11 @@ export const StaffModalContent = (props: StaffModalProps): ReactElement => {
         placeholder="Enter email..."
         leftSection={<IconAt size={16} />}
         radius="lg"
-        {...form.getInputProps('staff')}
+        {...staffForm.getInputProps('staff')}
         autoFocus
         onChange={(vals) => {
           const cleaned = vals.map((v) => v.trim()).filter((v) => v !== '');
-          form.setFieldValue('staff', cleaned);
+          staffForm.setFieldValue('staff', cleaned);
           onTagChange(cleaned);
         }}
       />
@@ -57,7 +57,7 @@ export const StaffModalContent = (props: StaffModalProps): ReactElement => {
       <Group justify="center">
         <Button
           onClick={onSubmit}
-          disabled={form.values.staff.length === 0 || !!form.errors.staff}
+          disabled={staffForm.values.staff.length === 0 || !!staffForm.errors.staff}
         >
           Submit
         </Button>

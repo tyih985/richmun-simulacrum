@@ -1,41 +1,55 @@
-import { CountryMultiSelect } from "@components/CountryMultiSelect";
-import { ImageUploader } from "@components/ImageUploader";
-import { parseFile } from "@lib/SpreadsheetThings";
-import { Button, FileInput, Group, SegmentedControl, Stack, TagsInput, Text, Textarea, TextInput } from "@mantine/core";
-import { useForm } from "@mantine/form";
-import { IconAt, IconFileSpreadsheet } from "@tabler/icons-react";
-import { on } from "events";
-import { ReactElement, useEffect, useState } from "react";
-import { Country } from "src/features/types";
-
+import { CountryMultiSelect } from '@components/CountryMultiSelect';
+// import { ImageUploader } from "@components/ImageUploader";
+import { Button, Group, Stack } from '@mantine/core';
+import { useForm } from '@mantine/form';
+import { ReactElement, useState } from 'react';
+import { Country, Delegate } from 'src/features/types';
 
 type DelegateModalProps = {
-  dropdownData: Country[];
-  onSubmit: () => void;
+  availableCountries: Country[];
+  setAvailableCountries: (countries: Country[]) => void;
+  addRows: (newDelegates: Delegate[]) => void;
 };
 
-export const UNModalContent = (props: DelegateModalProps): ReactElement => {
-  const { dropdownData, onSubmit } = props;
+function CountryToDelegate(countries: Country[]): Delegate[] {
+  return countries.map((country) => ({
+    country: country as unknown as Country,
+    email: '',
+  }));
+}
 
-  const form = useForm({
-    initialValues: {
-        countries: [] as string[],
-    }
-  });
+export const UNModalContent = (props: DelegateModalProps): ReactElement => {
+  const { availableCountries, setAvailableCountries, addRows } = props;
+
+  // State for UN countries
+  const [selectedValues, setSelectedValues] = useState<Country[]>([]);
+
+  function handleSubmit() {
+    const selectedUNDelegates = CountryToDelegate(selectedValues);
+
+    addRows(selectedUNDelegates);
+
+    setAvailableCountries(
+      availableCountries.filter(
+        (c) => !selectedValues.some((selected) => selected.name === c.name),
+      ),
+    );
+
+    setSelectedValues([]);
+  }
 
   return (
     <Stack p="lg">
       <CountryMultiSelect
-        dropdownData={dropdownData}
-        value={form.values.countries}
-        onChange={(values) => form.setFieldValue('countries', values)}
+        dropdownData={availableCountries}
+        value={selectedValues}
+        onChange={setSelectedValues}
       ></CountryMultiSelect>
       <Group justify="center">
-        <Button onClick={onSubmit} disabled={form.values.countries.length === 0}>
+        <Button onClick={handleSubmit} disabled={selectedValues.length === 0}>
           Submit countries
         </Button>
       </Group>
     </Stack>
-
   );
-}
+};

@@ -1,49 +1,84 @@
-import { CountryMultiSelect } from "@components/CountryMultiSelect";
-import { ImageUploader } from "@components/ImageUploader";
-import { parseFile } from "@lib/SpreadsheetThings";
-import { Button, FileInput, Group, SegmentedControl, Select, Stack, TagsInput, Text, Textarea, TextInput } from "@mantine/core";
-import { useForm } from "@mantine/form";
-import { IconAt, IconFileSpreadsheet } from "@tabler/icons-react";
-import { on } from "events";
-import { ReactElement, useEffect, useState } from "react";
-import { Country, Delegate } from "src/features/types";
-
+import { parseFile, parseTSV } from '@lib/SpreadsheetThings';
+import {
+  Button,
+  FileInput,
+  Group,
+  SegmentedControl,
+  Select,
+  Stack,
+  Text,
+  Textarea,
+} from '@mantine/core';
+import { IconFileSpreadsheet } from '@tabler/icons-react';
+import { ReactElement, useState } from 'react';
+import { Country, Delegate } from 'src/features/types';
 
 type DelegateModalProps = {
-  existingCountries: Set<string>;
-  onPaste: React.ClipboardEventHandler<HTMLTextAreaElement>;
-  onSubmit: () => void;
+  availableCountries: Country[];
+  setAvailableCountries: (countries: Country[]) => void;
+  existingCountries: Set<Country>;
+  addRows: (newDelegates: Delegate[]) => void;
 };
 
 export const ImportSheetContent = (props: DelegateModalProps): ReactElement => {
-  const { existingCountries, onPaste, onSubmit } = props;
+  const { availableCountries, setAvailableCountries, existingCountries, addRows } = props;
 
-  const [segVal, setSegVal] = useState<'paste from spreadsheet' | 'import file'>('paste from spreadsheet');
+  const [segVal, setSegVal] = useState<'paste from spreadsheet' | 'import file'>(
+    'paste from spreadsheet',
+  );
+
   const [importedValues, setImportedValues] = useState<Record<string, string>[]>([]);
   const [countryCol, setCountryCol] = useState<string | null>(null);
   const [delegateCol, setDelegateCol] = useState<string | null>(null);
   const [sheetHeaders, setSheetHeaders] = useState<string[]>([]);
 
-  function transformData(data: Record<string, unknown>[]): Delegate[] {
-    if (!Array.isArray(data)) return [];
+  const handleSubmit = () => {
+    const newDelegates = transformData(importedValues);
+    addRows(newDelegates);
 
-    return data
-    .map((row) => {
-        const country =
+    setAvailableCountries(
+      availableCountries.filter((c) => !newDelegates.some((d) => d.country === c)),
+    );
+    setImportedValues([]);
+  };
+
+  function transformData(data: Record<string, unknown>[]): Delegate[] {
+    if (!Array.isArray(data)) {
+      console.warn('No new delegates to add.');
+      return [];
+    }
+
+    const mappedData = data.map((row) => {
+      const country =
         countryCol && typeof row[countryCol] === 'string' ? row[countryCol].trim() : '';
-        const email =
+      const email =
         delegateCol && typeof row[delegateCol] === 'string'
-            ? row[delegateCol].trim()
-            : '';
-        return { country, email } as unknown as Delegate;
-    })
-    .filter((d) => d.country && !existingCountries.has(d.country.name));
+          ? row[delegateCol].trim()
+          : '';
+      return {
+        country: { name: country } as Country,
+        email: email,
+      } as Delegate;
+    });
+
+    console.log('mapped:', mappedData);
+
+    const filteredData = mappedData.filter(
+      (d) =>
+        d.country &&
+        !Array.from(existingCountries).some((c) => c.name === d.country.name),
+    );
+
+    console.log('filtered:', filteredData);
+
+    return filteredData;
   }
 
   function extractHeaders(data: Record<string, string>[]): string[] {
     if (!data.length) return [];
 
     const headers = Object.keys(data[0]);
+    console.log('headers:', headers);
     setSheetHeaders(headers);
 
     if (headers.includes('Country')) setCountryCol('Country');
@@ -52,89 +87,87 @@ export const ImportSheetContent = (props: DelegateModalProps): ReactElement => {
     return headers;
   }
 
-  function readImported(json: Record<string, string>[]) {
-    if (!json.length) return;
-
+  const handlePaste = (event: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const raw = event.clipboardData.getData('Text');
+    const json = parseTSV(raw);
+    console.log('Parsed JSON from pasted:', json);
     extractHeaders(json);
-    transformData(json);
-    setImportedValues(json); // this can be changed to like a boolean or smth that determines if there is data so the header mapping can show
-  }
+    setImportedValues(json);
+  };
 
   return (
-      <Stack>
-        <SegmentedControl
-          data={['paste from spreadsheet', 'import file']}
-          onChange={(value) =>
-            setSegVal(value as 'paste from spreadsheet' | 'import file')
-          }
-          value={segVal}
+    <Stack>
+      <SegmentedControl
+        data={['paste from spreadsheet', 'import file']}
+        onChange={(value) => setSegVal(value as 'paste from spreadsheet' | 'import file')}
+        value={segVal}
+      />
+      {segVal === 'paste from spreadsheet' && (
+        <Textarea
+          label="Paste spreadsheet data"
+          placeholder="Paste here..."
+          autosize
+          onPaste={handlePaste}
         />
-        {segVal === 'paste from spreadsheet' && (
-          <Textarea
-            label="Paste spreadsheet data"
-            placeholder="Paste here..."
-            autosize
-            onPaste={onPaste}
+      )}
+      {segVal === 'import file' && (
+        <>
+          <Text size="sm" c="dimmed">
+            Upload a spreadsheet file with columns for Country and Delegate. The first row
+            should contain headers.
+          </Text>
+          <FileInput
+            clearable
+            label="Import spreadsheet"
+            placeholder="Upload spreadsheet"
+            leftSection={<IconFileSpreadsheet size={18} stroke={1.5} />}
+            onChange={(file) => {
+              if (!file) return;
+              // setLoading(true);
+              parseFile(file)
+                .then((data) => {
+                  if (!data) {
+                    console.warn('No data parsed from file.');
+                    return;
+                  }
+                  extractHeaders(data);
+                  setImportedValues(data);
+
+                  // setLoading(false);
+                })
+                .catch((err) => {
+                  console.error('Error parsing file:', err);
+                  // setLoading(false);
+                });
+            }}
+            accept=".xlsx,.xls,.csv"
           />
-        )}
-        {segVal === 'import file' && (
-          <>
-            <Text size="sm" c="dimmed">
-              Upload a spreadsheet file with columns for Country and Delegate. The
-              first row should contain headers.
-            </Text>
-            <FileInput
-              clearable
-              label="Import spreadsheet"
-              placeholder="Upload spreadsheet"
-              leftSection={<IconFileSpreadsheet size={18} stroke={1.5} />}
-              onChange={(file) => {
-                if (!file) return;
-                // setLoading(true);
-                parseFile(file)
-                  .then((data) => {
-                    if (!data) {
-                      console.warn('No data parsed from file.');
-                      return;
-                    }
-                    readImported(data);
-                    // setLoading(false);
-                  })
-                  .catch((err) => {
-                    console.error('Error parsing file:', err);
-                    // setLoading(false);
-                  });
-              }}
-              accept=".xlsx,.xls,.csv"
-            />
-          </>
-        )}
+        </>
+      )}
 
-        {importedValues.length > 0 && (
-          <Group grow>
-            <Select
-              label="Which column is Country?"
-              data={sheetHeaders}
-              value={countryCol}
-              onChange={setCountryCol}
-              placeholder="Choose column"
-            />
+      {sheetHeaders && (
+        <Group grow>
+          <Select
+            label="Which column is Country?"
+            data={sheetHeaders}
+            value={countryCol}
+            onChange={setCountryCol}
+            placeholder="Choose column"
+          />
 
-            <Select
-              label="Which column is Delegate?"
-              data={sheetHeaders}
-              value={delegateCol}
-              onChange={setDelegateCol}
-              placeholder="Choose column"
-            />
-          </Group>
-        )}
-
-        <Group justify="center">
-          <Button onClick={onSubmit}>
-            Submit countries
-          </Button>
+          <Select
+            label="Which column is Delegate?"
+            data={sheetHeaders}
+            value={delegateCol}
+            onChange={setDelegateCol}
+            placeholder="Choose column"
+          />
         </Group>
-      </Stack>
+      )}
+
+      <Group justify="center">
+        <Button onClick={handleSubmit}>Submit countries</Button>
+      </Group>
+    </Stack>
   );
-}
+};

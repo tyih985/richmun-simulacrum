@@ -13,11 +13,11 @@ import { CountryPill } from './CountryPill';
 import { Country } from 'src/features/types';
 
 type CountryMultiSelectProps = {
-    ref?: React.ForwardedRef<HTMLInputElement>
-    dropdownData: Country[]
-    value: string[]
-    onChange: (value: string[]) => void
-}
+  ref?: React.ForwardedRef<HTMLInputElement>;
+  dropdownData: Country[];
+  value: Country[];
+  onChange: (value: Country[]) => void;
+};
 
 export function CountryMultiSelect(props: CountryMultiSelectProps) {
   const { dropdownData, value, onChange } = props;
@@ -26,63 +26,72 @@ export function CountryMultiSelect(props: CountryMultiSelectProps) {
     onDropdownOpen: () => combobox.updateSelectedOptionIndex('active'),
   });
 
-//   useEffect(() => {
-//       const handleKeyDown = (event: KeyboardEvent) => {
-//         if (event.key === 'Enter') {
-//           // Only blur if this MultiSelect is focused
-//           if (
-//             document.activeElement === multiSelectRef.current ||
-//             multiSelectRef.current?.contains(document.activeElement)
-//           ) {
-//             multiSelectRef.current?.blur();
-//           }
-//         }
-//       };
-  
-//       window.addEventListener('keydown', handleKeyDown);
-//       return () => window.removeEventListener('keydown', handleKeyDown);
-//     }, []);
+  //   useEffect(() => {
+  //       const handleKeyDown = (event: KeyboardEvent) => {
+  //         if (event.key === 'Enter') {
+  //           // Only blur if this MultiSelect is focused
+  //           if (
+  //             document.activeElement === multiSelectRef.current ||
+  //             multiSelectRef.current?.contains(document.activeElement)
+  //           ) {
+  //             multiSelectRef.current?.blur();
+  //           }
+  //         }
+  //       };
+
+  //       window.addEventListener('keydown', handleKeyDown);
+  //       return () => window.removeEventListener('keydown', handleKeyDown);
+  //     }, []);
 
   const [search, setSearch] = useState('');
 
-  const handleValueSelect = (val: string) => {
-    if (value.includes(val)) {
-      onChange(value.filter((v) => v !== val));
+  const handleValueSelect = (countryName: string) => {
+    const selectedCountry = dropdownData.find((country) => country.name === countryName);
+    if (!selectedCountry) return;
+    if (value.includes(selectedCountry)) {
+      onChange(value.filter((v) => v !== selectedCountry));
     } else {
-      onChange([...value, val]);
+      onChange([...value, selectedCountry]);
     }
   };
 
-  const handleValueRemove = (val: string) => onChange(value.filter((v) => v !== val));
+  const handleValueRemove = (val: Country) => onChange(value.filter((v) => v !== val));
 
   const handleClearAll = () => onChange([]);
 
   const values = value.map((country) => (
-    <CountryPill key={country} value={country} onRemove={() => handleValueRemove(country)}>
-      {country}
+    <CountryPill
+      key={country.name}
+      value={country.name}
+      onRemove={() => handleValueRemove(country)}
+    >
+      {country.name}
     </CountryPill>
   ));
 
   const options = dropdownData
-    .filter((country) => country.name.toLowerCase().includes(search.trim().toLowerCase()) || 
-                      country.longName?.toLowerCase().includes(search.trim().toLowerCase()))
+    .filter(
+      (country) =>
+        country.name.toLowerCase().includes(search.trim().toLowerCase()) ||
+        country.longName?.toLowerCase().includes(search.trim().toLowerCase()),
+    )
     .map((country) => (
-        <Combobox.Option
-            value={country.name}
-            key={country.name}
-            active={value.includes(country.name)}
-        >
-            <Group gap="sm">
-            {value.includes(country.name) ? <CheckIcon size={12} /> : null}
-            <Group gap={7} align='flex-end'>
-                <Text size="sm">{country.flag}</Text>
-                <Text size="sm">{country.name}</Text>
-                <Text size="xs" c="dimmed">
-                {country.longName}
-                </Text>
-            </Group>
-            </Group>
-        </Combobox.Option>
+      <Combobox.Option
+        value={country.name}
+        key={country.name}
+        active={value.includes(country)}
+      >
+        <Group gap="sm">
+          {value.includes(country) ? <CheckIcon size={12} /> : null}
+          <Group gap={7} align="flex-end">
+            <Text size="sm">{country.flag}</Text>
+            <Text size="sm">{country.name}</Text>
+            <Text size="xs" c="dimmed">
+              {country.longName}
+            </Text>
+          </Group>
+        </Group>
+      </Combobox.Option>
     ));
 
   return (

@@ -2,16 +2,10 @@ import { ReactElement } from 'react';
 import { Container, Flex, Title, Text, Space, TextInput } from '@mantine/core';
 import { DateInputComponent } from '@components/DateInput';
 import { UseFormReturnType } from '@mantine/form';
-import type { Delegate, Staff } from 'src/features/types.ts';
+import type { SetupFormValues } from 'src/features/types.ts';
 
 interface StepOneProps {
-  form: UseFormReturnType<{
-    committeeLongName: string;
-    committeeShortName: string;
-    staff: Staff[];
-    delegates: Delegate[];
-    dateRange: [Date | null, Date | null];
-  }>;
+  form: UseFormReturnType<SetupFormValues>;
 }
 
 export function StepOne({ form }: StepOneProps): ReactElement {
