@@ -175,7 +175,7 @@ export const Mock = (): ReactElement => {
                   !form.values.dateRange[0] ||
                   !form.values.dateRange[1] ||
                   form.values.delegates.some(
-                    (d) => d.email.trim() === '' || !emailRegex.test(d.email),
+                    (d) => d.email.trim() !== '' && !emailRegex.test(d.email),
                   )
                 }
               >
@@ -187,13 +187,13 @@ export const Mock = (): ReactElement => {
               type="submit"
               rightSection={<IconArrowRight size={18} stroke={1.5} />}
               onClick={nextStep}
-              // disabled={
-              //   !form.isValid() ||
-              //   !form.values.committeeLongName.trim() ||
-              //   !form.values.committeeShortName.trim() ||
-              //   !form.values.dateRange[0] ||
-              //   !form.values.dateRange[1]
-              // }
+              disabled={
+                !form.isValid() ||
+                !form.values.committeeLongName.trim() ||
+                !form.values.committeeShortName.trim() ||
+                !form.values.dateRange[0] ||
+                !form.values.dateRange[1]
+              }
             >
               Next step
             </Button>
