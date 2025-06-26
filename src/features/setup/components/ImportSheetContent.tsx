@@ -6,23 +6,39 @@ import { useForm } from "@mantine/form";
 import { IconAt, IconFileSpreadsheet } from "@tabler/icons-react";
 import { on } from "events";
 import { ReactElement, useEffect, useState } from "react";
-import { Country } from "src/features/types";
+import { Country, Delegate } from "src/features/types";
 
 
 type DelegateModalProps = {
+  existingCountries: Set<string>;
   onPaste: React.ClipboardEventHandler<HTMLTextAreaElement>;
   onSubmit: () => void;
 };
 
 export const ImportSheetContent = (props: DelegateModalProps): ReactElement => {
-  const { onPaste, onSubmit } = props;
+  const { existingCountries, onPaste, onSubmit } = props;
 
   const [segVal, setSegVal] = useState<'paste from spreadsheet' | 'import file'>('paste from spreadsheet');
-  const [loading, setLoading] = useState(false);
   const [importedValues, setImportedValues] = useState<Record<string, string>[]>([]);
   const [countryCol, setCountryCol] = useState<string | null>(null);
   const [delegateCol, setDelegateCol] = useState<string | null>(null);
   const [sheetHeaders, setSheetHeaders] = useState<string[]>([]);
+
+  function transformData(data: Record<string, unknown>[]): Delegate[] {
+    if (!Array.isArray(data)) return [];
+
+    return data
+    .map((row) => {
+        const country =
+        countryCol && typeof row[countryCol] === 'string' ? row[countryCol].trim() : '';
+        const email =
+        delegateCol && typeof row[delegateCol] === 'string'
+            ? row[delegateCol].trim()
+            : '';
+        return { country, email } as unknown as Delegate;
+    })
+    .filter((d) => d.country && !existingCountries.has(d.country.name));
+  }
 
   function extractHeaders(data: Record<string, string>[]): string[] {
     if (!data.length) return [];
@@ -40,7 +56,8 @@ export const ImportSheetContent = (props: DelegateModalProps): ReactElement => {
     if (!json.length) return;
 
     extractHeaders(json);
-    setImportedValues(json);
+    transformData(json);
+    setImportedValues(json); // this can be changed to like a boolean or smth that determines if there is data so the header mapping can show
   }
 
   return (
