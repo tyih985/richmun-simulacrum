@@ -14,7 +14,6 @@ import {
   Space,
   Group,
   Modal,
-  MultiSelect,
   Stepper,
   CloseButton,
   Box,
@@ -34,14 +33,7 @@ import {
 } from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
 import { ExpandableButton } from '../components/ExpandableButton';
-import {
-  createCommittee,
-  addStaffToCommittee,
-  addDelegateToCommittee,
-  addUserCommittee,
-  getOrCreateUidFromEmail,
-  ultimateConsoleLog,
-} from './yeahglo';
+import { committeeMutations } from '@mutations/setUpMutation';
 import {
   generateCommitteeId,
   generateDelegateId,
@@ -49,22 +41,30 @@ import {
 } from '@packages/generateIds';
 import { DateInputComponent } from '@components/DateInput';
 import { ImageUploader } from '@components/ImageUploader';
-import { countriesData, Country } from './countriesData';
+import { countriesData } from '@lib/countriesData.ts';
 import { auth } from '@packages/firebase/firebaseAuth';
 import { parseFile, parseTSV } from '@lib/SpreadsheetThings';
-import { parse } from 'path';
-import { read } from 'fs';
-import EmojiPicker from '@emoji-mart/react';
 import { CountryMultiSelect } from '@components/CountryMultiSelect';
+import { StepOne } from '/Users/tyleryih/simulacrum/src/features/setup/components/StepOne.tsx';
+import { StepTwo } from '/Users/tyleryih/simulacrum/src/features/setup/components/StepTwo.tsx';
+import { StepThree } from '/Users/tyleryih/simulacrum/src/features/setup/components/StepThree.tsx';
+import { Country, Delegate, Staff } from 'src/features/types';
 
 const ROLE_OPTIONS = ['director', 'assistant director', 'flex staff'] as const;
 type RoleOption = (typeof ROLE_OPTIONS)[number];
-type Staff = { role: 'director' | 'assistant director' | 'flex staff'; email: string };
-type Delegate = { country: string; email: string };
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const isValidEmail = (email: string) => emailRegex.test(email);
 
 const un_countries = countriesData;
+
+const {
+  createCommittee,
+  addStaffToCommittee,
+  addDelegateToCommittee,
+  addUserCommittee,
+  getOrCreateUidFromEmail,
+  ultimateConsoleLog,
+} = committeeMutations();
 
 export const Mock = (): ReactElement => {
   const form = useForm({
@@ -132,8 +132,8 @@ export const Mock = (): ReactElement => {
         const uid = await getOrCreateUidFromEmail(email);
         console.log(`Using user ${uid} for delegate email ${email}.`);
 
-        const delegateId = generateDelegateId(country);
-        await addDelegateToCommittee(committeeId, delegateId, country, uid);
+        const delegateId = generateDelegateId(country.name);
+        await addDelegateToCommittee(committeeId, delegateId, country.name, uid);
         if (uid) {
           await addUserCommittee(uid, committeeId, 'delegate');
         }
@@ -178,7 +178,7 @@ export const Mock = (): ReactElement => {
   // State for available countries
   const [availableCountries, setAvailableCountries] = useState<Country[]>(un_countries);
 
-  const existingCountries = new Set(form.values.delegates.map((d) => d.country));
+  const existingCountries = new Set(form.values.delegates.map((d) => d.country.name));
 
   // State for flag things
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
@@ -230,7 +230,7 @@ export const Mock = (): ReactElement => {
     <Table.Tr key={`${country}-${idx}`}>
       <Table.Td>
         <Stack gap={2}>
-          <Text size="sm">{country}</Text>
+          <Text size="sm">{country.name}</Text>
           {/* {un_countries.?.trim() && (
             <Text size="xs" c="dimmed">
               ({UN_COUNTRY_LONG_NAMES[country]})
@@ -306,7 +306,7 @@ export const Mock = (): ReactElement => {
     form.setFieldValue(
       'delegates',
       [...form.values.delegates, ...newDelegates].sort((a, b) =>
-        a.country.localeCompare(b.country),
+        a.country.name.localeCompare(b.country.name),
       ),
     );
 
@@ -315,26 +315,26 @@ export const Mock = (): ReactElement => {
 
   const addCustomRows = () => {
     const selectedCustomDelegates = [customValues].map((country) => ({
-      country: country,
+      country: country as unknown as Country,
       email: '',
     }));
 
     setAndSort(selectedCustomDelegates);
 
     setAvailableCountries((prev) =>
-      prev.filter((c) => !selectedCustomDelegates.some((d) => d.country === c.value)),
+      prev.filter((c) => !selectedCustomDelegates.some((d) => d.country === c)),
     );
     setCustomValues('');
   };
 
   const addUNRows = () => {
     const selectedUNDelegates = selectedValues.map((country) => ({
-      country,
+      country: country as unknown as Country,
       email: '',
     }));
     setAndSort(selectedUNDelegates);
 
-    setAvailableCountries((prev) => prev.filter((c) => !selectedValues.includes(c.value)));
+    setAvailableCountries((prev) => prev.filter((c) => !selectedValues.includes(c.name)));
 
     setSelectedValues([]);
   };
@@ -346,9 +346,7 @@ export const Mock = (): ReactElement => {
     setDelegateCol(null);
   }
 
-  function transformImportedData(
-    data: Record<string, unknown>[],
-  ): { country: string; email: string }[] {
+  function transformImportedData(data: Record<string, unknown>[]): Delegate[] {
     if (!Array.isArray(data)) return [];
 
     return data
@@ -359,9 +357,9 @@ export const Mock = (): ReactElement => {
           delegateCol && typeof row[delegateCol] === 'string'
             ? row[delegateCol].trim()
             : '';
-        return { country, email };
+        return { country, email } as unknown as Delegate;
       })
-      .filter((d) => d.country && !existingCountries.has(d.country));
+      .filter((d) => d.country && !existingCountries.has(d.country.name));
   }
 
   const addImportedRows = () => {
@@ -382,7 +380,7 @@ export const Mock = (): ReactElement => {
     setAndSort(newDelegates);
 
     setAvailableCountries((prev) =>
-      prev.filter((c) => !newDelegates.some((d) => d.country === c.value)),
+      prev.filter((c) => !newDelegates.some((d) => d.country === c)),
     );
 
     resetImportState();
@@ -413,8 +411,10 @@ export const Mock = (): ReactElement => {
       'delegates',
       form.values.delegates.filter((_, i) => i !== idx),
     );
-    if (un_countries.map((c) => c.value).includes(removed.country)) {
-      const countryObj = un_countries.find((c) => c.value === removed.country);
+    if (un_countries.map((c: { value: unknown }) => c.value).includes(removed.country)) {
+      const countryObj = un_countries.find(
+        (c: { value: Country }) => c.value === removed.country,
+      );
       if (countryObj) {
         setAvailableCountries((prev) => [...prev, countryObj]);
       }
@@ -528,7 +528,7 @@ export const Mock = (): ReactElement => {
               nothingFoundMessage="Nothing found..."
             /> */}
             <CountryMultiSelect
-              ref = {multiSelectRef}
+              ref={multiSelectRef}
               data={availableCountries.sort()}
               value={selectedValues}
               onChange={setSelectedValues}
@@ -669,175 +669,22 @@ export const Mock = (): ReactElement => {
               h={'100%'}
             >
               <Stepper.Step label="First step" description="Basic Information" h={'100%'}>
-                <Container size="sm" p="xl">
-                  <Flex direction="column" gap={'sm'}>
-                    <Title order={3}>1. Basic Information</Title>
-                    <Text size="sm">
-                      Let us know some general information about your committee and event
-                      to get started.
-                    </Text>
-
-                    <Space h="md" />
-
-                    <TextInput
-                      label="What’s your committee long name?"
-                      placeholder="e.g. the bestest committee :D"
-                      {...form.getInputProps('committeeLongName')}
-                      radius="lg"
-                      autoFocus
-                      required
-                    />
-
-                    <Space h="md" />
-
-                    <TextInput
-                      label="What’s your committee short name?"
-                      placeholder="e.g. tbc"
-                      {...form.getInputProps('committeeShortName')}
-                      radius="lg"
-                      autoFocus
-                      required
-                    />
-
-                    <Space h="md" />
-
-                    <DateInputComponent
-                      label="What date(s) will your event take place?"
-                      placeholder="Pick a date range"
-                      value={form.values.dateRange}
-                      onChange={(range) => form.setFieldValue('dateRange', range!)}
-                      radius="lg"
-                    />
-
-                    <Text size="sm" c="dimmed">
-                      Delegates added to the committee will gain access the day your event
-                      starts. All unsaved data will be lost one week after your event
-                      ends.
-                    </Text>
-                  </Flex>
-                </Container>
+                <StepOne form={form} />
               </Stepper.Step>
               <Stepper.Step label="Second step" description="Add Staff Members">
-                <Container size="sm" p="xl">
-                  <Flex direction="column" gap={'sm'}>
-                    <Title order={3}>2. Add Staff Members</Title>
-                    <Text size="sm">
-                      Add the emails of staff members who will be managing your committee.
-                      They will have access to staff things (?) in the committee and can
-                      help manage delegates.
-                    </Text>
-
-                    <Space h="md" />
-
-                    <Table stickyHeader highlightOnHover>
-                      <Table.Thead>
-                        <Table.Tr>
-                          <Table.Th style={{ width: '50%' }}>Staff</Table.Th>
-                          <Table.Th>Role</Table.Th>
-                        </Table.Tr>
-                      </Table.Thead>
-                      <Table.Tbody>{[ownerRow(), ...staffRows]}</Table.Tbody>
-                    </Table>
-
-                    <Flex justify="flex-end" flex={1}>
-                      <ActionIcon
-                        variant="outline"
-                        aria-label="Add"
-                        onClick={openStaffModal}
-                        size="md"
-                      >
-                        <IconPlus style={{ width: '70%', height: '70%' }} stroke={2.5} />
-                      </ActionIcon>
-                    </Flex>
-                  </Flex>
-                </Container>
+                <StepTwo
+                  ownerRow={ownerRow}
+                  staffRows={staffRows}
+                  openStaffModal={openStaffModal}
+                />
               </Stepper.Step>
               <Stepper.Step label="Final step" description="Add Countries + Delegates">
-                <Container size="sm" p="xl">
-                  <Flex direction="column" gap={'sm'}>
-                    <Title order={3}>3. Add Countries + Delegates</Title>
-                    <Text size="sm">
-                      Add the countries and delegates that will be participating in your
-                      committee. This can be done later too!
-                    </Text>
-
-                    <Space h="md" />
-
-                    <Table stickyHeader highlightOnHover>
-                      <Table.Thead>
-                        <Table.Tr>
-                          <Table.Th style={{ width: '30%' }}>Country</Table.Th>
-                          <Table.Th>Delegate</Table.Th>
-                        </Table.Tr>
-                      </Table.Thead>
-                      <Table.Tbody>{delegateRows}</Table.Tbody>
-                    </Table>
-
-                    {delegateRows.length === 0 && (
-                      <Stack align="center" justify="center" bg="gray.0" p="md">
-                        <Text c="dimmed">no countries added :c</Text>
-                        <Group>
-                          <Button
-                            onClick={() => {
-                              setActiveModal('import');
-                              openDelegateModal();
-                            }}
-                          >
-                            Import spreadsheet?
-                          </Button>
-                          <Button
-                            onClick={() => {
-                              setActiveModal('UN');
-                              openDelegateModal();
-                            }}
-                          >
-                            Add UN countries?
-                          </Button>
-                        </Group>
-                      </Stack>
-                    )}
-
-                    <Flex justify="flex-end" flex={1}>
-                      <ExpandableButton
-                        onClick={openDelegateModal}
-                        onFirst={() => {
-                          setActiveModal('UN');
-                          openDelegateModal();
-                        }}
-                        onSecond={() => {
-                          setActiveModal('custom');
-                          openDelegateModal();
-                        }}
-                        onThird={() => {
-                          setActiveModal('import');
-                          openDelegateModal();
-                        }}
-                      ></ExpandableButton>
-                      {/* <Group w="100%">
-                        <Button size="compact-xs" flex={1} onClick={() => {
-                          setActiveModal('UN');
-                          open();
-                        }}>
-                          UN countries
-                        </Button>
-                        
-                        <Button size="compact-xs" flex={1} onClick={() => {
-                          setActiveModal('custom');
-                          open();
-                        }}>
-                          custom country
-                        </Button>
-                        
-                        <Button size="compact-xs" flex={1} onClick={() => {
-                          setActiveModal('import');
-                          open();
-                        }}>
-                          import spreadsheet
-                        </Button> 
-                      </Group> */}
-                    </Flex>
-                  </Flex>
-                </Container>
+                <StepThree
+                  form={form}
+                  delegateRows={delegateRows}
+                  openDelegateModal={openDelegateModal}
+                  setActiveModal={setActiveModal}
+                />
               </Stepper.Step>
               <Stepper.Completed>
                 Completed, click back button to get to previous step
