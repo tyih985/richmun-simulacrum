@@ -11,7 +11,8 @@ export function CountryPill({ value, onRemove, ...others }: CountryPillProps) {
 
   return (
     <>
-        <style>{`
+      <style>
+        {`
             .pill {
             display: flex;
             align-items: center;
@@ -49,4 +50,3 @@ export function CountryPill({ value, onRemove, ...others }: CountryPillProps) {
     </>
   );
 }
-

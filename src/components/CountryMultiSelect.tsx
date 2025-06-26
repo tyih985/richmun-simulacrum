@@ -47,14 +47,13 @@ export function CountryMultiSelect(props: CountryMultiSelectProps) {
 
   const handleValueSelect = (val: string) => {
     if (value.includes(val)) {
-        onChange(value.filter((v) => v !== val));
-      } else {
-        onChange([...value, val]);
-      }
-    };
+      onChange(value.filter((v) => v !== val));
+    } else {
+      onChange([...value, val]);
+    }
+  };
 
-  const handleValueRemove = (val: string) =>
-    onChange(value.filter((v) => v !== val));
+  const handleValueRemove = (val: string) => onChange(value.filter((v) => v !== val));
 
   const handleClearAll = () => onChange([]);
 
@@ -66,7 +65,7 @@ export function CountryMultiSelect(props: CountryMultiSelectProps) {
 
   const options = dropdownData
     .filter((country) => country.name.toLowerCase().includes(search.trim().toLowerCase()) || 
-                      country.longName.toLowerCase().includes(search.trim().toLowerCase()))
+                      country.longName?.toLowerCase().includes(search.trim().toLowerCase()))
     .map((country) => (
         <Combobox.Option
             value={country.name}
@@ -85,50 +84,46 @@ export function CountryMultiSelect(props: CountryMultiSelectProps) {
             </Group>
         </Combobox.Option>
     ));
-    
-    
 
   return (
-    <Combobox store={combobox} onOptionSubmit={handleValueSelect} withinPortal={true} >
+    <Combobox store={combobox} onOptionSubmit={handleValueSelect} withinPortal={true}>
       <Combobox.DropdownTarget>
-        <PillsInput pointer onClick={() => combobox.toggleDropdown() } >
-          <Group justify='stretch'>
-          <Pill.Group flex={1}>
-            {values}
+        <PillsInput pointer onClick={() => combobox.toggleDropdown()}>
+          <Group justify="stretch">
+            <Pill.Group flex={1}>
+              {values}
 
-            <Combobox.EventsTarget>
-              <PillsInput.Field
-                onBlur={() => combobox.closeDropdown()}
-                value={search}
-                placeholder='Start typing to search...'
-                onChange={(event) => {
-                  combobox.updateSelectedOptionIndex();
-                  setSearch(event.currentTarget.value);
-                }}
-                onKeyDown={(event) => {
-                  if (event.key === 'Backspace' && search.length === 0) {
-                    event.preventDefault();
-                    handleValueRemove(value[value.length - 1]);
-                  }
-                }}
-              />
-            </Combobox.EventsTarget>
-          </Pill.Group>
-          {value.length > 0 && (
-            <CloseButton
-              onClick={handleClearAll}
-            >
-            </CloseButton>
-          )}
+              <Combobox.EventsTarget>
+                <PillsInput.Field
+                  onBlur={() => combobox.closeDropdown()}
+                  value={search}
+                  placeholder="Start typing to search..."
+                  onChange={(event) => {
+                    combobox.updateSelectedOptionIndex();
+                    setSearch(event.currentTarget.value);
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Backspace' && search.length === 0) {
+                      event.preventDefault();
+                      handleValueRemove(value[value.length - 1]);
+                    }
+                  }}
+                />
+              </Combobox.EventsTarget>
+            </Pill.Group>
+            {value.length > 0 && <CloseButton onClick={handleClearAll}></CloseButton>}
           </Group>
         </PillsInput>
       </Combobox.DropdownTarget>
 
-      <Combobox.Dropdown
-        mah={'300px'}
-        style={{overflowY: "auto"}}
-      >
-        <Combobox.Options>{options.length > 0 ? options : <Combobox.Empty>Nothing found...</Combobox.Empty>}</Combobox.Options>
+      <Combobox.Dropdown mah={'300px'} style={{ overflowY: 'auto' }}>
+        <Combobox.Options>
+          {options.length > 0 ? (
+            options
+          ) : (
+            <Combobox.Empty>Nothing found...</Combobox.Empty>
+          )}
+        </Combobox.Options>
       </Combobox.Dropdown>
     </Combobox>
   );

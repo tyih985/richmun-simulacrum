@@ -14,26 +14,28 @@ export const StaffModalContent = (props: StaffModalProps): ReactElement => {
 
   const form = useForm({
     initialValues: {
-        staff: [] as string[],
+      staff: [] as string[],
     },
     validate: {
-        staff: (emails) => {
-          const invalid = emails.filter((email) => !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email));
-          console.log('Verifying emails:', emails, 'Invalid emails:', invalid);
-          if (invalid.length >= 1) {
-            return 'One or more emails are invalid';
-          }
-        },
+      staff: (emails) => {
+        const invalid = emails.filter(
+          (email) => !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email),
+        );
+        console.log('Verifying emails:', emails, 'Invalid emails:', invalid);
+        if (invalid.length >= 1) {
+          return 'One or more emails are invalid';
+        }
+      },
     },
   });
 
   useEffect(() => {
-  form.validateField('staff');
+    form.validateField('staff');
   }, [form, form.values.staff]);
 
   return (
     <Stack justify="flex-start" align="stretch" gap="md" px="xl" pb="lg">
-        <TagsInput
+      <TagsInput
         label="Press enter to add a staff email."
         placeholder="Enter email..."
         leftSection={<IconAt size={16} />}
@@ -41,23 +43,25 @@ export const StaffModalContent = (props: StaffModalProps): ReactElement => {
         {...form.getInputProps('staff')}
         autoFocus
         onChange={(vals) => {
-            const cleaned = vals.map((v) => v.trim()).filter((v) => v !== '');
-            form.setFieldValue('staff', cleaned);
-            onTagChange(cleaned);
+          const cleaned = vals.map((v) => v.trim()).filter((v) => v !== '');
+          form.setFieldValue('staff', cleaned);
+          onTagChange(cleaned);
         }}
-        />
+      />
 
-        <Text size="sm" c="dimmed">
+      <Text size="sm" c="dimmed">
         Unsure? No worries, you can change this anytime after you've created your
         committee.
-        </Text>
+      </Text>
 
-        <Group justify="center">
-        <Button onClick={onSubmit} disabled={form.values.staff.length === 0 || !!form.errors.staff}>
-            Submit
-            
+      <Group justify="center">
+        <Button
+          onClick={onSubmit}
+          disabled={form.values.staff.length === 0 || !!form.errors.staff}
+        >
+          Submit
         </Button>
-        </Group>
+      </Group>
     </Stack>
   );
-}
+};
