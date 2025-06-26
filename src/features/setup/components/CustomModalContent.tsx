@@ -13,7 +13,7 @@ type DelegateModalProps = {
   onSubmit: () => void;
 };
 
-export const StaffModalContent = (props: DelegateModalProps): ReactElement => {
+export const CustomModalContent = (props: DelegateModalProps): ReactElement => {
   const { onSubmit } = props;
 
   const form = useForm({

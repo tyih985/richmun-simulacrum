@@ -14,7 +14,7 @@ type DelegateModalProps = {
   onSubmit: () => void;
 };
 
-export const StaffModalContent = (props: DelegateModalProps): ReactElement => {
+export const ImportSheetContent = (props: DelegateModalProps): ReactElement => {
   const { onPaste, onSubmit } = props;
 
   const [segVal, setSegVal] = useState<'paste from spreadsheet' | 'import file'>('paste from spreadsheet');

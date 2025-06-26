@@ -14,7 +14,7 @@ type DelegateModalProps = {
   onSubmit: () => void;
 };
 
-export const StaffModalContent = (props: DelegateModalProps): ReactElement => {
+export const UNModalContent = (props: DelegateModalProps): ReactElement => {
   const { dropdownData, onSubmit } = props;
 
   const form = useForm({
@@ -36,6 +36,6 @@ export const StaffModalContent = (props: DelegateModalProps): ReactElement => {
         </Button>
       </Group>
     </Stack>
-    
+
   );
 }
