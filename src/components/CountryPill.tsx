@@ -7,7 +7,7 @@ interface CountryPillProps extends React.ComponentPropsWithoutRef<'div'> {
 }
 
 export function CountryPill({ value, onRemove, ...others }: CountryPillProps) {
-  const country = countriesData.find((item) => item.value === value);
+  const country = countriesData.find((country) => country.name === value);
 
   return (
     <>
@@ -36,7 +36,7 @@ export function CountryPill({ value, onRemove, ...others }: CountryPillProps) {
             <div className={'flag'}>
                 {country?.flag}
             </div>
-            <div className={'label'}>{country?.value}</div>
+            <div className={'label'}>{country?.name}</div>
             <CloseButton
                 onMouseDown={onRemove}
                 variant="transparent"

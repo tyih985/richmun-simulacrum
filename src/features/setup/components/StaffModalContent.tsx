@@ -1,7 +1,7 @@
 import { Button, Group, Stack, TagsInput, Text } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { IconAt } from "@tabler/icons-react";
-import { ReactElement, useEffect, useState } from "react";
+import { ReactElement, useEffect } from "react";
 
 
 type StaffModalProps = {

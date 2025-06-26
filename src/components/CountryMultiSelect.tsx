@@ -2,29 +2,46 @@ import {
   CheckIcon,
   Combobox,
   Group,
-  Input,
   Pill,
   PillsInput,
   useCombobox,
   Text,
   CloseButton,
 } from '@mantine/core';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CountryPill } from './CountryPill';
+import { Country } from 'src/features/types';
 
 type CountryMultiSelectProps = {
     ref?: React.ForwardedRef<HTMLInputElement>
-    data: { value: string; longName: string; flag: string }[]
+    dropdownData: Country[]
     value: string[]
     onChange: (value: string[]) => void
 }
 
 export function CountryMultiSelect(props: CountryMultiSelectProps) {
-  const { data, value, onChange } = props;
+  const { dropdownData, value, onChange } = props;
   const combobox = useCombobox({
     onDropdownClose: () => combobox.resetSelectedOption(),
     onDropdownOpen: () => combobox.updateSelectedOptionIndex('active'),
   });
+
+//   useEffect(() => {
+//       const handleKeyDown = (event: KeyboardEvent) => {
+//         if (event.key === 'Enter') {
+//           // Only blur if this MultiSelect is focused
+//           if (
+//             document.activeElement === multiSelectRef.current ||
+//             multiSelectRef.current?.contains(document.activeElement)
+//           ) {
+//             multiSelectRef.current?.blur();
+//           }
+//         }
+//       };
+  
+//       window.addEventListener('keydown', handleKeyDown);
+//       return () => window.removeEventListener('keydown', handleKeyDown);
+//     }, []);
 
   const [search, setSearch] = useState('');
 
@@ -41,28 +58,28 @@ export function CountryMultiSelect(props: CountryMultiSelectProps) {
 
   const handleClearAll = () => onChange([]);
 
-  const values = value.map((item) => (
-    <CountryPill key={item} value={item} onRemove={() => handleValueRemove(item)}>
-      {item}
+  const values = value.map((country) => (
+    <CountryPill key={country} value={country} onRemove={() => handleValueRemove(country)}>
+      {country}
     </CountryPill>
   ));
 
-  const options = data
-    .filter((item) => item.value.toLowerCase().includes(search.trim().toLowerCase()) || 
-                      item.longName.toLowerCase().includes(search.trim().toLowerCase()))
-    .map((item) => (
+  const options = dropdownData
+    .filter((country) => country.name.toLowerCase().includes(search.trim().toLowerCase()) || 
+                      country.longName.toLowerCase().includes(search.trim().toLowerCase()))
+    .map((country) => (
         <Combobox.Option
-            value={item.value}
-            key={item.value}
-            active={value.includes(item.value)}
+            value={country.name}
+            key={country.name}
+            active={value.includes(country.name)}
         >
             <Group gap="sm">
-            {value.includes(item.value) ? <CheckIcon size={12} /> : null}
+            {value.includes(country.name) ? <CheckIcon size={12} /> : null}
             <Group gap={7} align='flex-end'>
-                <Text size="sm">{item.flag}</Text>
-                <Text size="sm">{item.value}</Text>
+                <Text size="sm">{country.flag}</Text>
+                <Text size="sm">{country.name}</Text>
                 <Text size="xs" c="dimmed">
-                {item.longName}
+                {country.longName}
                 </Text>
             </Group>
             </Group>
