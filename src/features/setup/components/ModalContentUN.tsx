@@ -1,7 +1,6 @@
 import { CountryMultiSelect } from '@components/CountryMultiSelect';
 // import { ImageUploader } from "@components/ImageUploader";
 import { Button, Group, Stack } from '@mantine/core';
-import { useForm } from '@mantine/form';
 import { ReactElement, useState } from 'react';
 import { Country, Delegate } from 'src/features/types';
 

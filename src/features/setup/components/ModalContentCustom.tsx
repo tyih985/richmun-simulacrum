@@ -1,7 +1,7 @@
 import { Button, Group, Stack, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { ReactElement, useState } from 'react';
-import { Country, Delegate } from 'src/features/types';
+import { Country, Delegate } from '@features/types';
 
 type DelegateModalProps = {
   availableCountries: Country[];

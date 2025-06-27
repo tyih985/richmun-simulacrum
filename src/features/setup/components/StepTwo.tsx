@@ -18,10 +18,10 @@ import {
   SetupFormValues,
   ROLE_OPTIONS,
   RoleOption,
-} from '/Users/tyleryih/simulacrum/src/features/types.ts';
+} from '@features/types.ts';
 import { auth } from '@packages/firebase/firebaseAuth';
 import { useDisclosure } from '@mantine/hooks';
-import { StaffModalContent } from './StaffModalContent';
+import { StaffModalContent } from './ModalContentStaff';
 
 export interface StepTwoProps {
   ownerRole: RoleOption;

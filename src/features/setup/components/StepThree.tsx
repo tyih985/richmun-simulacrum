@@ -14,13 +14,13 @@ import {
   Modal,
 } from '@mantine/core';
 import { UseFormReturnType } from '@mantine/form';
-import type { Delegate, SetupFormValues } from 'src/features/types';
+import type { Delegate, SetupFormValues } from '@features/types';
 import { ExpandableButton } from '@components/ExpandableButton';
 import { countriesData } from '@lib/countriesData';
 import { useDisclosure } from '@mantine/hooks';
-import { UNModalContent } from './UNModalContent';
-import { CustomModalContent } from './CustomModalContent';
-import { ImportSheetContent } from './ImportSheetContent';
+import { UNModalContent } from './ModalContentUN';
+import { CustomModalContent } from './ModalContentCustom';
+import { ImportSheetContent } from './ModalContentImport';
 
 const un_countries = countriesData;
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

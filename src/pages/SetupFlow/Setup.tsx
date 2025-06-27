@@ -10,10 +10,10 @@ import {
   generateStaffId,
 } from '@packages/generateIds';
 import { auth } from '@packages/firebase/firebaseAuth';
-import { StepOne } from '/Users/tyleryih/simulacrum/src/features/setup/components/StepOne.tsx';
-import { StepTwo } from '/Users/tyleryih/simulacrum/src/features/setup/components/StepTwo.tsx';
-import { StepThree } from '/Users/tyleryih/simulacrum/src/features/setup/components/StepThree.tsx';
-import { Delegate, RoleOption, Staff } from 'src/features/types';
+import { StepOne } from '@features/setup/components/StepOne.tsx';
+import { StepTwo } from '@features/setup/components/StepTwo.tsx';
+import { StepThree } from '@features/setup/components/StepThree.tsx';
+import { Delegate, RoleOption, Staff } from '@features/types';
 
 const {
   createCommittee,

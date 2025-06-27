@@ -11,7 +11,7 @@ import {
 } from '@mantine/core';
 import { IconFileSpreadsheet } from '@tabler/icons-react';
 import { ReactElement, useState } from 'react';
-import { Country, Delegate } from 'src/features/types';
+import { Country, Delegate } from '@features/types';
 
 type DelegateModalProps = {
   availableCountries: Country[];

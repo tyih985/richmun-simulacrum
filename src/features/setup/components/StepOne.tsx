@@ -2,7 +2,7 @@ import { ReactElement } from 'react';
 import { Container, Flex, Title, Text, Space, TextInput } from '@mantine/core';
 import { DateInputComponent } from '@components/DateInput';
 import { UseFormReturnType } from '@mantine/form';
-import type { SetupFormValues } from 'src/features/types.ts';
+import type { SetupFormValues } from '@features/types.ts';
 
 interface StepOneProps {
   form: UseFormReturnType<SetupFormValues>;
