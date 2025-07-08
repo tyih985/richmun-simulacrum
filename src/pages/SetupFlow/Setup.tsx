@@ -25,7 +25,7 @@ const {
 } = committeeMutations();
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export const Mock = (): ReactElement => {
+export const Setup = (): ReactElement => {
   const form = useForm({
     initialValues: {
       committeeLongName: '',
