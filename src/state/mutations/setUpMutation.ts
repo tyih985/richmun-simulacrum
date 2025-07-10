@@ -84,11 +84,11 @@ export const committeeMutations = () => {
     committeeId: string,
     staffId: string,
     owner: boolean = false,
-    role: StaffRole,
+    staffRole: StaffRole,
     email: string,
   ) => {
     const path = committeeStaffMemberPath(committeeId, staffId);
-    return createFirestoreDocument(path, { owner, role, email }, true);
+    return createFirestoreDocument(path, { owner, staffRole: staffRole, email }, true);
   };
 
   const removeStaffFromCommittee = (committeeId: string, staffId: string) => {

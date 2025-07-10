@@ -11,7 +11,7 @@ export type Delegate = {
 };
 
 export type Staff = {
-  role: StaffRole;
+  staffRole: StaffRole;
   email: string;
 };
 

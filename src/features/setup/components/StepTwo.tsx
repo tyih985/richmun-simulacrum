@@ -34,7 +34,7 @@ export function StepTwo({ ownerRole, setOwnerRole, form }: StepTwoProps): ReactE
 
   const addStaffRows = () => {
     const staffEmails: Staff[] = staffValues.map((email) => ({
-      role: 'flex staff', // default role, can be changed later
+      staffRole: 'flex staff', // default role, can be changed later
       email,
     }));
 
@@ -69,7 +69,7 @@ export function StepTwo({ ownerRole, setOwnerRole, form }: StepTwoProps): ReactE
     </Table.Tr>
   );
 
-  const staffRows = form.values.staff.map(({ email, role }, idx) => (
+  const staffRows = form.values.staff.map(({ email, staffRole: role }, idx) => (
     <Table.Tr key={`${email}-${idx}`}>
       <Table.Td>{email}</Table.Td>
       <Table.Td>
@@ -80,7 +80,7 @@ export function StepTwo({ ownerRole, setOwnerRole, form }: StepTwoProps): ReactE
           allowDeselect={false}
           onChange={(role) => {
             const list = [...form.values.staff];
-            list[idx].role = (role as Staff['role']) || 'flex staff'; // default to 'flex staff' if role is null
+            list[idx].staffRole = (role as Staff['staffRole']) || 'flex staff'; // default to 'flex staff' if role is null
             form.setFieldValue('staff', list);
           }}
         />

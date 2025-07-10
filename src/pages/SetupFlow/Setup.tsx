@@ -69,9 +69,15 @@ export const Setup = (): ReactElement => {
       }
 
       // staff
-      const staffTasks = form.values.staff.map(async ({ role, email }) => {
+      const staffTasks = form.values.staff.map(async ({ staffRole, email }) => {
         const staffId = generateStaffId();
-        await addStaffToCommittee(committeeId, staffId, false, role, email.toLowerCase());
+        await addStaffToCommittee(
+          committeeId,
+          staffId,
+          false,
+          staffRole,
+          email.trim().toLowerCase(),
+        );
       });
 
       // delegates
@@ -81,7 +87,7 @@ export const Setup = (): ReactElement => {
           committeeId,
           delegateId,
           country.name,
-          email.toLowerCase(),
+          email.trim().toLowerCase(),
         );
       });
 
