@@ -39,15 +39,23 @@ const handleCommitteeWrite = async (
   committeeId: string,
   role: 'delegate' | 'staff',
   roleId: string,
+  staffRole?: string,
 ) => {
   console.log('handleCommitteeWrite called with:', email);
   if (!email) return;
   const uid = await getOrCreateUidFromEmail(email);
   if (!uid) return;
+
+  const payload: Record<string, any> = { role, roleId };
+  if (role === 'staff' && staffRole) {
+    payload.staffRole = staffRole;
+  }
+
   await admin
     .firestore()
     .doc(`users/${uid}/committees/${committeeId}`)
-    .set({ role, roleId });
+    .set(payload, { merge: true });
+  console.log('Write complete.');
 };
 
 const handleCommitteeDelete = async (email: string, committeeId: string) => {
@@ -114,16 +122,18 @@ export const onstaffcreated = onDocumentCreated(
     if (!snap) return;
     const data = snap.data() as any;
     const email = (data.email || '').trim().toLowerCase();
+    const staffRole = (data.staffRole || '').trim().toLowerCase();
     await handleCommitteeWrite(
       email,
       event.params.committeeId,
       'staff',
       event.params.staffId,
+      staffRole,
     );
   },
 );
 
-export const onstaffupdated = onDocumentUpdated(
+export const onstaffemailupdated = onDocumentUpdated(
   { document: 'committees/{committeeId}/staff/{staffId}' },
   async (event) => {
     const beforeSnap = event.data?.before;
@@ -131,7 +141,9 @@ export const onstaffupdated = onDocumentUpdated(
     if (!beforeSnap || !afterSnap) return;
     const before = beforeSnap.data() as any;
     const after = afterSnap.data() as any;
+
     const cid = event.params.committeeId;
+    const staffRole = (before.staffRole || '').trim().toLowerCase();
 
     const beforeEmail = (before.email || '').trim().toLowerCase();
     const afterEmail = (after.email || '').trim().toLowerCase();
@@ -139,7 +151,49 @@ export const onstaffupdated = onDocumentUpdated(
       const beforeUid = await getOrCreateUidFromEmail(beforeEmail);
       await admin.firestore().doc(`users/${beforeUid}/committees/${cid}`).delete();
     }
-    await handleCommitteeWrite(afterEmail, cid, 'staff', event.params.staffId);
+    await handleCommitteeWrite(afterEmail, cid, 'staff', event.params.staffId, staffRole);
+  },
+);
+
+export const onstaffroleupdated = onDocumentUpdated(
+  { document: 'committees/{committeeId}/staff/{staffId}' },
+  async (event) => {
+    const beforeSnap = event.data?.before;
+    const afterSnap = event.data?.after;
+    if (!beforeSnap || !afterSnap) return;
+
+    const before = beforeSnap.data() as any;
+    const after = afterSnap.data() as any;
+    const { committeeId, staffId } = event.params;
+
+    const oldRole = (before.staffRole || '').trim();
+    const newRole = (after.staffRole || '').trim();
+    if (oldRole === newRole) {
+      console.log(
+        `[onstaffroleupdated] staffRole unchanged for ${staffId} in ${committeeId}:`,
+        oldRole,
+      );
+      return;
+    }
+
+    const email = (after.email || '').trim().toLowerCase();
+    if (!email) {
+      console.error(`[onstaffroleupdated] no email for staff/${staffId}`);
+      return;
+    }
+    const uid = await getOrCreateUidFromEmail(email);
+    if (!uid) {
+      console.error(`[onstaffroleupdated] failed to get uid for ${email}`);
+      return;
+    }
+
+    const userCommitteeRef = admin
+      .firestore()
+      .doc(`users/${uid}/committees/${committeeId}`);
+    await userCommitteeRef.update({ staffRole: newRole });
+    console.log(
+      `[onstaffroleupdated] updated users/${uid}/committees/${committeeId}.staffRole = "${newRole}"`,
+    );
   },
 );
 
@@ -164,22 +218,33 @@ export const onusercommitteedeleted = onDocumentDeleted(
       console.log(`No data stored at users/${userId}/committees/${committeeId}`);
       return;
     }
-
     const { role, roleId } = data;
     if (!role || !roleId) {
       console.log(`No role or roleId at users/${userId}/committees/${committeeId}`);
       return;
     }
 
-    const staffPath = `committees/${committeeId}/staff/${roleId}`;
-    const delPath = `committees/${committeeId}/delegates/${roleId}`;
+    const db = admin.firestore();
+    const userSnap = await db.doc(`users/${userId}`).get();
+    const userEmail = (userSnap.data()?.email as string) || '';
+
+    const staffRef = db.doc(`committees/${committeeId}/staff/${roleId}`);
+    const delRef = db.doc(`committees/${committeeId}/delegates/${roleId}`);
 
     if (role === 'staff') {
-      await admin.firestore().doc(staffPath).delete();
-      console.log(`Removed staff doc ${staffPath}`);
+      const staffSnap = await staffRef.get();
+      const emailInDoc = (staffSnap.data()?.email as string) || '';
+      if (staffSnap.exists && emailInDoc !== '' && emailInDoc !== userEmail) {
+        return;
+      }
+      await staffRef.delete();
     } else if (role === 'delegate') {
-      await admin.firestore().doc(delPath).update({ email: '' });
-      console.log(`Cleared email on delegate doc ${delPath}`);
+      const delSnap = await delRef.get();
+      const emailInDoc = (delSnap.data()?.email as string) || '';
+      if (!delSnap.exists || emailInDoc === '' || emailInDoc !== userEmail) {
+        return;
+      }
+      await delRef.update({ email: '' });
     } else {
       console.log(`Unknown role "${role}" on users/${userId}/committees/${committeeId}`);
     }
