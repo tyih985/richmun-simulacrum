@@ -12,15 +12,7 @@ import {
   userCommitteesPath,
   userCommitteePath,
 } from '@packages/firestorePaths';
-import {
-  addDoc,
-  collection,
-  FirestoreError,
-  getDocs,
-  query,
-  serverTimestamp,
-  where,
-} from 'firebase/firestore';
+import { collection, getDocs } from 'firebase/firestore';
 import { Role, StaffRole } from 'src/features/types';
 
 export const committeeMutations = () => {
@@ -64,17 +56,22 @@ export const committeeMutations = () => {
     return deleteFirestoreDocument(path);
   };
 
-  const addUserCommittee = (uid: string, committeeId: string, role: Role) => {
+  const addUserCommittee = (
+    uid: string,
+    committeeId: string,
+    role: Role,
+    roleId: string,
+  ) => {
     const path = userCommitteePath(uid, committeeId);
-    return createFirestoreDocument(path, { role }, true);
+    return createFirestoreDocument(path, { role, roleId }, true);
   };
 
   const getUserCommittees = (
     uid: string,
   ): Promise<Array<{ committeeId: string; role: Role }>> => {
     const path = userCommitteesPath(uid);
-    return getFirestoreCollection<{ id: string; role: Role }>(path).then((docs) =>
-      docs.map((d) => ({ committeeId: d.id, role: d.role })),
+    return getFirestoreCollection<{ id: string; role: Role; roleId: string }>(path).then(
+      (docs) => docs.map((d) => ({ committeeId: d.id, role: d.role, roleId: d.roleId })),
     );
   };
 
@@ -88,10 +85,10 @@ export const committeeMutations = () => {
     staffId: string,
     owner: boolean = false,
     role: StaffRole,
-    uid: string,
+    email: string,
   ) => {
     const path = committeeStaffMemberPath(committeeId, staffId);
-    return createFirestoreDocument(path, { owner, role, uid }, true);
+    return createFirestoreDocument(path, { owner, role, email }, true);
   };
 
   const removeStaffFromCommittee = (committeeId: string, staffId: string) => {
@@ -101,35 +98,17 @@ export const committeeMutations = () => {
 
   const addDelegateToCommittee = (
     committeeId: string,
-    delegateId: string,
+    delegateEmail: string,
     name: string,
-    uid: string,
+    email: string,
   ) => {
-    const path = committeeDelegatePath(committeeId, delegateId);
-    return createFirestoreDocument(path, { name, uid }, true);
+    const path = committeeDelegatePath(committeeId, delegateEmail);
+    return createFirestoreDocument(path, { name, email }, true);
   };
 
-  const removeDelegateFromCommittee = (committeeId: string, delegateId: string) => {
-    const path = committeeDelegatePath(committeeId, delegateId);
+  const removeDelegateFromCommittee = (committeeId: string, delegateEmail: string) => {
+    const path = committeeDelegatePath(committeeId, delegateEmail);
     return deleteFirestoreDocument(path);
-  };
-
-  const getOrCreateUidFromEmail = async (email: string): Promise<string> => {
-    if (!email.trim()) return '';
-    try {
-      const usersCol = collection(firestoreDb, 'users');
-      const q = query(usersCol, where('email', '==', email));
-      const snap = await getDocs(q);
-      if (!snap.empty) return snap.docs[0].id;
-      const docRef = await addDoc(usersCol, {
-        email,
-        createdAt: serverTimestamp(),
-      });
-      return docRef.id;
-    } catch (e) {
-      console.error('Error in getOrCreateUidFromEmail:', (e as FirestoreError).message);
-      throw e;
-    }
   };
 
   const ultimateConsoleLog = async (): Promise<void> => {
@@ -179,7 +158,6 @@ export const committeeMutations = () => {
     removeStaffFromCommittee,
     addDelegateToCommittee,
     removeDelegateFromCommittee,
-    getOrCreateUidFromEmail,
     ultimateConsoleLog,
   };
 };

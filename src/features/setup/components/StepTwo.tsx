@@ -13,12 +13,7 @@ import {
 } from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
 import { UseFormReturnType } from '@mantine/form';
-import {
-  Staff,
-  SetupFormValues,
-  ROLE_OPTIONS,
-  RoleOption,
-} from '@features/types.ts';
+import { Staff, SetupFormValues, ROLE_OPTIONS, RoleOption } from '@features/types.ts';
 import { auth } from '@packages/firebase/firebaseAuth';
 import { useDisclosure } from '@mantine/hooks';
 import { StaffModalContent } from './ModalContentStaff';

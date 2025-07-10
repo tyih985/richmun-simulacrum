@@ -20,7 +20,6 @@ const {
   addStaffToCommittee,
   addDelegateToCommittee,
   addUserCommittee,
-  getOrCreateUidFromEmail,
   ultimateConsoleLog,
 } = committeeMutations();
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -61,39 +60,33 @@ export const Setup = (): ReactElement => {
       );
 
       const ownerUid = auth.currentUser?.uid || '';
-      if (ownerUid) {
+      const ownerEmail = auth.currentUser?.email?.toLowerCase() || '';
+      if (ownerEmail) {
         const ownerStaffId = generateStaffId();
-        await addStaffToCommittee(committeeId, ownerStaffId, true, ownerRole, ownerUid);
-        await addUserCommittee(ownerUid, committeeId, 'staff');
+        await addStaffToCommittee(committeeId, ownerStaffId, true, ownerRole, ownerEmail);
+        await addUserCommittee(ownerUid, committeeId, 'staff', ownerStaffId);
         console.log('Added owner to committee:', { ownerUid, ownerStaffId, ownerRole });
       }
 
       // staff
       const staffTasks = form.values.staff.map(async ({ role, email }) => {
-        const uid = await getOrCreateUidFromEmail(email);
-        console.log(`Using user ${uid} for staff email ${email}.`);
-
         const staffId = generateStaffId();
-        await addStaffToCommittee(committeeId, staffId, false, role, uid);
-        if (uid) {
-          await addUserCommittee(uid, committeeId, 'staff');
-        }
+        await addStaffToCommittee(committeeId, staffId, false, role, email.toLowerCase());
       });
 
       // delegates
       const delegateTasks = form.values.delegates.map(async ({ country, email }) => {
-        const uid = await getOrCreateUidFromEmail(email);
-        console.log(`Using user ${uid} for delegate email ${email}.`);
-
         const delegateId = generateDelegateId(country.name);
-        await addDelegateToCommittee(committeeId, delegateId, country.name, uid);
-        if (uid) {
-          await addUserCommittee(uid, committeeId, 'delegate');
-        }
+        await addDelegateToCommittee(
+          committeeId,
+          delegateId,
+          country.name,
+          email.toLowerCase(),
+        );
       });
 
       await Promise.all([...staffTasks, ...delegateTasks]);
-      await ultimateConsoleLog();
+      // await ultimateConsoleLog();
       form.reset();
       console.log('Form reset; flow complete.');
     } catch (err) {
