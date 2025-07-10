@@ -53,13 +53,11 @@ Deployment preview [https://simulacrum-theta.vercel.app/](https://simulacrum-the
 Drop your firebase configuration into `/runtime-environments/index.ts` > `prodFirebaseConfig`
 
 - this app _expects_ you to be using firebase auth, and is set-up for the following methods:
-
   - email sign-in link
   - email and password
   - google account login
 
 - this app _is set-up_ to support Firestore AND Real-time Database
-
   - if you are not using Firebase Database (firestore) then remove the field for firebase database from the type and the configuration
 
 - this app _is set-up_ to support Cloud Functions and hosting (functions requires hosting)
