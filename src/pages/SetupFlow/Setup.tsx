@@ -63,8 +63,15 @@ export const Setup = (): ReactElement => {
       const ownerEmail = auth.currentUser?.email?.toLowerCase() || '';
       if (ownerEmail) {
         const ownerStaffId = generateStaffId();
-        await addStaffToCommittee(committeeId, ownerStaffId, true, ownerRole, ownerEmail);
-        await addUserCommittee(ownerUid, committeeId, 'staff', ownerStaffId);
+        await addStaffToCommittee(
+          committeeId,
+          ownerStaffId,
+          true,
+          ownerRole,
+          ownerEmail,
+          'accepted',
+        );
+        await addUserCommittee(ownerUid, committeeId, 'staff', ownerStaffId, 'accepted');
         console.log('Added owner to committee:', { ownerUid, ownerStaffId, ownerRole });
       }
 
@@ -77,6 +84,7 @@ export const Setup = (): ReactElement => {
           false,
           staffRole,
           email.trim().toLowerCase(),
+          'pending',
         );
       });
 
@@ -88,6 +96,7 @@ export const Setup = (): ReactElement => {
           delegateId,
           country.name,
           email.trim().toLowerCase(),
+          'pending',
         );
       });
 

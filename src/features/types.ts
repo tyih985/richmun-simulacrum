@@ -25,6 +25,10 @@ export type SetupFormValues = {
 
 export type Role = 'staff' | 'delegate';
 export type StaffRole = 'assistant director' | 'director' | 'flex staff';
+export type InviteStatus = 'accepted' | 'rejected' | 'pending';
+export type AttendanceStatus = 'present' | 'absent' | 'excused';
+export type DirectiveStatus = 'passed' | 'failed' | 'pending';
+export type MotionType = 'unmoderated' | 'moderated' | 'round table';
 
 export const ROLE_OPTIONS = ['director', 'assistant director', 'flex staff'] as const;
 export type RoleOption = (typeof ROLE_OPTIONS)[number];

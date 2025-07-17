@@ -40,13 +40,15 @@ const handleCommitteeWrite = async (
   role: 'delegate' | 'staff',
   roleId: string,
   staffRole?: string,
+  inviteStatus: 'accepted' | 'rejected' | 'pending' = 'pending',
 ) => {
   console.log('handleCommitteeWrite called with:', email);
   if (!email) return;
   const uid = await getOrCreateUidFromEmail(email);
   if (!uid) return;
 
-  const payload: Record<string, any> = { role, roleId };
+  const payload: Record<string, any> = { role, roleId, inviteStatus };
+
   if (role === 'staff' && staffRole) {
     payload.staffRole = staffRole;
   }
@@ -79,22 +81,26 @@ export const ondelegatecreated = onDocumentCreated(
       event.params.committeeId,
       'delegate',
       event.params.delegateId,
+      undefined,
+      'pending',
     );
   },
 );
 
-export const ondelegateupdated = onDocumentUpdated(
+export const ondelegateemailupdated = onDocumentUpdated(
   { document: 'committees/{committeeId}/delegates/{delegateId}' },
   async (event) => {
-    const beforeSnap = event.data?.before;
-    const afterSnap = event.data?.after;
-    if (!beforeSnap || !afterSnap) return;
-    const before = beforeSnap.data() as any;
-    const after = afterSnap.data() as any;
-    const cid = event.params.committeeId;
-
+    const before = event.data?.before.data() as any;
+    const after = event.data?.after.data() as any;
     const beforeEmail = (before.email || '').trim().toLowerCase();
     const afterEmail = (after.email || '').trim().toLowerCase();
+    const cid = event.params.committeeId;
+
+    if (beforeEmail === afterEmail) {
+      console.log(`[onstaffemailupdated] email unchanged, skipping`);
+      return;
+    }
+    
     if (beforeEmail && beforeEmail !== afterEmail) {
       const beforeUid = await getOrCreateUidFromEmail(beforeEmail);
       await admin.firestore().doc(`users/${beforeUid}/committees/${cid}`).delete();
@@ -129,6 +135,7 @@ export const onstaffcreated = onDocumentCreated(
       'staff',
       event.params.staffId,
       staffRole,
+      'pending',
     );
   },
 );
@@ -136,17 +143,18 @@ export const onstaffcreated = onDocumentCreated(
 export const onstaffemailupdated = onDocumentUpdated(
   { document: 'committees/{committeeId}/staff/{staffId}' },
   async (event) => {
-    const beforeSnap = event.data?.before;
-    const afterSnap = event.data?.after;
-    if (!beforeSnap || !afterSnap) return;
-    const before = beforeSnap.data() as any;
-    const after = afterSnap.data() as any;
-
+    const before = event.data?.before.data() as any;
+    const after = event.data?.after.data() as any;
+    const beforeEmail = (before.email || '').trim().toLowerCase();
+    const afterEmail = (after.email || '').trim().toLowerCase();
     const cid = event.params.committeeId;
     const staffRole = (before.staffRole || '').trim().toLowerCase();
 
-    const beforeEmail = (before.email || '').trim().toLowerCase();
-    const afterEmail = (after.email || '').trim().toLowerCase();
+    if (beforeEmail === afterEmail) {
+      console.log(`[onstaffemailupdated] email unchanged, skipping`);
+      return;
+    }
+
     if (beforeEmail && beforeEmail !== afterEmail) {
       const beforeUid = await getOrCreateUidFromEmail(beforeEmail);
       await admin.firestore().doc(`users/${beforeUid}/committees/${cid}`).delete();
@@ -158,24 +166,15 @@ export const onstaffemailupdated = onDocumentUpdated(
 export const onstaffroleupdated = onDocumentUpdated(
   { document: 'committees/{committeeId}/staff/{staffId}' },
   async (event) => {
-    const beforeSnap = event.data?.before;
-    const afterSnap = event.data?.after;
-    if (!beforeSnap || !afterSnap) return;
-
-    const before = beforeSnap.data() as any;
-    const after = afterSnap.data() as any;
-    const { committeeId, staffId } = event.params;
-
-    const oldRole = (before.staffRole || '').trim();
-    const newRole = (after.staffRole || '').trim();
+    const before = event.data?.before.data() as any;
+    const after = event.data?.after.data() as any;
+    const oldRole = (before.staffRole || '').trim().toLowerCase();
+    const newRole = (after.staffRole || '').trim().toLowerCase();
     if (oldRole === newRole) {
-      console.log(
-        `[onstaffroleupdated] staffRole unchanged for ${staffId} in ${committeeId}:`,
-        oldRole,
-      );
+      console.log(`[onstaffroleupdated] role unchanged, skipping`);
       return;
     }
-
+    const { committeeId, staffId } = event.params;
     const email = (after.email || '').trim().toLowerCase();
     if (!email) {
       console.error(`[onstaffroleupdated] no email for staff/${staffId}`);
@@ -248,5 +247,35 @@ export const onusercommitteedeleted = onDocumentDeleted(
     } else {
       console.log(`Unknown role "${role}" on users/${userId}/committees/${committeeId}`);
     }
+  },
+);
+
+export const onusercommitteeinviteupdated = onDocumentUpdated(
+  { document: 'users/{userId}/committees/{committeeId}' },
+  async (event) => {
+    const before = event.data?.before?.data() as any;
+    const after = event.data?.after?.data() as any;
+    const { userId, committeeId } = event.params;
+    const { role, roleId, inviteStatus } = after as {
+      role?: string;
+      roleId?: string;
+      inviteStatus?: string;
+    };
+
+    if (before.inviteStatus === after.inviteStatus) {
+      console.log(`[onusercommitteeupdated] inviteStatus unchanged, skipping`);
+      return;
+    }
+
+    if (!role || !roleId) {
+      console.error(`No role or roleId at users/${userId}/committees/${committeeId}`);
+      return;
+
+    }const subcol = role === 'staff' ? 'staff' : 'delegates';
+    const docPath = `committees/${committeeId}/${subcol}/${roleId}`;
+    console.log(
+      `[onusercommitteeupdated] changing inviteStatus="${inviteStatus}" to ${docPath}`,
+    );
+    await admin.firestore().doc(docPath).update({ inviteStatus });
   },
 );

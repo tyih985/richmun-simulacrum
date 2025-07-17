@@ -9,11 +9,13 @@ import {
   committeePath,
   committeeDelegatePath,
   committeeStaffMemberPath,
+  committeeDirectivePath,
+  committeeMotionPath,
   userCommitteesPath,
   userCommitteePath,
 } from '@packages/firestorePaths';
 import { collection, getDocs } from 'firebase/firestore';
-import { Role, StaffRole } from 'src/features/types';
+import { Role, StaffRole, InviteStatus, AttendanceStatus, DirectiveStatus, MotionType } from 'src/features/types';
 
 export const committeeMutations = () => {
   const createCommittee = (
@@ -61,9 +63,10 @@ export const committeeMutations = () => {
     committeeId: string,
     role: Role,
     roleId: string,
+    inviteStatus: InviteStatus = 'pending',
   ) => {
     const path = userCommitteePath(uid, committeeId);
-    return createFirestoreDocument(path, { role, roleId }, true);
+    return createFirestoreDocument(path, { role, roleId, inviteStatus }, true);
   };
 
   const getUserCommittees = (
@@ -86,9 +89,10 @@ export const committeeMutations = () => {
     owner: boolean = false,
     staffRole: StaffRole,
     email: string,
+    inviteStatus: InviteStatus = 'pending',
   ) => {
     const path = committeeStaffMemberPath(committeeId, staffId);
-    return createFirestoreDocument(path, { owner, staffRole: staffRole, email }, true);
+    return createFirestoreDocument(path, { owner, staffRole, email, inviteStatus }, true);
   };
 
   const removeStaffFromCommittee = (committeeId: string, staffId: string) => {
@@ -98,17 +102,68 @@ export const committeeMutations = () => {
 
   const addDelegateToCommittee = (
     committeeId: string,
-    delegateEmail: string,
+    delegateId: string,
     name: string,
     email: string,
+    inviteStatus: InviteStatus = 'pending',
+    minutes: number = 0,
+    positionPaperSent = false,
+    attendanceStatus: AttendanceStatus = 'absent',
+    spoke: boolean = false,
   ) => {
-    const path = committeeDelegatePath(committeeId, delegateEmail);
-    return createFirestoreDocument(path, { name, email }, true);
+    const path = committeeDelegatePath(committeeId, delegateId);
+    return createFirestoreDocument(path, { name, email, inviteStatus, minutes, positionPaperSent, attendanceStatus, spoke }, true);
   };
 
-  const removeDelegateFromCommittee = (committeeId: string, delegateEmail: string) => {
-    const path = committeeDelegatePath(committeeId, delegateEmail);
+  const removeDelegateFromCommittee = (committeeId: string, delegateId: string) => {
+    const path = committeeDelegatePath(committeeId, delegateId);
     return deleteFirestoreDocument(path);
+  };
+
+  const addDirectiveToCommittee = (
+    committeeId: string,
+    directiveId: string,
+    title: string,
+    description: string,
+    privateStatus: boolean,
+    sponsors: string[],
+    signatories: string[],
+    passed: DirectiveStatus = 'pending',
+    read: boolean = false,
+    upVotes: number = 0,
+  ) => {
+    const path = committeeDirectivePath(committeeId, directiveId);
+    if (privateStatus) {
+      return createFirestoreDocument(path, { directiveId, title, description, privateStatus, sponsors, signatories, passed, read }, true);
+    }
+    return createFirestoreDocument(path, { directiveId, title, description, privateStatus, sponsors, signatories, passed, read, upVotes }, true);
+  };
+
+  const removeDirectiveFromCommittee = (committeeId: string, directiveId: string) => {
+    const path = committeeDirectivePath(committeeId, directiveId);
+    return deleteFirestoreDocument(path);
+  };
+
+  const addCommitteeMotion = (
+    committeeId: string,
+    motionId: string,
+    delegate: string,
+    type: MotionType,
+    totalTime?: number,
+    speakingTime?: number,
+  ) => {
+  const path = committeeMotionPath(committeeId, motionId);
+  const data: any = {
+    delegate,
+    type,
+  };
+  if (totalTime !== undefined) {
+    data.totalTime = totalTime;
+  }
+  if (speakingTime !== undefined) {
+    data.speakingTime = speakingTime;
+  }
+  return createFirestoreDocument(path, data, true);
   };
 
   const ultimateConsoleLog = async (): Promise<void> => {

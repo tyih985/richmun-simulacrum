@@ -54,3 +54,18 @@ export const committeeMapBackgroundNodesPath = (committeeId: string, mapId: stri
 export const userCommitteesPath = (userId: string) => `users/${userId}/committees`;
 export const userCommitteePath = (userId: string, committeeId: string) =>
   `users/${userId}/committees/${committeeId}`;
+
+export const committeeDelegateDirectivesPath = (committeeId: string, delegateId: string) =>
+  `committees/${committeeId}/delegates/${delegateId}/directives`;
+export const committeeDelegateDirectivePath = (committeeId: string, delegateId: string, directiveId: string) =>
+  `committees/${committeeId}/delegates/${delegateId}/directives/${directiveId}`;
+
+export const committeeDirectivesPath = (committeeId: string) =>
+  `committees/${committeeId}/directives`;
+export const committeeDirectivePath = (committeeId: string, directiveId: string) =>
+  `committees/${committeeId}/directives/${directiveId}`;
+
+export const committeeMotionsPath = (committeeId: string) =>
+  `committees/${committeeId}/motions`;
+export const committeeMotionPath = (committeeId: string, motionId: string) =>
+  `committees/${committeeId}/motions/${motionId}`;
