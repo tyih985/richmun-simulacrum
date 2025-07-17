@@ -29,6 +29,52 @@ export type InviteStatus = 'accepted' | 'rejected' | 'pending';
 export type AttendanceStatus = 'present' | 'absent' | 'excused';
 export type DirectiveStatus = 'passed' | 'failed' | 'pending';
 export type MotionType = 'unmoderated' | 'moderated' | 'round table';
+export type UserCommittee = {
+  committeeId: string;
+  role: Role;
+  roleId: string;
+  inviteStatus: InviteStatus;
+  staffRole?: StaffRole;
+};
+
+export type StaffDoc = {
+  staffId: string;
+  owner: boolean;
+  staffRole: StaffRole;
+  email: string;
+  inviteStatus: InviteStatus;
+};
+
+export type DelegateDoc = {
+  delegateId: string;
+  name: string;
+  email: string;
+  inviteStatus: InviteStatus;
+  minutes: number;
+  positionPaperSent: boolean;
+  attendanceStatus: AttendanceStatus;
+  spoke: boolean;
+};
+
+export type DirectiveDoc = {
+  directiveId: string;
+  title: string;
+  description: string;
+  privateStatus: boolean;
+  sponsors: string[];
+  signatories: string[];
+  passed: DirectiveStatus;
+  read: boolean;
+  upVotes?: number;
+};
+
+export type MotionDoc = {
+  motionId: string;
+  delegate: string;
+  type: MotionType;
+  totalTime?: number;
+  speakingTime?: number;
+};
 
 export const ROLE_OPTIONS = ['director', 'assistant director', 'flex staff'] as const;
 export type RoleOption = (typeof ROLE_OPTIONS)[number];

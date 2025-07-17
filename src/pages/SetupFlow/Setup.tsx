@@ -3,7 +3,7 @@ import '@mantine/dates/styles.css';
 import { useForm } from '@mantine/form';
 import { Container, Stack, Button, Flex, Stepper, Box, Loader } from '@mantine/core';
 import { IconArrowRight } from '@tabler/icons-react';
-import { committeeMutations } from '@mutations/setUpMutation';
+import { committeeMutations } from '@mutations/committeeMutation.ts';
 import {
   generateCommitteeId,
   generateDelegateId,
@@ -20,7 +20,6 @@ const {
   addStaffToCommittee,
   addDelegateToCommittee,
   addUserCommittee,
-  ultimateConsoleLog,
 } = committeeMutations();
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
