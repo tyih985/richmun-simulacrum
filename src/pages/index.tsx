@@ -6,6 +6,14 @@ import { Branding } from './Branding';
 import { Setup } from './SetupFlow/Setup.tsx';
 import { AuthRoutes } from './Auth';
 import { CommitteeRoutes } from './Committee.tsx';
+import { Caucus } from './Caucus';
+import { Dashboard } from './Dashboard';
+import { CommitteeDash } from './CommitteeDash';
+import { DirectiveHistory } from './DirectiveHistory';
+import { DirectiveInbox } from './DirectiveInbox';
+import { MakeDirective } from './MakeDirective';
+import { Motions } from './Motions';
+import { RollCall } from './RollCall';
 
 export const RootRoutes = () => {
   const { isChecking, isLoggedIn } = useSession();
@@ -57,5 +65,13 @@ const stableAccessRoutes = (
     <Route path="/debugger" element={<Debugger />} />
     <Route path="/branding" element={<Branding />} />
     <Route path="/setup" element={<Setup />} />
+    <Route path="/dashboard" element={<Dashboard />} />
+    <Route path="/caucus" element={<Caucus />} />
+    <Route path="/committee/dashboard" element={<CommitteeDash />} />
+    <Route path="/directive/history" element={<DirectiveHistory />} />
+    <Route path="/directive/inbox" element={<DirectiveInbox />} />
+    <Route path="/directive/make" element={<MakeDirective />} />
+    <Route path="/motions" element={<Motions />} />
+    <Route path="/rollcall" element={<RollCall />} />
   </>
 );
