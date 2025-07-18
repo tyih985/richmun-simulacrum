@@ -3,11 +3,15 @@ import { IconDoorExit, IconTrash } from '@tabler/icons-react';
 import { CommitteeType } from '@types';
 import { ReactElement, useState } from 'react';
 
+
+
 type Props = {
   committee: CommitteeType;
 };
 
+
 export const CommitteeRow = ({ committee }: Props): ReactElement => {
+
   const [hovered, setHovered] = useState(false);
 
   return (
