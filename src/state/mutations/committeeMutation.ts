@@ -14,8 +14,14 @@ import {
   userCommitteesPath,
   userCommitteePath,
 } from '@packages/firestorePaths';
-import { collection, getDocs } from 'firebase/firestore';
-import { Role, StaffRole, InviteStatus, AttendanceStatus, DirectiveStatus, MotionType } from 'src/features/types';
+import {
+  Role,
+  StaffRole,
+  InviteStatus,
+  AttendanceStatus,
+  DirectiveStatus,
+  MotionType,
+} from 'src/features/types';
 
 export const committeeMutations = () => {
   const createCommittee = (
@@ -33,26 +39,6 @@ export const committeeMutations = () => {
     );
   };
 
-  const getCommittee = async (
-    committeeId: string,
-  ): Promise<{
-    id: string;
-    longName: string;
-    shortName: string;
-    startDate: Date;
-    endDate: Date;
-  } | null> => {
-    const path = committeePath(committeeId);
-    const doc = await getFirestoreDocument<{
-      longName: string;
-      shortName: string;
-      startDate: Date;
-      endDate: Date;
-    }>(path);
-    if (!doc) return null;
-    return { id: committeeId, ...doc };
-  };
-
   const deleteCommittee = (committeeId: string) => {
     const path = committeePath(committeeId);
     return deleteFirestoreDocument(path);
@@ -67,15 +53,6 @@ export const committeeMutations = () => {
   ) => {
     const path = userCommitteePath(uid, committeeId);
     return createFirestoreDocument(path, { role, roleId, inviteStatus }, true);
-  };
-
-  const getUserCommittees = (
-    uid: string,
-  ): Promise<Array<{ committeeId: string; role: Role }>> => {
-    const path = userCommitteesPath(uid);
-    return getFirestoreCollection<{ id: string; role: Role; roleId: string }>(path).then(
-      (docs) => docs.map((d) => ({ committeeId: d.id, role: d.role, roleId: d.roleId })),
-    );
   };
 
   const removeUserCommittee = (uid: string, committeeId: string) => {
@@ -112,7 +89,11 @@ export const committeeMutations = () => {
     spoke: boolean = false,
   ) => {
     const path = committeeDelegatePath(committeeId, delegateId);
-    return createFirestoreDocument(path, { name, email, inviteStatus, minutes, positionPaperSent, attendanceStatus, spoke }, true);
+    return createFirestoreDocument(
+      path,
+      { name, email, inviteStatus, minutes, positionPaperSent, attendanceStatus, spoke },
+      true,
+    );
   };
 
   const removeDelegateFromCommittee = (committeeId: string, delegateId: string) => {
@@ -134,9 +115,36 @@ export const committeeMutations = () => {
   ) => {
     const path = committeeDirectivePath(committeeId, directiveId);
     if (privateStatus) {
-      return createFirestoreDocument(path, { directiveId, title, description, privateStatus, sponsors, signatories, passed, read }, true);
+      return createFirestoreDocument(
+        path,
+        {
+          directiveId,
+          title,
+          description,
+          privateStatus,
+          sponsors,
+          signatories,
+          passed,
+          read,
+        },
+        true,
+      );
     }
-    return createFirestoreDocument(path, { directiveId, title, description, privateStatus, sponsors, signatories, passed, read, upVotes }, true);
+    return createFirestoreDocument(
+      path,
+      {
+        directiveId,
+        title,
+        description,
+        privateStatus,
+        sponsors,
+        signatories,
+        passed,
+        read,
+        upVotes,
+      },
+      true,
+    );
   };
 
   const removeDirectiveFromCommittee = (committeeId: string, directiveId: string) => {
@@ -152,18 +160,18 @@ export const committeeMutations = () => {
     totalTime?: number,
     speakingTime?: number,
   ) => {
-  const path = committeeMotionPath(committeeId, motionId);
-  const data: any = {
-    delegate,
-    type,
-  };
-  if (totalTime !== undefined) {
-    data.totalTime = totalTime;
-  }
-  if (speakingTime !== undefined) {
-    data.speakingTime = speakingTime;
-  }
-  return createFirestoreDocument(path, data, true);
+    const path = committeeMotionPath(committeeId, motionId);
+    const data: any = {
+      delegate,
+      type,
+    };
+    if (totalTime !== undefined) {
+      data.totalTime = totalTime;
+    }
+    if (speakingTime !== undefined) {
+      data.speakingTime = speakingTime;
+    }
+    return createFirestoreDocument(path, data, true);
   };
 
   const removeCommitteeMotion = (committeeId: string, motionId: string) => {
@@ -173,6 +181,7 @@ export const committeeMutations = () => {
 
   return {
     createCommittee,
+    deleteCommittee,
     addUserCommittee,
     removeUserCommittee,
     addStaffToCommittee,

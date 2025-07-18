@@ -55,10 +55,15 @@ export const userCommitteesPath = (userId: string) => `users/${userId}/committee
 export const userCommitteePath = (userId: string, committeeId: string) =>
   `users/${userId}/committees/${committeeId}`;
 
-export const committeeDelegateDirectivesPath = (committeeId: string, delegateId: string) =>
-  `committees/${committeeId}/delegates/${delegateId}/directives`;
-export const committeeDelegateDirectivePath = (committeeId: string, delegateId: string, directiveId: string) =>
-  `committees/${committeeId}/delegates/${delegateId}/directives/${directiveId}`;
+export const committeeDelegateDirectivesPath = (
+  committeeId: string,
+  delegateId: string,
+) => `committees/${committeeId}/delegates/${delegateId}/directives`;
+export const committeeDelegateDirectivePath = (
+  committeeId: string,
+  delegateId: string,
+  directiveId: string,
+) => `committees/${committeeId}/delegates/${delegateId}/directives/${directiveId}`;
 
 export const committeeDirectivesPath = (committeeId: string) =>
   `committees/${committeeId}/directives`;
