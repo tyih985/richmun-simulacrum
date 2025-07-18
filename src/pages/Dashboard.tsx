@@ -9,10 +9,11 @@ import { useSession } from "@hooks/useSession";
 import { committeeQueries } from "@mutations/yeahglo";
 import { UserCommitteeDoc } from "@features/types";
 import { getCommitteesForUser } from "@features/dashboard/utils";
-import { auth } from "@packages/firebase/firebaseAuth";
+import { auth } from '@packages/firebase/firebaseAuth';
 
       
 const uid = auth.currentUser?.uid;
+console.log('Current User ID:', uid);
 
 const name = 'name'; // TODO: get name from db
 
@@ -63,7 +64,7 @@ export const Dashboard = (): ReactElement => {
                 <ActionIcon size="xl" variant="filled" aria-label="Profile" radius={"xl"}> 
                     <IconUser style={{ width: '70%', height: '70%' }} stroke={2} />
                 </ActionIcon>
-                <Title order={1} flex={1}>Welcome Back!</Title> 
+                <Title order={1} flex={1}>Welcome Back! {uid}</Title> 
                 <Button 
                 size="sm" 
                 variant="filled"
@@ -75,6 +76,10 @@ export const Dashboard = (): ReactElement => {
             <Divider></Divider>
             <Stack m="xl" p="xl">
                 <Title order={3}>Your committees</Title>
+                <Text size="sm" color="dimmed">
+                    You are a member of {userCommittees.length} committees.
+                </Text>
+                {/* <Text size="sm" color="dimmed">{userCommittees}</Text> */}
                 {/* add filter? */}
                 <Stack p="lg">
                     <Table>

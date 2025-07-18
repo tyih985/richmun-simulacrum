@@ -7,7 +7,8 @@ export const getCommitteesForUser = async (
 ) => {
   // Get all user-committee relationships
   const userCommittees: UserCommitteeDoc[] = await committeeQueries.getUserCommittees(uid);
-
+  console.log('User Committees:', userCommittees);
+  
   // Filter by invite status
   const filtered = userCommittees.filter((uc) => uc.inviteStatus === status);
 

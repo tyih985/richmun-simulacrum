@@ -48,6 +48,16 @@ export const RootRoutes = () => {
         {stableAccessRoutes}
         <Route path="/c/*" element={<CommitteeRoutes />} />
         <Route path="/*" element={<Navigate to="/c" />} />
+        <Route path="/setup" element={<Setup />} />
+        <Route path="/speakers" element={<Speakers />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/caucus" element={<Caucus />} />
+        <Route path="/committee/dashboard" element={<CommitteeDash />} />
+        <Route path="/directive/history" element={<DirectiveHistory />} />
+        <Route path="/directive/inbox" element={<DirectiveInbox />} />
+        <Route path="/directive/make" element={<MakeDirective />} />
+        <Route path="/motions" element={<Motions />} />
+        <Route path="/rollcall" element={<RollCall />} />
       </Routes>
     );
 
@@ -65,15 +75,5 @@ const stableAccessRoutes = (
   <>
     <Route path="/debugger" element={<Debugger />} />
     <Route path="/branding" element={<Branding />} />
-    <Route path="/setup" element={<Setup />} />
-    <Route path="/dashboard" element={<Dashboard />} />
-    <Route path="/speakers" element={<Speakers />} />
-    <Route path="/caucus" element={<Caucus />} />
-    <Route path="/committee/dashboard" element={<CommitteeDash />} />
-    <Route path="/directive/history" element={<DirectiveHistory />} />
-    <Route path="/directive/inbox" element={<DirectiveInbox />} />
-    <Route path="/directive/make" element={<MakeDirective />} />
-    <Route path="/motions" element={<Motions />} />
-    <Route path="/rollcall" element={<RollCall />} />
   </>
 );

@@ -53,7 +53,7 @@ export const Setup = (): ReactElement => {
         startDate!,
         endDate!,
       );
-
+      
       const ownerUid = auth.currentUser?.uid || '';
       const ownerEmail = auth.currentUser?.email?.toLowerCase() || '';
       if (ownerEmail) {
