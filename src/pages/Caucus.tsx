@@ -1,12 +1,10 @@
-import { ReactElement } from "react"
+import { ReactElement } from 'react';
 import { Stack, Text } from '@mantine/core';
 
 export const Caucus = (): ReactElement => {
-
-    return (
-        <Stack p="lg">
-            <Text size="xl">Hello World</Text>
-            
-        </Stack>
-    )
-}
+  return (
+    <Stack p="lg">
+      <Text size="xl">Hello World</Text>
+    </Stack>
+  );
+};

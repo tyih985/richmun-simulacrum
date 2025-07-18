@@ -28,10 +28,12 @@ export const CommitteeRow = ({ committee }: Props): ReactElement => {
       <Table.Td>
         <Text>{'committee.role'}</Text>
       </Table.Td>
-      <Table.Td style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <Table.Td
+        style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+      >
         <Text>{'committee.date'}</Text>
         <ActionIcon
-            variant='subtle'
+          variant="subtle"
           style={{
             opacity: hovered ? 1 : 0,
             pointerEvents: hovered ? 'auto' : 'none',
@@ -46,4 +48,6 @@ export const CommitteeRow = ({ committee }: Props): ReactElement => {
   );
 };
 
-{/* <CloseButton variant="outline" onClick={() => {console.log('remove row haha..')}} /> */}
+{
+  /* <CloseButton variant="outline" onClick={() => {console.log('remove row haha..')}} /> */
+}

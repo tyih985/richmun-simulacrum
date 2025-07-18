@@ -25,9 +25,7 @@ import {
 } from 'src/features/types';
 
 export const committeeQueries = {
-  getCommittee: async (
-    committeeId: string,
-  ): Promise<CommitteeDoc | null> => {
+  getCommittee: async (committeeId: string): Promise<CommitteeDoc | null> => {
     const path = committeePath(committeeId);
     const doc = await getFirestoreDocument<{
       longName: string;
@@ -39,9 +37,7 @@ export const committeeQueries = {
     return { committeeId, ...doc };
   },
 
-  getUserCommittees: async (
-    uid: string,
-  ): Promise<UserCommitteeDoc[]> => {
+  getUserCommittees: async (uid: string): Promise<UserCommitteeDoc[]> => {
     const path = userCommitteesPath(uid);
     const docs = await getFirestoreCollection<UserCommitteeDoc>(path);
     return Promise.all(
@@ -75,9 +71,7 @@ export const committeeQueries = {
     return { staffId, ...doc };
   },
 
-  getCommitteeStaff: async (
-    committeeId: string,
-  ): Promise<StaffDoc[]> => {
+  getCommitteeStaff: async (committeeId: string): Promise<StaffDoc[]> => {
     const path = committeeStaffPath(committeeId);
     const docs = await getFirestoreCollection<StaffDoc>(path);
     return docs.map((d) => ({
@@ -99,9 +93,7 @@ export const committeeQueries = {
     return { delegateId, ...doc };
   },
 
-  getCommitteeDelegates: async (
-    committeeId: string,
-  ): Promise<DelegateDoc[]> => {
+  getCommitteeDelegates: async (committeeId: string): Promise<DelegateDoc[]> => {
     const path = committeeDelegatesPath(committeeId);
     const docs = await getFirestoreCollection<DelegateDoc>(path);
     return docs.map((d) => ({
@@ -126,9 +118,7 @@ export const committeeQueries = {
     return { directiveId, ...doc };
   },
 
-  getCommitteeDirectives: async (
-    committeeId: string,
-  ): Promise<DirectiveDoc[]> => {
+  getCommitteeDirectives: async (committeeId: string): Promise<DirectiveDoc[]> => {
     const path = committeeDirectivesPath(committeeId);
     const docs = await getFirestoreCollection<DirectiveDoc>(path);
     return docs.map((d) => ({
@@ -154,9 +144,7 @@ export const committeeQueries = {
     return { motionId, ...doc };
   },
 
-  getCommitteeMotions: async (
-    committeeId: string,
-  ): Promise<MotionDoc[]> => {
+  getCommitteeMotions: async (committeeId: string): Promise<MotionDoc[]> => {
     const path = committeeMotionsPath(committeeId);
     const docs = await getFirestoreCollection<MotionDoc>(path);
     return docs.map((d) => ({

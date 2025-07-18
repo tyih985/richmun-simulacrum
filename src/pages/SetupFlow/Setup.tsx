@@ -15,12 +15,8 @@ import { StepTwo } from '@features/setup/components/StepTwo.tsx';
 import { StepThree } from '@features/setup/components/StepThree.tsx';
 import { Delegate, RoleOption, Staff } from '@features/types';
 
-const {
-  createCommittee,
-  addStaffToCommittee,
-  addDelegateToCommittee,
-  addUserCommittee,
-} = committeeMutations();
+const { createCommittee, addStaffToCommittee, addDelegateToCommittee, addUserCommittee } =
+  committeeMutations();
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export const Setup = (): ReactElement => {

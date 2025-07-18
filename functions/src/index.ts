@@ -100,7 +100,7 @@ export const ondelegateemailupdated = onDocumentUpdated(
       console.log(`[onstaffemailupdated] email unchanged, skipping`);
       return;
     }
-    
+
     if (beforeEmail && beforeEmail !== afterEmail) {
       const beforeUid = await getOrCreateUidFromEmail(beforeEmail);
       await admin.firestore().doc(`users/${beforeUid}/committees/${cid}`).delete();
@@ -270,8 +270,8 @@ export const onusercommitteeinviteupdated = onDocumentUpdated(
     if (!role || !roleId) {
       console.error(`No role or roleId at users/${userId}/committees/${committeeId}`);
       return;
-
-    }const subcol = role === 'staff' ? 'staff' : 'delegates';
+    }
+    const subcol = role === 'staff' ? 'staff' : 'delegates';
     const docPath = `committees/${committeeId}/${subcol}/${roleId}`;
     console.log(
       `[onusercommitteeupdated] changing inviteStatus="${inviteStatus}" to ${docPath}`,
