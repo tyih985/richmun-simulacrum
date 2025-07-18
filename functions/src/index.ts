@@ -129,13 +129,14 @@ export const onstaffcreated = onDocumentCreated(
     const data = snap.data() as any;
     const email = (data.email || '').trim().toLowerCase();
     const staffRole = (data.staffRole || '').trim().toLowerCase();
+    const inviteStatus = (data.inviteStatus as 'accepted' | 'pending' | 'rejected') || 'pending';
     await handleCommitteeWrite(
       email,
       event.params.committeeId,
       'staff',
       event.params.staffId,
       staffRole,
-      'pending',
+      inviteStatus,
     );
   },
 );

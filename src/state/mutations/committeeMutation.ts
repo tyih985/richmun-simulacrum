@@ -1,9 +1,6 @@
-import { firestoreDb } from '@packages/firebase/firestoreDb';
 import {
   createFirestoreDocument,
   deleteFirestoreDocument,
-  getFirestoreDocument,
-  getFirestoreCollection,
 } from '@packages/firestoreAsQuery/firestoreRequests';
 import {
   committeePath,
@@ -11,7 +8,6 @@ import {
   committeeStaffMemberPath,
   committeeDirectivePath,
   committeeMotionPath,
-  userCommitteesPath,
   userCommitteePath,
 } from '@packages/firestorePaths';
 import {
@@ -49,7 +45,7 @@ export const committeeMutations = () => {
     committeeId: string,
     role: Role,
     roleId: string,
-    inviteStatus: InviteStatus = 'pending',
+    inviteStatus: InviteStatus,
   ) => {
     const path = userCommitteePath(uid, committeeId);
     return createFirestoreDocument(path, { role, roleId, inviteStatus }, true);
