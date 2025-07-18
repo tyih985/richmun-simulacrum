@@ -29,12 +29,20 @@ export type InviteStatus = 'accepted' | 'rejected' | 'pending';
 export type AttendanceStatus = 'present' | 'absent' | 'excused';
 export type DirectiveStatus = 'passed' | 'failed' | 'pending';
 export type MotionType = 'unmoderated' | 'moderated' | 'round table';
-export type UserCommittee = {
+export type UserCommitteeDoc = {
   committeeId: string;
   role: Role;
   roleId: string;
   inviteStatus: InviteStatus;
   staffRole?: StaffRole;
+};
+
+export type CommitteeDoc = {
+  committeeId: string;
+  longName: string;
+  shortName: string;
+  startDate: Date;
+  endDate: Date;
 };
 
 export type StaffDoc = {
