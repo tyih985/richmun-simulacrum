@@ -1,4 +1,4 @@
-import { InviteStatus, UserCommittee } from "@features/types";
+import { InviteStatus, UserCommitteeDoc } from "@features/types";
 import { committeeQueries } from "@mutations/yeahglo";
 
 export const getCommitteesForUser = async (
@@ -6,7 +6,7 @@ export const getCommitteesForUser = async (
   status: InviteStatus = 'accepted', // default is accepted
 ) => {
   // Get all user-committee relationships
-  const userCommittees: UserCommittee[] = await committeeQueries.getUserCommittees(uid);
+  const userCommittees: UserCommitteeDoc[] = await committeeQueries.getUserCommittees(uid);
 
   // Filter by invite status
   const filtered = userCommittees.filter((uc) => uc.inviteStatus === status);

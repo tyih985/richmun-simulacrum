@@ -14,6 +14,7 @@ import { DirectiveInbox } from './DirectiveInbox';
 import { MakeDirective } from './MakeDirective';
 import { Motions } from './Motions';
 import { RollCall } from './RollCall';
+import { Speakers } from './Speakers.tsx';
 
 export const RootRoutes = () => {
   const { isChecking, isLoggedIn } = useSession();
@@ -66,6 +67,7 @@ const stableAccessRoutes = (
     <Route path="/branding" element={<Branding />} />
     <Route path="/setup" element={<Setup />} />
     <Route path="/dashboard" element={<Dashboard />} />
+    <Route path="/speakers" element={<Speakers />} />
     <Route path="/caucus" element={<Caucus />} />
     <Route path="/committee/dashboard" element={<CommitteeDash />} />
     <Route path="/directive/history" element={<DirectiveHistory />} />

@@ -7,7 +7,7 @@ import { InviteCard } from "@features/dashboard/components/InviteCard";
 import { CommitteeType } from "@types";
 import { useSession } from "@hooks/useSession";
 import { committeeQueries } from "@mutations/yeahglo";
-import { UserCommittee } from "@features/types";
+import { UserCommitteeDoc } from "@features/types";
 import { getCommitteesForUser } from "@features/dashboard/utils";
 import { auth } from "@packages/firebase/firebaseAuth";
 
