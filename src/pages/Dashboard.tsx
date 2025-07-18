@@ -4,10 +4,6 @@ import { CommitteeRow } from "@features/dashboard/components/CommitteeRow";
 import { IconMail, IconPlus, IconUser } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import { InviteCard } from "@features/dashboard/components/InviteCard";
-import { CommitteeType } from "@types";
-import { useSession } from "@hooks/useSession";
-import { committeeQueries } from "@mutations/yeahglo";
-import { UserCommitteeDoc } from "@features/types";
 import { getCommitteesForUser } from "@features/dashboard/utils";
 import { auth } from '@packages/firebase/firebaseAuth';
 
@@ -92,7 +88,7 @@ export const Dashboard = (): ReactElement => {
                         </Table.Thead>
                         <Table.Tbody>
                             {userCommittees.map((committee) => (
-                            <CommitteeRow key={committee.committeeId} committee={committee}/>
+                            <CommitteeRow key={committee.id} committee={committee}/>
                             ))}
                         </Table.Tbody>
                     </Table>

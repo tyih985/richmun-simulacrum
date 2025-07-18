@@ -1,12 +1,12 @@
+import { CommitteeDoc } from '@features/types';
 import { Stack, Table, Text, ActionIcon } from '@mantine/core';
 import { IconDoorExit, IconTrash } from '@tabler/icons-react';
-import { CommitteeType } from '@types';
 import { ReactElement, useState } from 'react';
 
 
 
 type Props = {
-  committee: CommitteeType;
+  committee: CommitteeDoc;
 };
 
 
@@ -30,12 +30,12 @@ export const CommitteeRow = ({ committee }: Props): ReactElement => {
         </Stack>
       </Table.Td>
       <Table.Td>
-        <Text>{'committee.role'}</Text>
+        <Text>{committee.longName}</Text>
       </Table.Td>
       <Table.Td
         style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
       >
-        <Text>{'committee.date'}</Text>
+        {/* <Text>{committee.startDate.toDateString()}</Text> */}
         <ActionIcon
           variant="subtle"
           style={{

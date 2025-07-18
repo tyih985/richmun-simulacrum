@@ -30,7 +30,7 @@ export type AttendanceStatus = 'present' | 'absent' | 'excused';
 export type DirectiveStatus = 'passed' | 'failed' | 'pending';
 export type MotionType = 'unmoderated' | 'moderated' | 'round table';
 export type UserCommitteeDoc = {
-  committeeId: string;
+  id: string;
   role: Role;
   roleId: string;
   inviteStatus: InviteStatus;
@@ -38,7 +38,7 @@ export type UserCommitteeDoc = {
 };
 
 export type CommitteeDoc = {
-  committeeId: string;
+  id: string;
   longName: string;
   shortName: string;
   startDate: Date;
@@ -46,7 +46,7 @@ export type CommitteeDoc = {
 };
 
 export type StaffDoc = {
-  staffId: string;
+  id: string;
   owner: boolean;
   staffRole: StaffRole;
   email: string;
@@ -54,7 +54,7 @@ export type StaffDoc = {
 };
 
 export type DelegateDoc = {
-  delegateId: string;
+  id: string;
   name: string;
   email: string;
   inviteStatus: InviteStatus;
@@ -65,7 +65,7 @@ export type DelegateDoc = {
 };
 
 export type DirectiveDoc = {
-  directiveId: string;
+  id: string;
   title: string;
   description: string;
   privateStatus: boolean;
@@ -77,7 +77,7 @@ export type DirectiveDoc = {
 };
 
 export type MotionDoc = {
-  motionId: string;
+  id: string;
   delegate: string;
   type: MotionType;
   totalTime?: number;
