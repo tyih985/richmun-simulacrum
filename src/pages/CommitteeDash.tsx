@@ -1,10 +1,21 @@
 import { ReactElement } from 'react';
-import { Stack, Text } from '@mantine/core';
+import { Stack, Group, Text, Button } from '@mantine/core';
 
 export const CommitteeDash = (): ReactElement => {
+
   return (
     <Stack p="lg">
-      <Text size="xl">Hello World</Text>
+      <Group>
+        <Stack flex={1}>
+          <Text size="xl">
+            Committee
+          </Text>
+          <Text size="sm">
+            Poop
+          </Text>
+        </Stack>
+        <Button></Button>
+      </Group>
     </Stack>
   );
 };
