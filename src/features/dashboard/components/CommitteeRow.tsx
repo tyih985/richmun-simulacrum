@@ -1,6 +1,7 @@
-import { CommitteeDoc } from '@features/types';
+import { CommitteeDoc, UserCommitteeDoc } from '@features/types';
 import { Stack, Table, Text, ActionIcon } from '@mantine/core';
 import { IconDoorExit, IconTrash } from '@tabler/icons-react';
+import dayjs from 'dayjs';
 import { ReactElement, useState } from 'react';
 
 
@@ -30,12 +31,12 @@ export const CommitteeRow = ({ committee }: Props): ReactElement => {
         </Stack>
       </Table.Td>
       <Table.Td>
-        <Text>{committee.longName}</Text>
+        <Text>{'committee.role'}</Text>
       </Table.Td>
-      <Table.Td
-        style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
-      >
-        {/* <Text>{committee.startDate.toDateString()}</Text> */}
+      <Table.Td> 
+        <Text>{'committee.startDate'}</Text>
+      </Table.Td>
+      <Table.Td>
         <ActionIcon
           variant="subtle"
           style={{
