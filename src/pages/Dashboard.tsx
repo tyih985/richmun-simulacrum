@@ -72,7 +72,7 @@ export const Dashboard = (): ReactElement => {
             <Divider></Divider>
             <Stack m="xl" p="xl">
                 <Title order={3}>Your committees</Title>
-                <Text size="sm" color="dimmed">
+                <Text size="sm" c="dimmed">
                     You are a member of {userCommittees.length} committees.
                 </Text>
                 {/* <Text size="sm" color="dimmed">{userCommittees}</Text> */}
