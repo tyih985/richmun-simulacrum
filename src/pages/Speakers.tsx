@@ -1,11 +1,12 @@
 import { ReactElement, useState } from 'react';
-import { Group, SegmentedControl, Stack, Text, Title } from '@mantine/core';
+import { Center, Group, SegmentedControl, Stack, Text, Title } from '@mantine/core';
 import { DelegateTimer } from '@features/chairing/components/DelegateTimer';
 import { DelegateDoc } from '@features/types';
+import { AddSpeakers } from '@features/chairing/components/AddSpeakers';
 
 const mockDelegates: DelegateDoc[] = [
   {
-    delegateId: 'd1',
+    id: 'd1',
     name: 'Alice Johnson',
     email: 'alice@example.com',
     inviteStatus: 'accepted',
@@ -15,7 +16,7 @@ const mockDelegates: DelegateDoc[] = [
     spoke: true,
   },
   {
-    delegateId: 'd2',
+    id: 'd2',
     name: 'Ben Carson',
     email: 'ben@example.com',
     inviteStatus: 'pending',
@@ -25,7 +26,7 @@ const mockDelegates: DelegateDoc[] = [
     spoke: false,
   },
   {
-    delegateId: 'd3',
+    id: 'd3',
     name: 'Catherine Lee',
     email: 'catherine@example.com',
     inviteStatus: 'accepted',
@@ -40,7 +41,7 @@ export const Speakers = (): ReactElement => {
   const [listType, setListType] = useState<'primary' | 'secondary' | 'single'>('primary');
   
   return (
-    <Stack p="lg">
+    <Stack p="xl">
       <Stack align='flex-start'>
         <Title order={1}>
           Speakers
@@ -51,9 +52,9 @@ export const Speakers = (): ReactElement => {
         onChange={(value) => setListType(value as 'primary' | 'secondary' | 'single')}
         />
       </Stack>
-      
       <DelegateTimer delegate={mockDelegates[1]}></DelegateTimer>
-
+      <AddSpeakers delegates={mockDelegates}></AddSpeakers>
+      
 
     </Stack>
   );

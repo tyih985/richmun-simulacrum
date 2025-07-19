@@ -1,4 +1,4 @@
-import { Badge, Card, Group, Stack, Text } from "@mantine/core";
+import { Badge, Card, Group, Text } from "@mantine/core";
 import { CommitteeDoc, UserCommitteeDoc } from "@features/types";
 import { ReactElement } from "react";
 
@@ -7,7 +7,7 @@ type Props = {
   committee?: CommitteeDoc;
 };
 
-export const InviteCard = ({ invite, committee }: Props): ReactElement => {
+export const InviteCard = ({ committee }: Props): ReactElement => {
   return (
     <Card shadow="sm" padding="lg">
       <Group justify="space-between" mt="md" mb="xs" align="flex-start">
