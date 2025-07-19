@@ -1,7 +1,41 @@
 import { ReactElement, useState } from 'react';
 import { Button, Group, Stack, Text, Title } from '@mantine/core';
-import { MotionDoc } from '@features/types';
+import { DelegateDoc, MotionDoc } from '@features/types';
 import { Motion } from '@features/chairing/Motion';
+
+// TODO: get delegates from db
+const mockDelegates: DelegateDoc[] = [
+  {
+    id: 'd1',
+    name: 'Alice Johnson',
+    email: 'alice@example.com',
+    inviteStatus: 'accepted',
+    minutes: 12,
+    positionPaperSent: true,
+    attendanceStatus: 'present',
+    spoke: true,
+  },
+  {
+    id: 'd2',
+    name: 'Ben Carson',
+    email: 'ben@example.com',
+    inviteStatus: 'pending',
+    minutes: 0,
+    positionPaperSent: false,
+    attendanceStatus: 'absent',
+    spoke: false,
+  },
+  {
+    id: 'd3',
+    name: 'Catherine Lee',
+    email: 'catherine@example.com',
+    inviteStatus: 'accepted',
+    minutes: 5,
+    positionPaperSent: true,
+    attendanceStatus: 'excused',
+    spoke: false,
+  },
+];
 
 export const Motions = (): ReactElement => {
   const [motions, setMotions] = useState<MotionDoc[]>([]);
@@ -37,7 +71,7 @@ export const Motions = (): ReactElement => {
       {motions.length > 0 ? (
           <>
             {motions.map((motion, index) => (
-              <Motion></Motion>
+              <Motion delegates={mockDelegates}></Motion>
             ))}
             <Button color="red" onClick={clearMotions}>
               Clear Motions
