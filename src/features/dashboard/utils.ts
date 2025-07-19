@@ -16,7 +16,7 @@ export const getCommitteesForUser = async (
 
   // Fetch full committee data for each filtered committee
   const committeeData = await Promise.all(
-    filtered.map((uc) => committeeQueries.getCommittee(uc.committeeId))
+    filtered.map((uc) => committeeQueries.getCommittee(uc.id))
   );
 
   // Remove any null results (committees that weren't found)

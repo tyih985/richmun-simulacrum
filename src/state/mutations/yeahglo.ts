@@ -27,30 +27,27 @@ import {
 export const committeeQueries = {
   getCommittee: async (committeeId: string): Promise<CommitteeDoc | null> => {
     const path = committeePath(committeeId);
-    const doc = await getFirestoreDocument<{
-      longName: string;
-      shortName: string;
-      startDate: Date;
-      endDate: Date;
-    }>(path);
+    const doc = await getFirestoreDocument<Omit<CommitteeDoc, 'id'>>(path);
     if (!doc) return null;
-    return { committeeId, ...doc };
+    return { id: committeeId, ...doc };
   },
 
   getUserCommittees: async (uid: string): Promise<UserCommitteeDoc[]> => {
     const path = userCommitteesPath(uid);
-    const docs = await getFirestoreCollection<UserCommitteeDoc>(path);
+    const docs = await getFirestoreCollection<any>(path); // We'll cast after mapping.
+
     return Promise.all(
-      docs.map(async (d) => {
+      docs.map(async (d: any) => {
         const base: UserCommitteeDoc = {
-          committeeId: d.committeeId,
+          id: d.id,
           role: d.role,
           roleId: d.roleId,
           inviteStatus: d.inviteStatus,
         };
+
         if (d.role === 'staff') {
           const staffDoc = await getFirestoreDocument<{ staffRole: StaffRole }>(
-            committeeStaffMemberPath(d.committeeId, d.roleId),
+            committeeStaffMemberPath(d.id, d.roleId),
           );
           base.staffRole = staffDoc?.staffRole;
         }
@@ -65,22 +62,18 @@ export const committeeQueries = {
     staffId: string,
   ): Promise<StaffDoc | null> => {
     const path = committeeStaffMemberPath(committeeId, staffId);
-    const doc = await getFirestoreDocument<Omit<StaffDoc, 'staffId'>>(path);
-
+    const doc = await getFirestoreDocument<Omit<StaffDoc, 'id'>>(path);
     if (!doc) return null;
-    return { staffId, ...doc };
+    return { id: staffId, ...doc };
   },
 
   getCommitteeStaff: async (committeeId: string): Promise<StaffDoc[]> => {
     const path = committeeStaffPath(committeeId);
-    const docs = await getFirestoreCollection<StaffDoc>(path);
-    return docs.map((d) => ({
-      staffId: d.staffId,
-      owner: d.owner,
-      staffRole: d.staffRole,
-      email: d.email,
-      inviteStatus: d.inviteStatus,
-    }));
+    const docs = await getFirestoreCollection<any>(path);
+    return docs.map((doc: any) => ({
+      id: doc.id,
+      ...doc,
+    })) as StaffDoc[];
   },
 
   getCommitteeDelegate: async (
@@ -88,24 +81,18 @@ export const committeeQueries = {
     delegateId: string,
   ): Promise<DelegateDoc | null> => {
     const path = committeeDelegatePath(committeeId, delegateId);
-    const doc = await getFirestoreDocument<Omit<DelegateDoc, 'delegateId'>>(path);
+    const doc = await getFirestoreDocument<Omit<DelegateDoc, 'id'>>(path);
     if (!doc) return null;
-    return { delegateId, ...doc };
+    return { id: delegateId, ...doc };
   },
 
   getCommitteeDelegates: async (committeeId: string): Promise<DelegateDoc[]> => {
     const path = committeeDelegatesPath(committeeId);
-    const docs = await getFirestoreCollection<DelegateDoc>(path);
-    return docs.map((d) => ({
-      delegateId: d.delegateId,
-      name: d.name,
-      email: d.email,
-      inviteStatus: d.inviteStatus,
-      minutes: d.minutes,
-      positionPaperSent: d.positionPaperSent,
-      attendanceStatus: d.attendanceStatus,
-      spoke: d.spoke,
-    }));
+    const docs = await getFirestoreCollection<any>(path);
+    return docs.map((doc: any) => ({
+      id: doc.id,
+      ...doc,
+    })) as DelegateDoc[];
   },
 
   getCommitteeDirective: async (
@@ -113,25 +100,18 @@ export const committeeQueries = {
     directiveId: string,
   ): Promise<DirectiveDoc | null> => {
     const path = committeeDirectivePath(committeeId, directiveId);
-    const doc = await getFirestoreDocument<Omit<DirectiveDoc, 'directiveId'>>(path);
+    const doc = await getFirestoreDocument<Omit<DirectiveDoc, 'id'>>(path);
     if (!doc) return null;
-    return { directiveId, ...doc };
+    return { id: directiveId, ...doc };
   },
 
   getCommitteeDirectives: async (committeeId: string): Promise<DirectiveDoc[]> => {
     const path = committeeDirectivesPath(committeeId);
-    const docs = await getFirestoreCollection<DirectiveDoc>(path);
-    return docs.map((d) => ({
-      directiveId: d.directiveId,
-      title: d.title,
-      description: d.description,
-      privateStatus: d.privateStatus,
-      sponsors: d.sponsors,
-      signatories: d.signatories,
-      passed: d.passed,
-      read: d.read,
-      upVotes: d.upVotes,
-    }));
+    const docs = await getFirestoreCollection<any>(path);
+    return docs.map((doc: any) => ({
+      id: doc.id,
+      ...doc,
+    })) as DirectiveDoc[];
   },
 
   getCommitteeMotion: async (
@@ -139,20 +119,17 @@ export const committeeQueries = {
     motionId: string,
   ): Promise<MotionDoc | null> => {
     const path = committeeMotionPath(committeeId, motionId);
-    const doc = await getFirestoreDocument<Omit<MotionDoc, 'motionId'>>(path);
+    const doc = await getFirestoreDocument<Omit<MotionDoc, 'id'>>(path);
     if (!doc) return null;
-    return { motionId, ...doc };
+    return { id: motionId, ...doc };
   },
 
   getCommitteeMotions: async (committeeId: string): Promise<MotionDoc[]> => {
     const path = committeeMotionsPath(committeeId);
-    const docs = await getFirestoreCollection<MotionDoc>(path);
-    return docs.map((d) => ({
-      motionId: d.motionId,
-      delegate: d.delegate,
-      type: d.type,
-      totalTime: d.totalTime,
-      speakingTime: d.speakingTime,
-    }));
+    const docs = await getFirestoreCollection<any>(path);
+    return docs.map((doc: any) => ({
+      id: doc.id,
+      ...doc,
+    })) as MotionDoc[];
   },
 };
