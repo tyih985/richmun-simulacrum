@@ -1,19 +1,43 @@
 import { CommitteeDoc, UserCommitteeDoc } from '@features/types';
 import { Stack, Table, Text, ActionIcon } from '@mantine/core';
+import { committeeQueries } from '@mutations/yeahglo';
 import { IconDoorExit, IconTrash } from '@tabler/icons-react';
-import dayjs from 'dayjs';
-import { ReactElement, useState } from 'react';
+import { CommitteeType } from '@types';
+import { ReactElement, useEffect, useState } from 'react';
 
 
 
 type Props = {
-  committee: CommitteeDoc;
+  userCommittee: UserCommitteeDoc;
 };
 
+const { getCommittee } = committeeQueries;
 
-export const CommitteeRow = ({ committee }: Props): ReactElement => {
+export const CommitteeRow = ({ userCommittee }: Props): ReactElement => {
 
   const [hovered, setHovered] = useState(false);
+
+  useState<CommitteeType | null>(null);
+    const [committee, setCommittee] = useState<CommitteeDoc | null>(null); 
+  
+  
+     useEffect(() => {
+    // Fetch committee details using committeeId
+    const fetchCommitteeDetails = async () => {
+      try {
+        const committee = await getCommittee(userCommittee.id);
+        if (committee) {
+          setCommittee(committee);
+        } else {
+          console.error("Committee not found");
+        }
+      } catch (error) {
+        console.error("Error fetching committee details:", error);
+      }
+    };
+    fetchCommitteeDetails();
+  }, [userCommittee]);
+  
 
   return (
     <Table.Tr
@@ -22,8 +46,8 @@ export const CommitteeRow = ({ committee }: Props): ReactElement => {
     >
       <Table.Td>
         <Stack gap={2}>
-          <Text size="sm">{committee.shortName}</Text>
-          {committee.longName?.trim() && (
+          <Text size="sm">{committee ? committee.shortName : ''}</Text>
+          {committee && committee.longName?.trim() && (
             <Text size="xs" c="dimmed">
               ({committee.longName})
             </Text>
@@ -31,10 +55,10 @@ export const CommitteeRow = ({ committee }: Props): ReactElement => {
         </Stack>
       </Table.Td>
       <Table.Td>
-        <Text>{'committee.role'}</Text>
+        <Text>{userCommittee.role}</Text>
       </Table.Td>
       <Table.Td> 
-        <Text>{'committee.startDate'}</Text>
+        {/* <Text>{committee!.startDate ? committee!.startDate.toLocaleDateString() : ''}</Text> */}
       </Table.Td>
       <Table.Td>
         <ActionIcon

@@ -11,12 +11,15 @@ import { CommitteeDoc, UserCommitteeDoc } from "@features/types";
 import { getCommitteesForUser } from "@features/dashboard/utils";
 import { auth } from '@packages/firebase/firebaseAuth';
 
+const { getUserCommittees } = committeeQueries;
+
+
 export const Dashboard = (): ReactElement => {
     const uid = auth.currentUser?.uid;
     const [opened, { open, close }] = useDisclosure(false);
 
-    const [userCommittees, setUserCommittees] = useState<CommitteeDoc[]>([]);
-    const [userInvites, setUserInvites] = useState<CommitteeDoc[]>([]);
+    const [userCommittees, setUserCommittees] = useState<UserCommitteeDoc[]>([]);
+    const [userInvites, setUserInvites] = useState<UserCommitteeDoc[]>([]);
     const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -25,8 +28,11 @@ export const Dashboard = (): ReactElement => {
         const uid = user.uid;
 
         try {
-          const committees = await getCommitteesForUser(uid, 'accepted');
-          const invites = await getCommitteesForUser(uid, 'pending');
+          const allCommittees = await getUserCommittees(uid);
+
+          const committees = await getCommitteesForUser(allCommittees, 'accepted');
+
+          const invites = await getCommitteesForUser(allCommittees, 'pending');
 
           setUserCommittees(committees);
           setUserInvites(invites);
@@ -37,6 +43,7 @@ export const Dashboard = (): ReactElement => {
         }
       }
     });
+
 
     return () => unsubscribe();
   }, []);
@@ -84,7 +91,7 @@ export const Dashboard = (): ReactElement => {
                         </Table.Thead>
                         <Table.Tbody>
                             {userCommittees.map((committee) => (
-                            <CommitteeRow key={committee.id} committee={committee}/>
+                            <CommitteeRow key={committee.id} userCommittee={committee}/>
                             ))}
                         </Table.Tbody>
                     </Table>
