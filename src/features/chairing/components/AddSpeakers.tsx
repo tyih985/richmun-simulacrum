@@ -1,17 +1,53 @@
 import { DelegateDoc } from "@features/types";
 import { Button, MultiSelect, Stack, Text} from "@mantine/core";
-import { ReactElement } from "react";
+import { ReactElement, useState } from "react";
 
 type Props = {
   delegates: DelegateDoc[];
 };
 
 export const AddSpeakers = ({ delegates }: Props): ReactElement => {
-    const speakers: string[] = [];
+  const [speakers, setSpeakers] = useState<string[]>([]);
 
-    return (
-        <Stack>
-            {/* <MultiSelect data={delegates.map((d) => ({
+  const addSpeaker = (name: string) => {
+    if (!speakers.includes(name)) {
+      setSpeakers([...speakers, name]);
+      console.log(`Added ${name} as a speaker`);
+    }
+  };
+
+  const clearSpeakers = () => {
+    setSpeakers([]);
+  };
+
+  return (
+    <Stack>
+      {delegates.map((d) => (
+        <Button key={d.id} onClick={() => addSpeaker(d.name)}>
+          {d.name}
+        </Button>
+      ))}
+
+      <Stack>
+        <Text>Current Speakers:</Text>
+        {speakers.length > 0 ? (
+          <>
+            {speakers.map((speaker, index) => (
+              <Text key={index}>{speaker}</Text>
+            ))}
+            <Button color="red" onClick={clearSpeakers}>
+              Clear Speakers
+            </Button>
+          </>
+        ) : (
+          <Text c="dimmed">No speakers added yet.</Text>
+        )}
+      </Stack>
+    </Stack>
+  );
+};
+
+{/* <MultiSelect data={delegates.map((d) => ({
                 value: d.id,
                 label: `${d.name}`,
             }))}
@@ -22,35 +58,3 @@ export const AddSpeakers = ({ delegates }: Props): ReactElement => {
             maxDropdownHeight={400}
             size="md">
             </MultiSelect> */}
-            {delegates.map((d) => (
-                <Button onClick={() => {
-                speakers.push(d.name)
-                console.log(`Added ${d.name} as a speaker`);
-                console.log('Current speakers:', speakers);
-                }}>{d.name}</Button>
-            ))}
-
-            
-            <Stack>
-                <Text>Current Speakers:</Text>
-                {speakers.map((speaker, index) => (
-                    <Text key={index}>{speaker}</Text>
-                ))}
-                {speakers.length > 0 ? 
-                (
-                <>
-                    <Text>
-                        {speakers.join(', ')} 
-                        <br />
-                        <br />
-                    </Text>
-                    <Button onClick={() => speakers.splice(0, speakers.length)}>Clear Speakers</Button>
-                </>
-                )
-                : (<Text>'No speakers added yet.'</Text>)}
-            
-            </Stack>
-
-        </Stack>
-    )
-}
