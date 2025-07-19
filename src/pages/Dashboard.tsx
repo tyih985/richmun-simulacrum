@@ -1,109 +1,77 @@
-import { ReactElement, useEffect, useState } from "react"
-import { ActionIcon, Button, Divider, Drawer, Group, Stack, Table, Text, Title } from '@mantine/core';
-import { CommitteeRow } from "@features/dashboard/components/CommitteeRow";
+import { ReactElement } from "react";
+import { ActionIcon, Button, Divider, Drawer, Group, Stack, Table, Text, Title } from "@mantine/core";
 import { IconMail, IconPlus, IconUser } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
+import { useUserCommittees } from "@hooks/useUserCommittees";
+import { CommitteeRow } from "@features/dashboard/components/CommitteeRow";
 import { InviteCard } from "@features/dashboard/components/InviteCard";
-import { CommitteeType } from "@types";
-import { useSession } from "@hooks/useSession";
-import { committeeQueries } from "@mutations/yeahglo";
-import { CommitteeDoc, UserCommitteeDoc } from "@features/types";
-import { getCommitteesForUser } from "@features/dashboard/utils";
-import { auth } from '@packages/firebase/firebaseAuth';
-
-const { getUserCommittees } = committeeQueries;
-
+import { auth } from "@packages/firebase/firebaseAuth";
+import { UserCommitteeDoc } from "@features/types";
 
 export const Dashboard = (): ReactElement => {
-    const uid = auth.currentUser?.uid;
-    const [opened, { open, close }] = useDisclosure(false);
+  const uid = auth.currentUser?.uid;
+  const [opened, { open, close }] = useDisclosure(false);
 
-    const [userCommittees, setUserCommittees] = useState<UserCommitteeDoc[]>([]);
-    const [userInvites, setUserInvites] = useState<UserCommitteeDoc[]>([]);
-    const [loading, setLoading] = useState(true);
+  const { userCommittees, userInvites, committeeDocs, loading } = useUserCommittees(uid ?? "");
 
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (user) => {
-      if (user) {
-        const uid = user.uid;
+  if (loading) return <div>Loading...</div>;
 
-        try {
-          const allCommittees = await getUserCommittees(uid);
+  return (
+    <>
+      <Drawer opened={opened} onClose={close} title="Your Invites" position="right">
+        {userInvites.map((invite: UserCommitteeDoc) => (
+          <InviteCard
+            key={invite.id}
+            invite={invite}
+            committee={committeeDocs[invite.id]}
+          />
+        ))}
+      </Drawer>
 
-          const committees = await getCommitteesForUser(allCommittees, 'accepted');
-
-          const invites = await getCommitteesForUser(allCommittees, 'pending');
-
-          setUserCommittees(committees);
-          setUserInvites(invites);
-        } catch (error) {
-          console.error("Error fetching data:", error);
-        } finally {
-          setLoading(false);
-        }
-      }
-    });
-
-
-    return () => unsubscribe();
-  }, []);
-
-    if (loading) return <div>Loading...</div>;
-
-    return (
-        <>
-        <Drawer opened={opened} onClose={close} title="Your Invites" position="right">
-            {userInvites.map((invite) => (
-                            <InviteCard invite={invite}/>
-                            ))}
-        </Drawer>
-        
-        <Stack p="lg">
-            <Group>
-                <ActionIcon size="xl" variant="filled" aria-label="Profile" radius={"xl"}> 
-                    <IconUser style={{ width: '70%', height: '70%' }} stroke={2} />
-                </ActionIcon>
-                <Title order={1} flex={1}>Welcome Back! {uid}</Title> 
-                <Button 
-                size="sm" 
-                variant="filled"
-                onClick={open} 
-                rightSection={<IconMail stroke={2}/>}> 
-                    See Invites
-                </Button>
+      <Stack p="lg">
+        <Group>
+          <ActionIcon size="xl" variant="filled" aria-label="Profile" radius="xl">
+            <IconUser style={{ width: "70%", height: "70%" }} stroke={2} />
+          </ActionIcon>
+          <Title order={1} flex={1}>Welcome Back! {uid}</Title>
+          <Button size="sm" variant="filled" onClick={open} rightSection={<IconMail stroke={2} />}>
+            See Invites
+          </Button>
+        </Group>
+        <Divider />
+        <Stack m="xl" p="xl">
+          <Title order={3}>Your committees</Title>
+          <Text size="sm" color="dimmed">
+            You are a member of {userCommittees.length} committee(s).
+          </Text>
+          <Stack p="lg">
+            <Table>
+              <Table.Thead>
+                <Table.Tr>
+                  <Table.Th style={{ width: "30%" }}>name</Table.Th>
+                  <Table.Th>role</Table.Th>
+                  <Table.Th>date</Table.Th>
+                  <Table.Th />
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>
+                {userCommittees.map((uc) => (
+                  <CommitteeRow
+                    key={uc.id}
+                    committee={committeeDocs[uc.id]}
+                    userCommittee={uc}
+                  />
+                ))}
+              </Table.Tbody>
+            </Table>
+            <Group justify="flex-end">
+              <ActionIcon variant="filled" aria-label="Add Committee">
+                <IconPlus style={{ width: "70%", height: "70%" }} stroke={2} />
+              </ActionIcon>
             </Group>
-            <Divider></Divider>
-            <Stack m="xl" p="xl">
-                <Title order={3}>Your committees</Title>
-                <Text size="sm" color="dimmed">
-                    You are a member of {userCommittees.length} committees.
-                </Text>
-                {/* <Text size="sm" color="dimmed">{userCommittees}</Text> */}
-                {/* add filter? */}
-                <Stack p="lg">
-                    <Table>
-                        <Table.Thead>
-                            <Table.Tr>
-                            <Table.Th style={{ width: '30%' }}>name</Table.Th>
-                            <Table.Th>role</Table.Th>
-                            <Table.Th>date</Table.Th>
-                            </Table.Tr>
-                        </Table.Thead>
-                        <Table.Tbody>
-                            {userCommittees.map((committee) => (
-                            <CommitteeRow key={committee.id} userCommittee={committee}/>
-                            ))}
-                        </Table.Tbody>
-                    </Table>
-                    <Group justify="flex-end">
-                        <ActionIcon variant="filled" aria-label="Add Committee">
-                            <IconPlus style={{ width: '70%', height: '70%' }} stroke={2} />
-                        </ActionIcon>
-                    </Group>
-                    
-                </Stack>
-            </Stack>
+          </Stack>
         </Stack>
-        </>
-    )
-}
+      </Stack>
+    </>
+  );
+};
