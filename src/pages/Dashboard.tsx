@@ -1,51 +1,47 @@
-import { ReactElement } from "react"
+import { ReactElement, useEffect, useState } from "react"
 import { ActionIcon, Button, Divider, Drawer, Group, Stack, Table, Text, Title } from '@mantine/core';
 import { CommitteeRow } from "@features/dashboard/components/CommitteeRow";
 import { IconMail, IconPlus, IconUser } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import { InviteCard } from "@features/dashboard/components/InviteCard";
+import { CommitteeType } from "@types";
+import { useSession } from "@hooks/useSession";
+import { committeeQueries } from "@mutations/yeahglo";
+import { CommitteeDoc, UserCommitteeDoc } from "@features/types";
 import { getCommitteesForUser } from "@features/dashboard/utils";
 import { auth } from '@packages/firebase/firebaseAuth';
 
-      
-const uid = auth.currentUser?.uid;
-console.log('Current User ID:', uid);
-
-const name = 'name'; // TODO: get name from db
-
-// assumes uid is defined
-const userCommittees = await getCommitteesForUser(uid!, "accepted");
-const userInvites = await getCommitteesForUser(uid!, "pending");
-
 export const Dashboard = (): ReactElement => {
+    const uid = auth.currentUser?.uid;
+    const [opened, { open, close }] = useDisclosure(false);
 
-   const [opened, { open, close }] = useDisclosure(false);
+    const [userCommittees, setUserCommittees] = useState<CommitteeDoc[]>([]);
+    const [userInvites, setUserInvites] = useState<CommitteeDoc[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    // const userCommittees: CommitteeType[] = [
-    // {
-    //     id: '1',
-    //     shortName: 'HR',
-    //     longName: 'Human Resources',
-    // },
-    // {
-    //     id: '2',
-    //     shortName: 'IT',
-    //     longName: '',
-    // },
-    // ];
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        const uid = user.uid;
 
-    // const userInvites: CommitteeType[] = [
-    // {
-    //     id: '1',
-    //     shortName: 'HR',
-    //     longName: 'Human Resources',
-    // },
-    // {
-    //     id: '2',
-    //     shortName: 'IT',
-    //     longName: '',
-    // },
-    // ];
+        try {
+          const committees = await getCommitteesForUser(uid, 'accepted');
+          const invites = await getCommitteesForUser(uid, 'pending');
+
+          setUserCommittees(committees);
+          setUserInvites(invites);
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+    if (loading) return <div>Loading...</div>;
 
     return (
         <>

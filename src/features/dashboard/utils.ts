@@ -11,6 +11,8 @@ export const getCommitteesForUser = async (
   
   // Filter by invite status
   const filtered = userCommittees.filter((uc) => uc.inviteStatus === status);
+  console.log('User Committees:', userCommittees);
+  
 
   // Fetch full committee data for each filtered committee
   const committeeData = await Promise.all(
