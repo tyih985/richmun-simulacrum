@@ -12,7 +12,7 @@ export const DelegateTimer = ({ delegate }: Props): ReactElement => {
         <Stack>
             {/* <Text></Text> TODO: bc i realize the countriesData should probably be a map bc rn its cringe and you have to iterate through the whole thing and no one wants to do that*/ }
             <Title>
-                {delegate.name}
+                {delegate ? delegate.name : ''}
             </Title>
             <TimerBar></TimerBar>
         </Stack>
