@@ -52,7 +52,7 @@ export const RootRoutes = () => {
         <Route path="/speakers" element={<Speakers />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/caucus" element={<Caucus />} />
-        <Route path="/committee/dashboard" element={<CommitteeDash />} />
+        <Route path="/committee/:committeeId/dashboard" element={<CommitteeDash />} />
         <Route path="/directive/history" element={<DirectiveHistory />} />
         <Route path="/directive/inbox" element={<DirectiveInbox />} />
         <Route path="/directive/make" element={<MakeDirective />} />
