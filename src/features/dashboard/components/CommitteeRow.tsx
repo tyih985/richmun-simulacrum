@@ -2,6 +2,7 @@ import { Table, Text, Stack, ActionIcon } from "@mantine/core";
 import { IconDoorExit } from "@tabler/icons-react";
 import { CommitteeDoc, UserCommitteeDoc } from "@features/types";
 import { ReactElement, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   committee: CommitteeDoc;
@@ -11,9 +12,10 @@ type Props = {
 export const CommitteeRow = ({ committee, userCommittee }: Props): ReactElement => {
   const [hovered, setHovered] = useState(false);
   const roleLabel = userCommittee.role === "staff" ? `staff (${userCommittee.staffRole})` : "delegate";
+  const nav = useNavigate();
 
   return (
-    <Table.Tr onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
+    <Table.Tr onClick={() => nav(`/committee/${committee.id}/dashboard`)} style={{ cursor: 'pointer' }} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
       <Table.Td>
         <Stack gap={2}>
           <Text size="sm">{committee?.shortName}</Text>

@@ -22,3 +22,5 @@ export const getCommitteeBy = async (
   // Remove any null results (committees that weren't found)
   return committeeData.filter((c): c is NonNullable<typeof c> => c !== null);
 };
+
+

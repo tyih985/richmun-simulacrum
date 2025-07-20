@@ -1,7 +1,7 @@
 import { ReactElement, useState } from 'react';
 import { Button, Group, Stack, Text, Title } from '@mantine/core';
 import { DelegateDoc, MotionDoc } from '@features/types';
-import { Motion } from '@features/chairing/Motion';
+import { Motion } from '@features/chairing/components/Motion';
 
 // TODO: get delegates from db
 const mockDelegates: DelegateDoc[] = [
