@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Progress, Button, Group, Paper, Text } from '@mantine/core';
+import { Progress, Button, Group, Paper, Text, Stack } from '@mantine/core';
 
 export function TimerBar() {
   const duration = 10; // total duration in seconds
@@ -22,10 +22,9 @@ export function TimerBar() {
   }, [running, progress]);
 
   return (
-    <Paper p="md" radius="md" withBorder>
-      <Text mb="xs">Timer Progress</Text>
+    <Stack>
       <Progress value={progress}/>
-      <Group mt="md">
+      <Group mt="md" justify='center'>
         <Button onClick={() => setRunning((r) => !r)}>
           {running ? 'Pause' : 'Start'}
         </Button>
@@ -40,6 +39,6 @@ export function TimerBar() {
           Reset
         </Button>
       </Group>
-    </Paper>
+    </Stack>
   );
 }
