@@ -1,6 +1,6 @@
-import { DelegateDoc } from '@features/types';
-import { Button, MultiSelect, Stack, Text } from '@mantine/core';
-import { ReactElement, useState } from 'react';
+import { DelegateDoc } from "@features/types";
+import { Button, Card, Group, MultiSelect, Stack, Text} from "@mantine/core";
+import { ReactElement, useState } from "react";
 
 type Props = {
   delegates: DelegateDoc[];
@@ -13,6 +13,7 @@ export const AddSpeakers = ({ delegates }: Props): ReactElement => {
     if (!speakers.includes(name)) {
       setSpeakers([...speakers, name]);
       console.log(`Added ${name} as a speaker`);
+      // disable the button or remove it from the list
     }
   };
 
@@ -21,29 +22,40 @@ export const AddSpeakers = ({ delegates }: Props): ReactElement => {
   };
 
   return (
-    <Stack>
-      {delegates.map((d) => (
-        <Button key={d.id} onClick={() => addSpeaker(d.name)}>
-          {d.name}
-        </Button>
-      ))}
-
-      <Stack>
-        <Text>Current Speakers:</Text>
-        {speakers.length > 0 ? (
-          <>
-            {speakers.map((speaker, index) => (
-              <Text key={index}>{speaker}</Text>
-            ))}
-            <Button color="red" onClick={clearSpeakers}>
-              Clear Speakers
+    <Group grow align="flex-start">
+      <Card bg={'gray.0'} p='md'>
+        <Stack>
+          <Text>Add Speakers:</Text>
+          {delegates.map((d) => (
+            <Button variant='subtle' size='compact-md' key={d.id} onClick={() => addSpeaker(d.name)}>
+              {d.name}
             </Button>
-          </>
+          ))}
+        </Stack>
+      </Card>
+      <Card bg={'gray.0'} p='md'>
+         <Stack>
+        <Group> 
+          <Text flex={1}>Current Speakers:</Text>
+          {(speakers.length > 0) &&
+            <Button color="red" size='compact-sm' onClick={clearSpeakers}>
+              Clear
+            </Button>
+          }
+        </Group>
+        {speakers.length > 0 ? (
+          speakers.map((speaker, index) => (
+            <Stack align='center' justify="center">
+              <Text fw={'bold'} key={index}>{speaker}</Text>
+            </Stack>
+          ))
         ) : (
           <Text c="dimmed">No speakers added yet.</Text>
         )}
       </Stack>
-    </Stack>
+      </Card>
+     
+      </Group>
   );
 };
 

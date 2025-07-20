@@ -1,22 +1,13 @@
-import { ReactElement } from 'react';
-import {
-  ActionIcon,
-  Button,
-  Divider,
-  Drawer,
-  Group,
-  Stack,
-  Table,
-  Text,
-  Title,
-} from '@mantine/core';
-import { IconMail, IconPlus, IconUser } from '@tabler/icons-react';
-import { useDisclosure } from '@mantine/hooks';
-import { useUserCommittees } from '@hooks/useUserCommittees';
-import { CommitteeRow } from '@features/dashboard/components/CommitteeRow';
-import { InviteCard } from '@features/dashboard/components/InviteCard';
-import { auth } from '@packages/firebase/firebaseAuth';
-import { UserCommitteeDoc } from '@features/types';
+import { ReactElement } from "react";
+import { ActionIcon, Button, Divider, Drawer, Group, Stack, Table, Text, Title } from "@mantine/core";
+import { IconMail, IconPlus, IconUser } from "@tabler/icons-react";
+import { useDisclosure } from "@mantine/hooks";
+import { useUserCommittees } from "@hooks/useNewStuff";
+import { CommitteeRow } from "@features/dashboard/components/CommitteeRow";
+import { InviteCard } from "@features/dashboard/components/InviteCard";
+import { auth } from "@packages/firebase/firebaseAuth";
+import { UserCommitteeDoc } from "@features/types";
+import { useNavigate } from "react-router-dom";
 
 export const Dashboard = (): ReactElement => {
   const uid = auth.currentUser?.uid;

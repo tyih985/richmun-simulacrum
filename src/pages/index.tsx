@@ -49,15 +49,15 @@ export const RootRoutes = () => {
         <Route path="/c/*" element={<CommitteeRoutes />} />
         <Route path="/*" element={<Navigate to="/c" />} />
         <Route path="/setup" element={<Setup />} />
-        <Route path="/speakers" element={<Speakers />} />
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/caucus" element={<Caucus />} />
+        <Route path="/committee/:committeeId/speakers" element={<Speakers />} />
+        <Route path="/committee/:committeeId/caucus" element={<Caucus />} />
         <Route path="/committee/:committeeId/dashboard" element={<CommitteeDash />} />
-        <Route path="/directive/history" element={<DirectiveHistory />} />
-        <Route path="/directive" element={<DirectiveInbox />} />
-        <Route path="/directive/make" element={<MakeDirective />} />
-        <Route path="/motions" element={<Motions />} />
-        <Route path="/rollcall" element={<RollCall />} />
+        <Route path="/committee/:committeeId/directive/history" element={<DirectiveHistory />} />
+        <Route path="/committee/:committeeId/directive" element={<DirectiveInbox />} />
+        <Route path="/committee/:committeeId/directive/make" element={<MakeDirective />} />
+        <Route path="/committee/:committeeId/motions" element={<Motions />} />
+        <Route path="/committee/:committeeId/rollcall" element={<RollCall />} />
       </Routes>
     );
 
