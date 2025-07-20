@@ -30,8 +30,6 @@ export const Speakers = (): ReactElement => {
       </Stack>
       <DelegateTimer delegate={delegates[0]}></DelegateTimer>
       <AddSpeakers delegates={delegates}></AddSpeakers>
-      
-
     </Stack>
   );
 };

@@ -9,52 +9,68 @@ import {
   Container,
   Loader,
   TextInput,
-  ActionIcon,
   CloseButton,
   Flex,
   Modal,
 } from '@mantine/core';
-import { IconPlus } from '@tabler/icons-react';
-import { DateInputComponent } from '@components/DateInput';
+import { DateInputComponentNonRequired } from '@components/DateInput';
 import { useForm } from '@mantine/form';
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import type {
-  Country,
-  Delegate,
-  Staff,
-  SetupFormValues,
-} from '@features/types';
+import { useDisclosure } from '@mantine/hooks';
+import type { Country, Delegate, Staff, SetupFormValues } from '@features/types';
 import type { CommitteeDoc } from '@features/types';
 import { auth } from '@packages/firebase/firebaseAuth';
 import { StaffModalContent } from '@features/committeeDash/components/ModalContentStaff';
 import { UNModalContent } from '@features/committeeDash/components/ModalContentUN';
+import { CustomModalContent } from '@features/committeeDash/components/ModalContentCustom';
+import { ImportSheetContent } from '@features/committeeDash/components/ModalContentImport';
 import { StaffRow } from '@features/committeeDash/components/StaffRow';
 import { DelegateRow } from '@features/committeeDash/components/DelegateRow';
 import { committeeQueries } from '@mutations/yeahglo';
+import { countriesData } from '@lib/countriesData';
+
+const un_countries = countriesData;
 
 export const CommitteeDash = () => {
   const { committeeId } = useParams<{ committeeId: string }>();
   const [loading, setLoading] = useState(true);
   const [committee, setCommittee] = useState<CommitteeDoc | null>(null);
-  const [openedStaffModal, setOpenedStaffModal] = useState(false);
-  const [openedDelegateModal, setOpenedDelegateModal] = useState(false);
-  const [staffValues, setStaffValues] = useState<string[]>([]);
-  const [availableCountries, setAvailableCountries] = useState<Country[]>([]);
 
-  const form = useForm<SetupFormValues>({
-    initialValues: {
-      committeeLongName: '',
-      committeeShortName: '',
-      staff: [],
-      delegates: [],
-      dateRange: [null, null],
+  const [openedStaffModal, { open: openStaffModal, close: closeStaffModal }] =
+    useDisclosure(false);
+  const [openedDelegateModal, { open: openDelegateModal, close: closeDelegateModal }] =
+    useDisclosure(false);
+  const [activeModal, setActiveModal] = useState<'UN' | 'custom' | 'import' | null>('UN');
+
+  const [staffValues, setStaffValues] = useState<string[]>([]);
+  const [availableCountries, setAvailableCountries] = useState<Country[]>(un_countries);
+
+const form = useForm<SetupFormValues>({
+  initialValues: {
+    committeeLongName: '',
+    committeeShortName: '',
+    staff: [],
+    delegates: [],
+    dateRange: [null, null],
+  },
+  validate: {
+    committeeLongName: (v) => (v.trim() ? null : 'Required'),
+    committeeShortName: (v) => (v.trim() ? null : 'Required'),
+    dateRange: (v) => (v[0] && v[1] ? null : 'Start and end dates required'),
+    staff: {
+      email: (value) => (value.trim() ? null : 'Email is required'),
     },
-    validate: {
-      committeeLongName: (v) => (v.trim() ? null : 'Required'),
-      committeeShortName: (v) => (v.trim() ? null : 'Required'),
-    },
-  });
+  },
+});
+
+const isFormValid =
+  form.isValid() &&
+  form.values.staff.every((s) => s.email.trim()) &&
+  form.values.committeeLongName.trim() &&
+  form.values.committeeShortName.trim() &&
+  form.values.dateRange[0] &&
+  form.values.dateRange[1];
 
   useEffect(() => {
     (async () => {
@@ -62,48 +78,47 @@ export const CommitteeDash = () => {
         setLoading(false);
         return;
       }
-      try {
-        const c = await committeeQueries.getCommittee(committeeId);
-        if (!c) return;
-        setCommittee(c);
-        const [staffDocs, delegateDocs] = await Promise.all([
-          committeeQueries.getCommitteeStaff(committeeId),
-          committeeQueries.getCommitteeDelegates(committeeId),
-        ]);
-        const staffFE: Staff[] = (staffDocs || []).map((d) => ({
-          staffRole: d.staffRole,
-          email: d.email,
-        }));
-        const delegatesFE: Delegate[] = (delegateDocs || []).map((d) => ({
+      const c = await committeeQueries.getCommittee(committeeId);
+      if (!c) {
+        setLoading(false);
+        return;
+      }
+      setCommittee(c);
+      const [staffDocs, delegateDocs] = await Promise.all([
+        committeeQueries.getCommitteeStaff(committeeId),
+        committeeQueries.getCommitteeDelegates(committeeId),
+      ]);
+      form.setValues({
+        committeeLongName: c.longName,
+        committeeShortName: c.shortName,
+        staff: staffDocs.map((d) => ({ staffRole: d.staffRole, email: d.email })),
+        delegates: delegateDocs.map((d) => ({
           country: { value: d.id, name: d.name },
           email: d.email,
-        }));
-        form.setValues({
-          committeeLongName: c.longName,
-          committeeShortName: c.shortName,
-          staff: staffFE,
-          delegates: delegatesFE,
-          dateRange: [new Date(c.startDate), new Date(c.endDate)],
-        });
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
+        })),
+        dateRange: [new Date(c.startDate), new Date(c.endDate)],
+      });
+      setLoading(false);
     })();
   }, [committeeId]);
 
-  const removeStaff = (idx: number) =>
+  useEffect(() => {
+    const used = new Set(form.values.delegates.map((d) => d.country.name));
+    setAvailableCountries(countriesData.filter((c) => !used.has(c.name)));
+  }, [form.values.delegates]);
+
+  const removeStaff = (i: number) =>
     form.setFieldValue(
       'staff',
-      form.values.staff.filter((_, i) => i !== idx)
+      form.values.staff.filter((_, idx) => idx !== i),
     );
 
-  const removeDelegate = (idx: number) =>
+  const removeDelegate = (i: number) => {
     form.setFieldValue(
       'delegates',
-      form.values.delegates.filter((_, i) => i !== idx)
+      form.values.delegates.filter((_, idx) => idx !== i),
     );
+  };
 
   const addStaffRows = () => {
     const newRows: Staff[] = staffValues.map((email) => ({
@@ -112,37 +127,103 @@ export const CommitteeDash = () => {
     }));
     form.setFieldValue('staff', [...form.values.staff, ...newRows]);
     setStaffValues([]);
-    setOpenedStaffModal(false);
+    closeStaffModal();
   };
 
-  const addDelegateRows = (rows: Delegate[]) => {
+  const addRows = (rows: Delegate[]) => {
     const existing = new Set(form.values.delegates.map((d) => d.country.value));
     const unique = rows.filter((r) => !existing.has(r.country.value));
     form.setFieldValue('delegates', [...form.values.delegates, ...unique]);
-    setOpenedDelegateModal(false);
+    closeDelegateModal();
   };
 
   const handleSaveChanges = async () => {
     // TODO: implement persistence mapping front-end values to backend mutations
   };
 
-  if (loading) {
+  if (loading)
     return (
       <Container>
         <Loader />
       </Container>
     );
-  }
-  if (!committee) {
+  if (!committee)
     return (
       <Container>
         <Title>Error: Committee not found</Title>
       </Container>
     );
-  }
 
   return (
     <Stack p="lg">
+      <Modal
+        opened={openedStaffModal}
+        onClose={closeStaffModal}
+        title="Add Staff Members"
+        centered
+        size="lg"
+      >
+        <StaffModalContent onTagChange={setStaffValues} onSubmit={addStaffRows} />
+      </Modal>
+
+      <Modal
+        opened={openedDelegateModal}
+        onClose={closeDelegateModal}
+        title={
+          activeModal === 'UN'
+            ? 'Add UN Countries'
+            : activeModal === 'custom'
+              ? 'Add Custom Country'
+              : 'Import Delegates'
+        }
+        centered
+        size="lg"
+      >
+        <Group mb="md">
+          <Button
+            variant={activeModal === 'UN' ? 'filled' : 'outline'}
+            onClick={() => setActiveModal('UN')}
+          >
+            UN
+          </Button>
+          <Button
+            variant={activeModal === 'custom' ? 'filled' : 'outline'}
+            onClick={() => setActiveModal('custom')}
+          >
+            Custom
+          </Button>
+          <Button
+            variant={activeModal === 'import' ? 'filled' : 'outline'}
+            onClick={() => setActiveModal('import')}
+          >
+            Import
+          </Button>
+        </Group>
+
+        {activeModal === 'UN' && (
+          <UNModalContent
+            availableCountries={availableCountries}
+            setAvailableCountries={setAvailableCountries}
+            addRows={addRows}
+          />
+        )}
+        {activeModal === 'custom' && (
+          <CustomModalContent
+            availableCountries={availableCountries}
+            setAvailableCountries={setAvailableCountries}
+            addRows={addRows}
+          />
+        )}
+        {activeModal === 'import' && (
+          <ImportSheetContent
+            availableCountries={availableCountries}
+            setAvailableCountries={setAvailableCountries}
+            existingCountries={new Set(form.values.delegates.map((d) => d.country))}
+            addRows={addRows}
+          />
+        )}
+      </Modal>
+
       <Group>
         <Stack>
           <Title size="xl">Committee Details</Title>
@@ -175,7 +256,7 @@ export const CommitteeDash = () => {
           <Table.Tr>
             <Table.Td>Event Dates</Table.Td>
             <Table.Td>
-              <DateInputComponent
+              <DateInputComponentNonRequired
                 value={form.values.dateRange}
                 onChange={(r) => form.setFieldValue('dateRange', r!)}
                 radius="sm"
@@ -188,9 +269,9 @@ export const CommitteeDash = () => {
       <Stack>
         <Title order={3}>Staff</Title>
         <Flex justify="flex-end" mb="xs">
-          <ActionIcon onClick={() => setOpenedStaffModal(true)}>
-            <IconPlus />
-          </ActionIcon>
+          <Button variant="outline" onClick={openStaffModal}>
+            Add Staff
+          </Button>
         </Flex>
         <Table striped highlightOnHover withColumnBorders>
           <Table.Thead>
@@ -219,9 +300,15 @@ export const CommitteeDash = () => {
       <Stack>
         <Title order={3}>Delegates</Title>
         <Flex justify="flex-end" mb="xs">
-          <ActionIcon onClick={() => setOpenedDelegateModal(true)}>
-            <IconPlus />
-          </ActionIcon>
+          <Button
+            variant="outline"
+            onClick={() => {
+              setActiveModal('UN');
+              openDelegateModal();
+            }}
+          >
+            Add Delegate
+          </Button>
         </Flex>
         <Table striped highlightOnHover withColumnBorders>
           <Table.Thead>
@@ -238,34 +325,18 @@ export const CommitteeDash = () => {
                   <DelegateRow form={form as any} index={i} />
                 </Table.Td>
                 <Table.Td />
-                <Table.Tr>
-                  <Table.Td>
-                    <CloseButton onClick={() => removeDelegate(i)} />
-                  </Table.Td>
-                </Table.Tr>
+                <Table.Td>
+                  <CloseButton onClick={() => removeDelegate(i)} />
+                </Table.Td>
               </Table.Tr>
             ))}
           </Table.Tbody>
         </Table>
       </Stack>
 
-      <Button onClick={handleSaveChanges}>Save Changes</Button>
-
-      <Modal opened={openedStaffModal} onClose={() => setOpenedStaffModal(false)} title="Add Staff">
-        <StaffModalContent onTagChange={setStaffValues} onSubmit={addStaffRows} />
-      </Modal>
-
-      <Modal
-        opened={openedDelegateModal}
-        onClose={() => setOpenedDelegateModal(false)}
-        title="Add Delegates"
-      >
-        <UNModalContent
-          availableCountries={availableCountries}
-          setAvailableCountries={setAvailableCountries}
-          addRows={addDelegateRows}
-        />
-      </Modal>
+      <Button onClick={handleSaveChanges} disabled={!isFormValid}>
+        Save Changes
+      </Button>
     </Stack>
   );
 };
