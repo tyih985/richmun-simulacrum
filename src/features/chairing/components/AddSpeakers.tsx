@@ -1,6 +1,6 @@
-import { DelegateDoc } from "@features/types";
-import { Button, MultiSelect, Stack, Text} from "@mantine/core";
-import { ReactElement, useState } from "react";
+import { DelegateDoc } from '@features/types';
+import { Button, MultiSelect, Stack, Text } from '@mantine/core';
+import { ReactElement, useState } from 'react';
 
 type Props = {
   delegates: DelegateDoc[];
@@ -47,7 +47,8 @@ export const AddSpeakers = ({ delegates }: Props): ReactElement => {
   );
 };
 
-{/* <MultiSelect data={delegates.map((d) => ({
+{
+  /* <MultiSelect data={delegates.map((d) => ({
                 value: d.id,
                 label: `${d.name}`,
             }))}
@@ -57,4 +58,5 @@ export const AddSpeakers = ({ delegates }: Props): ReactElement => {
             clearable
             maxDropdownHeight={400}
             size="md">
-            </MultiSelect> */}
+            </MultiSelect> */
+}

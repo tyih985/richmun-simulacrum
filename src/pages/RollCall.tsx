@@ -36,12 +36,11 @@ const mockDelegates: DelegateDoc[] = [
   },
 ];
 
-
 export const RollCall = (): ReactElement => {
   return (
     <Stack p="lg" gap={0}>
       {mockDelegates.map((delegate) => (
-      <DelegateRow key={delegate.delegateId} delegate={delegate}/>
+        <DelegateRow key={delegate.delegateId} delegate={delegate} />
       ))}
     </Stack>
   );

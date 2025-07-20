@@ -39,23 +39,19 @@ const mockDelegates: DelegateDoc[] = [
 
 export const Speakers = (): ReactElement => {
   const [listType, setListType] = useState<'primary' | 'secondary' | 'single'>('primary');
-  
+
   return (
     <Stack p="xl">
-      <Stack align='flex-start'>
-        <Title order={1}>
-          Speakers
-        </Title>
-        <SegmentedControl 
-        data={['primary', 'secondary', 'single']}
-        value={listType}
-        onChange={(value) => setListType(value as 'primary' | 'secondary' | 'single')}
+      <Stack align="flex-start">
+        <Title order={1}>Speakers</Title>
+        <SegmentedControl
+          data={['primary', 'secondary', 'single']}
+          value={listType}
+          onChange={(value) => setListType(value as 'primary' | 'secondary' | 'single')}
         />
       </Stack>
       <DelegateTimer delegate={mockDelegates[1]}></DelegateTimer>
       <AddSpeakers delegates={mockDelegates}></AddSpeakers>
-      
-
     </Stack>
   );
 };

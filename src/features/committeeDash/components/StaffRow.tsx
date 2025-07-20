@@ -1,58 +1,42 @@
-import { CommitteeDoc, UserCommitteeDoc } from '@features/types';
-import { Stack, Table, Text, ActionIcon } from '@mantine/core';
-import { IconDoorExit, IconTrash } from '@tabler/icons-react';
-import dayjs from 'dayjs';
-import { ReactElement, useState } from 'react';
+import { Group, TextInput, Select } from '@mantine/core';
+import { UseFormReturnType } from '@mantine/form';
+import { StaffDoc } from '@features/types';
 
+interface StaffRowProps {
+  form: UseFormReturnType<{
+    longName: string;
+    shortName: string;
+    staff: StaffDoc[];
+    delegates: any[];
+    dateRange: [Date | null, Date | null];
+  }>;
+  index: number;
+}
 
+export const StaffRow = ({ form, index }: StaffRowProps) => {
+  const fieldName = `staff.${index}.email`;
+  const roleField = `staff.${index}.staffRole`;
 
-type Props = {
-  committee: CommitteeDoc;
-};
-
-
-export const StaffRow = ({ committee }: Props): ReactElement => {
-
-  const [hovered, setHovered] = useState(false);
+  const staffMember = form.values.staff[index];
 
   return (
-    <Table.Tr
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      <Table.Td>
-        <Stack gap={2}>
-          <Text size="sm">{committee.shortName}</Text>
-          {committee.longName?.trim() && (
-            <Text size="xs" c="dimmed">
-              ({committee.longName})
-            </Text>
-          )}
-        </Stack>
-      </Table.Td>
-      <Table.Td>
-        <Text>{'committee.role'}</Text>
-      </Table.Td>
-      <Table.Td> 
-        <Text>{'committee.startDate'}</Text>
-      </Table.Td>
-      <Table.Td>
-        <ActionIcon
-          variant="subtle"
-          style={{
-            opacity: hovered ? 1 : 0,
-            pointerEvents: hovered ? 'auto' : 'none',
-            transition: 'opacity 0.2s ease',
-            marginLeft: 8,
-          }}
-        >
-          <IconDoorExit size={24} />
-        </ActionIcon>
-      </Table.Td>
-    </Table.Tr>
+    <Group wrap="nowrap">
+      <Select
+        style={{ flex: 1 }}
+        {...form.getInputProps(roleField)}
+        data={[
+          { value: 'director', label: 'Director' },
+          { value: 'assistant director', label: 'Assistant Director' },
+          { value: 'flex staff', label: 'Flex Staff' },
+        ]}
+        placeholder="Select role"
+        radius="sm"
+      />
+      <TextInput
+        style={{ flex: 2 }}
+        {...form.getInputProps(fieldName)}
+        placeholder="Email"
+      />
+    </Group>
   );
 };
-
-{
-  /* <CloseButton variant="outline" onClick={() => {console.log('remove row haha..')}} /> */
-}

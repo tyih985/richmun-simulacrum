@@ -1,6 +1,6 @@
-import { Badge, Card, Group, Text } from "@mantine/core";
-import { CommitteeDoc, UserCommitteeDoc } from "@features/types";
-import { ReactElement } from "react";
+import { Badge, Card, Group, Text } from '@mantine/core';
+import { CommitteeDoc, UserCommitteeDoc } from '@features/types';
+import { ReactElement } from 'react';
 
 type Props = {
   invite: UserCommitteeDoc;
@@ -12,7 +12,8 @@ export const InviteCard = ({ committee }: Props): ReactElement => {
     <Card shadow="sm" padding="lg">
       <Group justify="space-between" mt="md" mb="xs" align="flex-start">
         <Text flex={1}>
-          Someone invited you to {committee ? `${committee.shortName} (${committee.longName})` : "a committee"}
+          Someone invited you to{' '}
+          {committee ? `${committee.shortName} (${committee.longName})` : 'a committee'}
         </Text>
         <Badge color="grey">"time ago"</Badge>
       </Group>

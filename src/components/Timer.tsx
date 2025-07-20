@@ -24,7 +24,7 @@ export function TimerBar() {
   return (
     <Paper p="md" radius="md" withBorder>
       <Text mb="xs">Timer Progress</Text>
-      <Progress value={progress}/>
+      <Progress value={progress} />
       <Group mt="md">
         <Button onClick={() => setRunning((r) => !r)}>
           {running ? 'Pause' : 'Start'}

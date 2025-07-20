@@ -7,28 +7,27 @@ type Props = {
   delegates: DelegateDoc[];
 };
 
-export const Motion = ({ delegates } : Props): ReactElement => {
-
+export const Motion = ({ delegates }: Props): ReactElement => {
   return (
     <Group p="lg">
-        <Select
+      <Select
         label="Delegate"
         placeholder="Select a delegate"
         required
-        data={delegates.map(delegate => ({
+        data={delegates.map((delegate) => ({
           value: delegate.id,
           label: delegate.name,
         }))}
         searchable
-        />
-        <Select
+      />
+      <Select
         label="Type"
         placeholder="Select a type"
         required
         data={['Moderated', 'Unmoderated', 'Round Table']}
-        />
-        <Text></Text>
-        <TimePicker
+      />
+      <Text></Text>
+      <TimePicker
         label="Total Time"
         clearable
         withSeconds
@@ -37,8 +36,8 @@ export const Motion = ({ delegates } : Props): ReactElement => {
         minutesStep={5}
         secondsStep={10}
         required
-        />
-        <TimePicker
+      />
+      <TimePicker
         label="Speaking Time"
         clearable
         withSeconds
@@ -47,12 +46,8 @@ export const Motion = ({ delegates } : Props): ReactElement => {
         minutesStep={5}
         secondsStep={10}
         required
-        /> 
-        <TextInput
-        label='Topic'
-        placeholder='Enter the motion topic'
-        required
-        />    
+      />
+      <TextInput label="Topic" placeholder="Enter the motion topic" required />
     </Group>
   );
 };

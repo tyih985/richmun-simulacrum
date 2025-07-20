@@ -1,7 +1,7 @@
-import { DelegateDoc, AttendanceStatus } from "@features/types";
-import { Group, Paper, Select, Text } from "@mantine/core";
-import { committeeMutations } from "@mutations/committeeMutation";
-import { ReactElement, useState } from "react";
+import { DelegateDoc, AttendanceStatus } from '@features/types';
+import { Group, Paper, Select, Text } from '@mantine/core';
+import { committeeMutations } from '@mutations/committeeMutation';
+import { ReactElement, useState } from 'react';
 
 type Props = {
   delegate: DelegateDoc;
@@ -11,48 +11,45 @@ type Props = {
 const { addDelegateToCommittee } = committeeMutations();
 
 export const DelegateRow = ({ delegate, committeeId }: Props): ReactElement => {
-//   const handleStatusChange = async (value: string | null) => {
-//   if (!value) return;
+  //   const handleStatusChange = async (value: string | null) => {
+  //   if (!value) return;
 
-//   const newStatus = value as AttendanceStatus;
+  //   const newStatus = value as AttendanceStatus;
 
-//   await addDelegateToCommittee(
-//     committeeId,
-//     delegate.delegateId,
-//     delegate.name,
-//     delegate.email,
-//     delegate.inviteStatus,
-//     delegate.minutes,
-//     delegate.positionPaperSent,
-//     newStatus,
-//     delegate.spoke,
-//   );
-// };
+  //   await addDelegateToCommittee(
+  //     committeeId,
+  //     delegate.delegateId,
+  //     delegate.name,
+  //     delegate.email,
+  //     delegate.inviteStatus,
+  //     delegate.minutes,
+  //     delegate.positionPaperSent,
+  //     newStatus,
+  //     delegate.spoke,
+  //   );
+  // };
 
- const statusColors = {
-   absent: '#ffc6c7',
-   excused: '#ffeeb9',
-   present: '#ccffb8',
- };
- 
+  const statusColors = {
+    absent: '#ffc6c7',
+    excused: '#ffeeb9',
+    present: '#ccffb8',
+  };
 
+  const [status, setStatus] = useState<string | null>(delegate.attendanceStatus);
 
- const [status, setStatus] = useState<string | null>(delegate.attendanceStatus);
-
- const color = status ? statusColors[status as keyof typeof statusColors] : 'gray';
+  const color = status ? statusColors[status as keyof typeof statusColors] : 'gray';
 
   return (
-
     <Paper bg={color} p={'sm'} radius={'0'}>
-        <Group>
-            <Text flex={1}>{delegate.name}</Text>
-            <Select
-                data={['absent', 'excused', 'present']} 
-                value={status}
-                onChange={setStatus}
-                allowDeselect={false}
-            />
-        </Group>
+      <Group>
+        <Text flex={1}>{delegate.name}</Text>
+        <Select
+          data={['absent', 'excused', 'present']}
+          value={status}
+          onChange={setStatus}
+          allowDeselect={false}
+        />
+      </Group>
     </Paper>
   );
 };
