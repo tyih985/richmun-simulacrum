@@ -8,7 +8,9 @@ import {
   committeeStaffMemberPath,
   committeeDirectivePath,
   committeeMotionPath,
+  committeeRollCallPath,
   userCommitteePath,
+  committeeRollCallDelegatePath,
 } from '@packages/firestorePaths';
 import {
   Role,
@@ -16,7 +18,9 @@ import {
   InviteStatus,
   DirectiveStatus,
   MotionType,
+  AttendanceStatus,
 } from 'src/features/types';
+import { Timestamp } from "firebase/firestore";
 
 export const committeeMutations = () => {
   const createCommittee = (
@@ -92,6 +96,44 @@ export const committeeMutations = () => {
 
   const removeDelegateFromCommittee = (committeeId: string, delegateId: string) => {
     const path = committeeDelegatePath(committeeId, delegateId);
+    return deleteFirestoreDocument(path);
+  };
+
+  const addRollCallToCommittee = (
+    committeeId: string,
+    rollCallId: string,
+    timestamp: Timestamp,
+  ) => {
+    const path = committeeRollCallPath(committeeId, rollCallId);
+    return createFirestoreDocument(
+      path,
+      { rollCallId, timestamp },
+      true,
+    );
+  };
+
+  const removeRollCallFromCommittee = (committeeId: string, rollCallId: string) => {
+    const path = committeeRollCallPath(committeeId, rollCallId);
+    return deleteFirestoreDocument(path);
+  };
+
+  const addRollCallDelegateToCommittee = (
+    committeeId: string,
+    rollCallId: string,
+    delegateId: string,
+    timestamp: Timestamp,
+    attendanceStatus: AttendanceStatus = 'absent',
+  ) => {
+    const path = committeeRollCallDelegatePath(committeeId, rollCallId, delegateId);
+    return createFirestoreDocument(
+      path,
+      { rollCallId, timestamp, attendanceStatus },
+      true,
+    );
+  };
+
+  const removeRollCallDelegateFromCommittee = (committeeId: string, rollCallId: string, delegateId: string) => {
+    const path = committeeRollCallDelegatePath(committeeId, rollCallId, delegateId);
     return deleteFirestoreDocument(path);
   };
 
@@ -186,5 +228,9 @@ export const committeeMutations = () => {
     removeDirectiveFromCommittee,
     addCommitteeMotion,
     removeCommitteeMotion,
+    addRollCallToCommittee,
+    removeRollCallFromCommittee,
+    addRollCallDelegateToCommittee,
+    removeRollCallDelegateFromCommittee,
   };
 };

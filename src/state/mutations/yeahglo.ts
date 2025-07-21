@@ -15,6 +15,8 @@ import {
   userCommitteesPath,
   committeeRollCallPath,
   committeeRollCallsPath,
+  committeeRollCallDelegatePath,
+  committeeRollCallsDelegatesPath,
 } from '@packages/firestorePaths';
 import {
   StaffRole,
@@ -25,6 +27,7 @@ import {
   DirectiveDoc,
   MotionDoc,
   RollCallDoc,
+  RollCallDelegateDoc,
 } from 'src/features/types';
 
 export const committeeQueries = {
@@ -136,7 +139,7 @@ export const committeeQueries = {
     })) as MotionDoc[];
   },
 
-    getCommitteeRollCall: async (
+  getCommitteeRollCall: async (
     committeeId: string,
     rollCallId: string,
   ): Promise<RollCallDoc | null> => {
@@ -154,4 +157,26 @@ export const committeeQueries = {
       ...doc,
     })) as RollCallDoc[];
   },
+
+  getCommitteeRollCallDelegate: async (
+    committeeId: string,
+    rollCallId: string,
+    delegateId: string,
+  ): Promise<RollCallDoc | null> => {
+    const path = committeeRollCallDelegatePath(committeeId, rollCallId, delegateId);
+    const doc = await getFirestoreDocument<Omit<RollCallDelegateDoc, 'id'>>(path);
+    if (!doc) return null;
+    return { id: delegateId, ...doc };
+  },
+
+  getCommitteeRollCallDelegates: async (committeeId: string, rollCallId: string): Promise<RollCallDelegateDoc[]> => {
+    const path = committeeRollCallsDelegatesPath(committeeId, rollCallId);
+    const docs = await getFirestoreCollection(path);
+    return docs.map((doc) => ({
+      id: doc.id,
+      ...doc,
+    })) as RollCallDelegateDoc[];
+  },
+
+
 };

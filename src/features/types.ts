@@ -86,5 +86,11 @@ export type RollCallDoc = {
   timestamp: Timestamp;
 };
 
+export type RollCallDelegateDoc = {
+  id: string;
+  timestamp: Timestamp;
+  attendanceStatus: AttendanceStatus;
+};
+
 export const ROLE_OPTIONS = ['director', 'assistant director', 'flex staff'] as const;
 export type RoleOption = (typeof ROLE_OPTIONS)[number];
