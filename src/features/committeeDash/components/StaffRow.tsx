@@ -1,4 +1,4 @@
-import { Group, TextInput, Select } from '@mantine/core';
+import { Group, TextInput, Select, Table } from '@mantine/core';
 import { UseFormReturnType } from '@mantine/form';
 import { StaffDoc } from '@features/types';
 
@@ -20,9 +20,9 @@ export const StaffRow = ({ form, index }: StaffRowProps) => {
   const staffMember = form.values.staff[index];
 
   return (
-    <Group wrap="nowrap">
-      <Select
-        style={{ flex: 1 }}
+    <>
+    <Table.Td>
+        <Select
         {...form.getInputProps(roleField)}
         data={[
           { value: 'director', label: 'Director' },
@@ -32,11 +32,15 @@ export const StaffRow = ({ form, index }: StaffRowProps) => {
         placeholder="Select role"
         radius="sm"
       />
-      <TextInput
-        style={{ flex: 2 }}
+      </Table.Td>
+      <Table.Td>
+<TextInput
         {...form.getInputProps(fieldName)}
         placeholder="Email"
       />
-    </Group>
+
+      </Table.Td>
+      
+    </>
   );
 };

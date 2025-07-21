@@ -1,4 +1,4 @@
-import { Group, TextInput, Text } from '@mantine/core';
+import { Group, TextInput, Text, Table } from '@mantine/core';
 import { UseFormReturnType } from '@mantine/form';
 import { Delegate } from '@features/types';
 
@@ -15,16 +15,24 @@ interface DelegateRowProps {
 
 export const DelegateRow = ({ form, index }: DelegateRowProps) => {
   const emailField = `delegates.${index}.email`;
-  const delegate = form.values.delegates[index];
+  const countryField = `delegates.${index}.country.name`;
+
 
   return (
-    <Group wrap="nowrap">
-      <Text style={{ flex: 1 }}>{delegate.country.name}</Text>
+    <>
+        <Table.Td>
+          <TextInput
+        {...form.getInputProps(countryField)}
+        placeholder="Delegate country"
+        />
+        </Table.Td>
+    
+      <Table.Td>
       <TextInput
-        style={{ flex: 2 }}
         {...form.getInputProps(emailField)}
         placeholder="Delegate email"
       />
-    </Group>
+</Table.Td>
+      </>
   );
 };
