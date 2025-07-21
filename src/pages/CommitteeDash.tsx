@@ -40,6 +40,11 @@ export const CommitteeDash = () => {
   const { committeeId } = useParams<{ committeeId: string }>();
   const [loading, setLoading] = useState(true);
   const [committee, setCommittee] = useState<CommitteeDoc | null>(null);
+  const [owner, setOwner] = useState<{
+    uid: string;
+    email: string;
+    staffRole: string;
+  } | null>(null);
 
   const [openedStaffModal, { open: openStaffModal, close: closeStaffModal }] =
     useDisclosure(false);
@@ -50,31 +55,31 @@ export const CommitteeDash = () => {
   const [staffValues, setStaffValues] = useState<string[]>([]);
   const [availableCountries, setAvailableCountries] = useState<Country[]>(un_countries);
 
-const form = useForm<SetupFormValues>({
-  initialValues: {
-    committeeLongName: '',
-    committeeShortName: '',
-    staff: [],
-    delegates: [],
-    dateRange: [null, null],
-  },
-  validate: {
-    committeeLongName: (v) => (v.trim() ? null : 'Required'),
-    committeeShortName: (v) => (v.trim() ? null : 'Required'),
-    dateRange: (v) => (v[0] && v[1] ? null : 'Start and end dates required'),
-    staff: {
-      email: (value) => (value.trim() ? null : 'Email is required'),
+  const form = useForm<SetupFormValues>({
+    initialValues: {
+      committeeLongName: '',
+      committeeShortName: '',
+      staff: [],
+      delegates: [],
+      dateRange: [null, null],
     },
-  },
-});
+    validate: {
+      committeeLongName: (v) => (v.trim() ? null : 'Required'),
+      committeeShortName: (v) => (v.trim() ? null : 'Required'),
+      dateRange: (v) => (v[0] && v[1] ? null : 'Start and end dates required'),
+      staff: {
+        email: (value) => (value.trim() ? null : 'Email is required'),
+      },
+    },
+  });
 
-const isFormValid =
-  form.isValid() &&
-  form.values.staff.every((s) => s.email.trim()) &&
-  form.values.committeeLongName.trim() &&
-  form.values.committeeShortName.trim() &&
-  form.values.dateRange[0] &&
-  form.values.dateRange[1];
+  const isFormValid =
+    form.isValid() &&
+    form.values.staff.every((s) => s.email.trim()) &&
+    form.values.committeeLongName.trim() &&
+    form.values.committeeShortName.trim() &&
+    form.values.dateRange[0] &&
+    form.values.dateRange[1];
 
 
   // TODO: seems scuffed 
@@ -90,20 +95,36 @@ const isFormValid =
         return; 
       }
       setCommittee(c);
+
       const [staffDocs, delegateDocs] = await Promise.all([
         committeeQueries.getCommitteeStaff(committeeId),
         committeeQueries.getCommitteeDelegates(committeeId),
       ]);
+
+      const ownerDoc = staffDocs.find((d) => d.owner) ?? null;
+      const otherStaff = staffDocs.filter((d) => !d.owner);
+
+      if (ownerDoc) {
+        setOwner({
+          uid: ownerDoc.id,
+          email: ownerDoc.email,
+          staffRole: ownerDoc.staffRole,
+        });
+      } else {
+        setOwner(null);
+      }
+
       form.setValues({
         committeeLongName: c.longName,
         committeeShortName: c.shortName,
-        staff: staffDocs.map((d) => ({ id: d.id, staffRole: d.staffRole, owner: d.owner, email: d.email, inviteStatus: d.inviteStatus })),
+        staff: otherStaff.map((d) => ({ id: d.id, staffRole: d.staffRole, owner: d.owner, email: d.email, inviteStatus: d.inviteStatus })),
         delegates: delegateDocs.map((d) => ({
           country: { value: d.id, name: d.name },
           email: d.email,
         })),
         dateRange: [new Date(firestoreTimestampToDate(c.startDate)), new Date(firestoreTimestampToDate(c.endDate))],
       });
+
       setLoading(false);
     })();
   }, []);
@@ -225,8 +246,8 @@ const isFormValid =
           activeModal === 'UN'
             ? 'Add UN Countries'
             : activeModal === 'custom'
-              ? 'Add Custom Country'
-              : 'Import Delegates'
+            ? 'Add Custom Country'
+            : 'Import Delegates'
         }
         centered
         size="lg"
@@ -334,6 +355,32 @@ const isFormValid =
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
+            {/* -- Owner row, editable only by the owner user -- */}
+            {owner && (
+              <Table.Tr key="owner">
+                <Table.Td>
+                  <Text fw={700}>Owner</Text>
+                </Table.Td>
+                <Table.Td>
+                  {auth.currentUser?.email === owner.email ? (
+                    <TextInput
+                      value={owner.email}
+                      onChange={(evt) =>
+                        setOwner((o) => o && { ...o, email: evt.currentTarget.value })
+                      }
+                      radius="sm"
+                    />
+                  ) : (
+                    <Text>{owner.email}</Text>
+                  )}
+                </Table.Td>
+                <Table.Td>
+                  {/* No delete button for the owner */}
+                </Table.Td>
+              </Table.Tr>
+            )}
+
+            {/* -- Other staff rows -- */}
             {form.values.staff.map((_, i) => (
               <Table.Tr key={i}>
                   <StaffRow form={form as any} index={i} />
