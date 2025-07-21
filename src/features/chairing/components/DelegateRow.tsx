@@ -1,14 +1,11 @@
-import { DelegateDoc, AttendanceStatus } from '@features/types';
+import { DelegateDoc } from '@features/types';
 import { Group, Paper, Select, Text } from '@mantine/core';
-import { committeeMutations } from '@mutations/committeeMutation';
 import { ReactElement, useState } from 'react';
 
 type Props = {
   delegate: DelegateDoc;
   committeeId?: string; // TEMP: SHOULD NOT HAVE '?'
 };
-
-const { addDelegateToCommittee } = committeeMutations();
 
 export const DelegateRow = ({ delegate, committeeId }: Props): ReactElement => {
   //   const handleStatusChange = async (value: string | null) => {
@@ -35,7 +32,7 @@ export const DelegateRow = ({ delegate, committeeId }: Props): ReactElement => {
     present: '#ccffb8',
   };
 
-  const [status, setStatus] = useState<string | null>(delegate.attendanceStatus);
+  const [status, setStatus] = useState<string | null>(delegateATTENDANCE STATUS GANG);
 
   const color = status ? statusColors[status as keyof typeof statusColors] : 'gray';
 

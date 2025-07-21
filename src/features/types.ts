@@ -60,7 +60,6 @@ export type DelegateDoc = {
   inviteStatus: InviteStatus;
   minutes: number;
   positionPaperSent: boolean;
-  attendanceStatus: AttendanceStatus;
   spoke: boolean;
 };
 
@@ -82,6 +81,11 @@ export type MotionDoc = {
   type: MotionType;
   totalTime?: number;
   speakingTime?: number;
+};
+
+export type RollCallDoc = {
+  id: string;
+  timestamp: 
 };
 
 export const ROLE_OPTIONS = ['director', 'assistant director', 'flex staff'] as const;

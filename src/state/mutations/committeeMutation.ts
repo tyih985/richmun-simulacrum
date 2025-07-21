@@ -14,7 +14,6 @@ import {
   Role,
   StaffRole,
   InviteStatus,
-  AttendanceStatus,
   DirectiveStatus,
   MotionType,
 } from 'src/features/types';
@@ -81,13 +80,12 @@ export const committeeMutations = () => {
     inviteStatus: InviteStatus = 'pending',
     minutes: number = 0,
     positionPaperSent = false,
-    attendanceStatus: AttendanceStatus = 'absent',
     spoke: boolean = false,
   ) => {
     const path = committeeDelegatePath(committeeId, delegateId);
     return createFirestoreDocument(
       path,
-      { name, email, inviteStatus, minutes, positionPaperSent, attendanceStatus, spoke },
+      { name, email, inviteStatus, minutes, positionPaperSent, spoke },
       true,
     );
   };
