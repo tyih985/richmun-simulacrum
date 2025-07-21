@@ -1,5 +1,5 @@
 import { ReactElement, useState } from 'react';
-import { Center, Group, SegmentedControl, Stack, Text, Title } from '@mantine/core';
+import { Center, SegmentedControl, Stack, Text, Title } from '@mantine/core';
 import { DelegateTimer } from '@features/chairing/components/DelegateTimer';
 import { AddSpeakers } from '@features/chairing/components/AddSpeakers';
 import { useParams } from 'react-router-dom';

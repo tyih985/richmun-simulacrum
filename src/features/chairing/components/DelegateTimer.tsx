@@ -10,7 +10,7 @@ type Props = {
 export const DelegateTimer = ({ delegate }: Props): ReactElement => {
     return (
         <Paper p="md" radius="md" withBorder>
-            {/* <Text></Text> TODO: bc i realize the countriesData should probably be a map bc rn its cringe and you have to iterate through the whole thing and no one wants to do that*/ }
+            {/* <Text>flag</Text> TODO: bc i realize the countriesData should probably be a map bc rn its cringe and you have to iterate through the whole thing and no one wants to do that*/ }
             <Stack align="center" justify="center" mb="md">
                 <Title order={2}>
                     {delegate ? delegate.name : ''}
