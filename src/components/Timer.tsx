@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Progress, Button, Group, Paper, Text, Stack } from '@mantine/core';
+import { Progress, Button, Group, Stack } from '@mantine/core';
 
 export function TimerBar() {
   const duration = 10; // total duration in seconds

@@ -1,5 +1,5 @@
 import { DelegateDoc } from '@features/types';
-import { Button, Card, Group, MultiSelect, Stack, Text } from '@mantine/core';
+import { Button, Card, Group, Stack, Text } from '@mantine/core';
 import { ReactElement, useState } from 'react';
 
 type Props = {
