@@ -5,12 +5,9 @@ import { ReactElement, useState } from 'react';
 
 type Props = {
   delegate: DelegateDoc;
-  committeeId?: string; // TEMP: SHOULD NOT HAVE '?'
 };
 
-const { addDelegateToCommittee } = committeeMutations();
-
-export const DelegateRow = ({ delegate, committeeId }: Props): ReactElement => {
+export const DelegateRow = ({ delegate }: Props): ReactElement => {
   //   const handleStatusChange = async (value: string | null) => {
   //   if (!value) return;
 

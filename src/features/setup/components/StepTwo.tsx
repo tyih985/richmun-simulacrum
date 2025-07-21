@@ -13,10 +13,11 @@ import {
 } from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
 import { UseFormReturnType } from '@mantine/form';
-import { Staff, SetupFormValues, ROLE_OPTIONS, RoleOption } from '@features/types.ts';
+import { StaffDoc, SetupFormValues, ROLE_OPTIONS, RoleOption } from '@features/types.ts';
 import { auth } from '@packages/firebase/firebaseAuth';
 import { useDisclosure } from '@mantine/hooks';
 import { StaffModalContent } from './ModalContentStaff';
+import { generateStaffId } from '@packages/generateIds';
 
 export interface StepTwoProps {
   ownerRole: RoleOption;
@@ -33,9 +34,12 @@ export function StepTwo({ ownerRole, setOwnerRole, form }: StepTwoProps): ReactE
     useDisclosure(false);
 
   const addStaffRows = () => {
-    const staffEmails: Staff[] = staffValues.map((email) => ({
+    const staffEmails: StaffDoc[] = staffValues.map((email) => ({
+      id: generateStaffId(),
       staffRole: 'flex staff', // default role, can be changed later
-      email,
+      owner: false,
+      email: email,
+      inviteStatus: 'pending',
     }));
 
     form.setFieldValue('staff', [...form.values.staff, ...staffEmails]);
@@ -80,7 +84,7 @@ export function StepTwo({ ownerRole, setOwnerRole, form }: StepTwoProps): ReactE
           allowDeselect={false}
           onChange={(role) => {
             const list = [...form.values.staff];
-            list[idx].staffRole = (role as Staff['staffRole']) || 'flex staff'; // default to 'flex staff' if role is null
+            list[idx].staffRole = (role as StaffDoc['staffRole']) || 'flex staff'; // default to 'flex staff' if role is null
             form.setFieldValue('staff', list);
           }}
         />
