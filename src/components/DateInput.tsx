@@ -51,3 +51,21 @@ export const DateInputComponent = (props: DateInputProps) => {
     />
   );
 };
+
+export const DateInputComponentNonRequired = (props: DateInputProps) => {
+  return (
+    <DatePickerInput
+      type="range"
+      minDate={dayjs().toDate()}
+      label="What date(s) will your event take place?"
+      placeholder="Pick a date range"
+      value={props.value}
+      onChange={props.onChange}
+      radius="lg"
+      leftSection={<IconCalendar size={20} />}
+      valueFormatter={formatter}
+      allowSingleDateInRange
+      clearable
+    />
+  );
+};

@@ -1,8 +1,8 @@
-import { Table, Text, Stack, ActionIcon } from "@mantine/core";
-import { IconDoorExit } from "@tabler/icons-react";
-import { CommitteeDoc, UserCommitteeDoc } from "@features/types";
-import { ReactElement, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Table, Text, Stack, ActionIcon } from '@mantine/core';
+import { IconDoorExit } from '@tabler/icons-react';
+import { CommitteeDoc, UserCommitteeDoc } from '@features/types';
+import { ReactElement, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 type Props = {
   committee: CommitteeDoc;
@@ -11,15 +11,25 @@ type Props = {
 
 export const CommitteeRow = ({ committee, userCommittee }: Props): ReactElement => {
   const [hovered, setHovered] = useState(false);
-  const roleLabel = userCommittee.role === "staff" ? `staff (${userCommittee.staffRole})` : "delegate";
+  const roleLabel =
+    userCommittee.role === 'staff' ? `staff (${userCommittee.staffRole})` : 'delegate';
   const nav = useNavigate();
 
   return (
-    <Table.Tr onClick={() => nav(`/committee/${committee.id}/dashboard`)} style={{ cursor: 'pointer' }} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
+    <Table.Tr
+      onClick={() => nav(`/committee/${committee.id}/dashboard`)}
+      style={{ cursor: 'pointer' }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
       <Table.Td>
         <Stack gap={2}>
           <Text size="sm">{committee?.shortName}</Text>
-          {committee?.longName && <Text size="xs" c="dimmed">({committee.longName})</Text>}
+          {committee?.longName && (
+            <Text size="xs" c="dimmed">
+              ({committee.longName})
+            </Text>
+          )}
         </Stack>
       </Table.Td>
       <Table.Td>
@@ -33,8 +43,8 @@ export const CommitteeRow = ({ committee, userCommittee }: Props): ReactElement 
           variant="subtle"
           style={{
             opacity: hovered ? 1 : 0,
-            pointerEvents: hovered ? "auto" : "none",
-            transition: "opacity 0.2s ease",
+            pointerEvents: hovered ? 'auto' : 'none',
+            transition: 'opacity 0.2s ease',
             marginLeft: 8,
           }}
         >

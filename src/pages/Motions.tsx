@@ -47,8 +47,8 @@ export const Motions = (): ReactElement => {
     totalTime: undefined,
     speakingTime: undefined,
     // topic: '',
-  }
-  
+  };
+
   const addMotion = (motion: MotionDoc) => {
     setMotions([...motions, motion]);
     console.log(`Added ${motion} as a motion`);
@@ -57,10 +57,10 @@ export const Motions = (): ReactElement => {
   const clearMotions = () => {
     setMotions([]);
   };
-  
+
   return (
     <Stack p="xl">
-      <Group p="xl" align='flex-start'>
+      <Group p="xl" align="flex-start">
         <Title order={1} flex={1}>
           Motions
         </Title>
@@ -69,17 +69,17 @@ export const Motions = (): ReactElement => {
         </Button>
       </Group>
       {motions.length > 0 ? (
-          <>
-            {motions.map((motion, index) => (
-              <Motion delegates={mockDelegates}></Motion>
-            ))}
-            <Button color="red" onClick={clearMotions}>
-              Clear Motions
-            </Button>
-          </>
-        ) : (
-          <Text c="dimmed">No motions added yet.</Text>
-        )}
+        <>
+          {motions.map((motion, index) => (
+            <Motion delegates={mockDelegates}></Motion>
+          ))}
+          <Button color="red" onClick={clearMotions}>
+            Clear Motions
+          </Button>
+        </>
+      ) : (
+        <Text c="dimmed">No motions added yet.</Text>
+      )}
     </Stack>
   );
 };

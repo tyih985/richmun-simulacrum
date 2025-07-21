@@ -8,87 +8,222 @@ import {
   Table,
   Container,
   Loader,
+  TextInput,
+  CloseButton,
+  Flex,
+  Modal,
 } from '@mantine/core';
+import { DateInputComponentNonRequired } from '@components/DateInput';
 import { useForm } from '@mantine/form';
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { CommitteeDoc, DelegateDoc, StaffDoc } from '@features/types';
+import { useDisclosure } from '@mantine/hooks';
+import type { Country, Delegate, Staff, SetupFormValues } from '@features/types';
+import type { CommitteeDoc } from '@features/types';
 import { auth } from '@packages/firebase/firebaseAuth';
-// import { useDisclosure } from '@mantine/hooks';
-// import { StaffModalContent } from './ModalContentStaff';
-// import { UNModalContent } from './ModalContentUN';
-// import { StaffRow } from './StaffRow';
-// import { DelegateRow } from './DelegateRow';
-import { committeeQueries } from "@mutations/yeahglo";
+import { StaffModalContent } from '@features/committeeDash/components/ModalContentStaff';
+import { UNModalContent } from '@features/committeeDash/components/ModalContentUN';
+import { CustomModalContent } from '@features/committeeDash/components/ModalContentCustom';
+import { ImportSheetContent } from '@features/committeeDash/components/ModalContentImport';
+import { StaffRow } from '@features/committeeDash/components/StaffRow';
+import { DelegateRow } from '@features/committeeDash/components/DelegateRow';
+import { committeeQueries } from '@mutations/yeahglo';
+import { countriesData } from '@lib/countriesData';
+
+const un_countries = countriesData;
 
 export const CommitteeDash = () => {
   const { committeeId } = useParams<{ committeeId: string }>();
   const [loading, setLoading] = useState(true);
   const [committee, setCommittee] = useState<CommitteeDoc | null>(null);
-  // const [openedStaffModal, { open: openStaffModal, close: closeStaffModal }] = useDisclosure(false);
-  // const [openedDelegateModal, { open: openDelegateModal, close: closeDelegateModal }] = useDisclosure(false);
 
-  const form = useForm({
-    initialValues: {
-      longName: '',
-      shortName: '',
-      staff: [] as StaffDoc[],
-      delegates: [] as DelegateDoc[],
-      dateRange: [null, null] as [Date | null, Date | null],
+  const [openedStaffModal, { open: openStaffModal, close: closeStaffModal }] =
+    useDisclosure(false);
+  const [openedDelegateModal, { open: openDelegateModal, close: closeDelegateModal }] =
+    useDisclosure(false);
+  const [activeModal, setActiveModal] = useState<'UN' | 'custom' | 'import' | null>('UN');
+
+  const [staffValues, setStaffValues] = useState<string[]>([]);
+  const [availableCountries, setAvailableCountries] = useState<Country[]>(un_countries);
+
+const form = useForm<SetupFormValues>({
+  initialValues: {
+    committeeLongName: '',
+    committeeShortName: '',
+    staff: [],
+    delegates: [],
+    dateRange: [null, null],
+  },
+  validate: {
+    committeeLongName: (v) => (v.trim() ? null : 'Required'),
+    committeeShortName: (v) => (v.trim() ? null : 'Required'),
+    dateRange: (v) => (v[0] && v[1] ? null : 'Start and end dates required'),
+    staff: {
+      email: (value) => (value.trim() ? null : 'Email is required'),
     },
-    validate: {
-      longName: (v) => (v.trim() ? null : 'Required'),
-      shortName: (v) => (v.trim() ? null : 'Required'),
-    },
-  });
+  },
+});
+
+const isFormValid =
+  form.isValid() &&
+  form.values.staff.every((s) => s.email.trim()) &&
+  form.values.committeeLongName.trim() &&
+  form.values.committeeShortName.trim() &&
+  form.values.dateRange[0] &&
+  form.values.dateRange[1];
 
   useEffect(() => {
-    const fetchCommittee = async () => {
+    (async () => {
       if (!auth.currentUser || !committeeId) {
         setLoading(false);
         return;
       }
-      try {
-        const data = await committeeQueries.getCommittee(committeeId);
-        if (data) {
-          setCommittee(data);
-          form.setValues({
-            longName: data.longName,
-            shortName: data.shortName,
-            staff: (await committeeQueries.getCommitteeStaff(committeeId)) ?? [],
-            delegates: (await committeeQueries.getCommitteeDelegates(committeeId)) ?? [],
-            dateRange: [new Date(data.startDate), new Date(data.endDate)],
-          });
-        }
-      } catch (err) {
-        console.error("Failed to load committee data:", err);
-      } finally {
+      const c = await committeeQueries.getCommittee(committeeId);
+      if (!c) {
         setLoading(false);
+        return;
       }
-    };
-    fetchCommittee();
+      setCommittee(c);
+      const [staffDocs, delegateDocs] = await Promise.all([
+        committeeQueries.getCommitteeStaff(committeeId),
+        committeeQueries.getCommitteeDelegates(committeeId),
+      ]);
+      form.setValues({
+        committeeLongName: c.longName,
+        committeeShortName: c.shortName,
+        staff: staffDocs.map((d) => ({ staffRole: d.staffRole, email: d.email })),
+        delegates: delegateDocs.map((d) => ({
+          country: { value: d.id, name: d.name },
+          email: d.email,
+        })),
+        dateRange: [new Date(c.startDate), new Date(c.endDate)],
+      });
+      setLoading(false);
+    })();
   }, [committeeId]);
 
-  if (loading) {
+  useEffect(() => {
+    const used = new Set(form.values.delegates.map((d) => d.country.name));
+    setAvailableCountries(countriesData.filter((c) => !used.has(c.name)));
+  }, [form.values.delegates]);
+
+  const removeStaff = (i: number) =>
+    form.setFieldValue(
+      'staff',
+      form.values.staff.filter((_, idx) => idx !== i),
+    );
+
+  const removeDelegate = (i: number) => {
+    form.setFieldValue(
+      'delegates',
+      form.values.delegates.filter((_, idx) => idx !== i),
+    );
+  };
+
+  const addStaffRows = () => {
+    const newRows: Staff[] = staffValues.map((email) => ({
+      staffRole: 'flex staff',
+      email,
+    }));
+    form.setFieldValue('staff', [...form.values.staff, ...newRows]);
+    setStaffValues([]);
+    closeStaffModal();
+  };
+
+  const addRows = (rows: Delegate[]) => {
+    const existing = new Set(form.values.delegates.map((d) => d.country.value));
+    const unique = rows.filter((r) => !existing.has(r.country.value));
+    form.setFieldValue('delegates', [...form.values.delegates, ...unique]);
+    closeDelegateModal();
+  };
+
+  const handleSaveChanges = async () => {
+    // TODO: implement persistence mapping front-end values to backend mutations
+  };
+
+  if (loading)
     return (
       <Container>
-        <Loader/>
+        <Loader />
       </Container>
     );
-  }
-
-  if (!committee) {
+  if (!committee)
     return (
       <Container>
         <Title>Error: Committee not found</Title>
       </Container>
     );
-  }
-
-  const [startDate, endDate] = form.values.dateRange;
 
   return (
     <Stack p="lg">
+      <Modal
+        opened={openedStaffModal}
+        onClose={closeStaffModal}
+        title="Add Staff Members"
+        centered
+        size="lg"
+      >
+        <StaffModalContent onTagChange={setStaffValues} onSubmit={addStaffRows} />
+      </Modal>
+
+      <Modal
+        opened={openedDelegateModal}
+        onClose={closeDelegateModal}
+        title={
+          activeModal === 'UN'
+            ? 'Add UN Countries'
+            : activeModal === 'custom'
+              ? 'Add Custom Country'
+              : 'Import Delegates'
+        }
+        centered
+        size="lg"
+      >
+        <Group mb="md">
+          <Button
+            variant={activeModal === 'UN' ? 'filled' : 'outline'}
+            onClick={() => setActiveModal('UN')}
+          >
+            UN
+          </Button>
+          <Button
+            variant={activeModal === 'custom' ? 'filled' : 'outline'}
+            onClick={() => setActiveModal('custom')}
+          >
+            Custom
+          </Button>
+          <Button
+            variant={activeModal === 'import' ? 'filled' : 'outline'}
+            onClick={() => setActiveModal('import')}
+          >
+            Import
+          </Button>
+        </Group>
+
+        {activeModal === 'UN' && (
+          <UNModalContent
+            availableCountries={availableCountries}
+            setAvailableCountries={setAvailableCountries}
+            addRows={addRows}
+          />
+        )}
+        {activeModal === 'custom' && (
+          <CustomModalContent
+            availableCountries={availableCountries}
+            setAvailableCountries={setAvailableCountries}
+            addRows={addRows}
+          />
+        )}
+        {activeModal === 'import' && (
+          <ImportSheetContent
+            availableCountries={availableCountries}
+            setAvailableCountries={setAvailableCountries}
+            existingCountries={new Set(form.values.delegates.map((d) => d.country))}
+            addRows={addRows}
+          />
+        )}
+      </Modal>
+
       <Group>
         <Stack>
           <Title size="xl">Committee Details</Title>
@@ -96,7 +231,6 @@ export const CommitteeDash = () => {
         </Stack>
         <Button>Launch</Button>
       </Group>
-
       <Divider />
 
       <Table striped withColumnBorders>
@@ -109,37 +243,54 @@ export const CommitteeDash = () => {
         <Table.Tbody>
           <Table.Tr>
             <Table.Td>Long Name</Table.Td>
-            <Table.Td>{form.values.longName}</Table.Td>
+            <Table.Td>
+              <TextInput {...form.getInputProps('committeeLongName')} radius="sm" />
+            </Table.Td>
           </Table.Tr>
           <Table.Tr>
             <Table.Td>Short Name</Table.Td>
-            <Table.Td>{form.values.shortName}</Table.Td>
+            <Table.Td>
+              <TextInput {...form.getInputProps('committeeShortName')} radius="sm" />
+            </Table.Td>
           </Table.Tr>
           <Table.Tr>
-            <Table.Td>Start Date</Table.Td>
-            <Table.Td>{startDate ? startDate.toLocaleDateString() : '—'}</Table.Td>
-          </Table.Tr>
-          <Table.Tr>
-            <Table.Td>End Date</Table.Td>
-            <Table.Td>{endDate ? endDate.toLocaleDateString() : '—'}</Table.Td>
+            <Table.Td>Event Dates</Table.Td>
+            <Table.Td>
+              <DateInputComponentNonRequired
+                value={form.values.dateRange}
+                onChange={(r) => form.setFieldValue('dateRange', r!)}
+                radius="sm"
+              />
+            </Table.Td>
           </Table.Tr>
         </Table.Tbody>
       </Table>
 
       <Stack>
         <Title order={3}>Staff</Title>
+        <Flex justify="flex-end" mb="xs">
+          <Button variant="outline" onClick={openStaffModal}>
+            Add Staff
+          </Button>
+        </Flex>
         <Table striped highlightOnHover withColumnBorders>
           <Table.Thead>
             <Table.Tr>
               <Table.Th>Role</Table.Th>
               <Table.Th>Email</Table.Th>
+              <Table.Th />
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
-            {form.values.staff.map((s) => (
-              <Table.Tr key={s.id}>
-                <Table.Td>{s.staffRole}</Table.Td>
-                <Table.Td>{s.email}</Table.Td>
+            {form.values.staff.map((_, i) => (
+              <Table.Tr key={i}>
+                <Table.Td>
+                  <StaffRow form={form as any} index={i} />
+                </Table.Td>
+                <Table.Td />
+                <Table.Td>
+                  <CloseButton onClick={() => removeStaff(i)} />
+                </Table.Td>
               </Table.Tr>
             ))}
           </Table.Tbody>
@@ -148,23 +299,44 @@ export const CommitteeDash = () => {
 
       <Stack>
         <Title order={3}>Delegates</Title>
+        <Flex justify="flex-end" mb="xs">
+          <Button
+            variant="outline"
+            onClick={() => {
+              setActiveModal('UN');
+              openDelegateModal();
+            }}
+          >
+            Add Delegate
+          </Button>
+        </Flex>
         <Table striped highlightOnHover withColumnBorders>
           <Table.Thead>
             <Table.Tr>
               <Table.Th>Country</Table.Th>
               <Table.Th>Email</Table.Th>
+              <Table.Th />
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
-            {form.values.delegates.map((d) => (
-              <Table.Tr key={d.id}>
-                <Table.Td>{d.name}</Table.Td>
-                <Table.Td>{d.email}</Table.Td>
+            {form.values.delegates.map((_, i) => (
+              <Table.Tr key={i}>
+                <Table.Td>
+                  <DelegateRow form={form as any} index={i} />
+                </Table.Td>
+                <Table.Td />
+                <Table.Td>
+                  <CloseButton onClick={() => removeDelegate(i)} />
+                </Table.Td>
               </Table.Tr>
             ))}
           </Table.Tbody>
         </Table>
       </Stack>
+
+      <Button onClick={handleSaveChanges} disabled={!isFormValid}>
+        Save Changes
+      </Button>
     </Stack>
   );
 };

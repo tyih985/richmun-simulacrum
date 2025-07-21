@@ -10,9 +10,7 @@ interface CommitteeProviderProps {
   children: ReactNode;
 }
 
-export const CommitteeProvider: React.FC<CommitteeProviderProps> = ({
-  children,
-}) => {
+export const CommitteeProvider: React.FC<CommitteeProviderProps> = ({ children }) => {
   const { sessionUser, isLoggedIn } = useSession();
   const [selectedCommittee, setSelectedCommittee] = useState<CommitteeDoc | null>(null);
 
@@ -26,7 +24,7 @@ export const CommitteeProvider: React.FC<CommitteeProviderProps> = ({
     }
 
     const uid = sessionUser.uid;
-    const availableCommittees = await getUserCommittees(uid) || ([] as string[]);
+    const availableCommittees = (await getUserCommittees(uid)) || ([] as string[]);
 
     return {
       availableCommittees,
@@ -42,7 +40,7 @@ export const CommitteeProvider: React.FC<CommitteeProviderProps> = ({
         selectedCommittee: null,
         role: false as const,
         availableCommittees: [] as UserCommitteeDoc[],
-        setSelectedCommittee
+        setSelectedCommittee,
       };
     }
 
@@ -53,20 +51,13 @@ export const CommitteeProvider: React.FC<CommitteeProviderProps> = ({
       allFactions: userAccessData.allFactions,
       setSelectedCommittee,
     };
-  }, [
-    isLoggedIn,
-    sessionUser?.email,
-    selectedCommittee,
-    userAccessData,
-  ]);
+  }, [isLoggedIn, sessionUser?.email, selectedCommittee, userAccessData]);
 
   useEffect(() => {
     console.log('Committee Access data: ', contextValue);
   }, [contextValue]);
 
   return (
-    <CommitteeContext.Provider value={contextValue}>
-      {children}
-    </CommitteeContext.Provider>
+    <CommitteeContext.Provider value={contextValue}>{children}</CommitteeContext.Provider>
   );
 };

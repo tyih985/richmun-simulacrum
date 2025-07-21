@@ -1,19 +1,31 @@
-import { ReactElement } from "react";
-import { ActionIcon, Button, Divider, Drawer, Group, Stack, Table, Text, Title } from "@mantine/core";
-import { IconMail, IconPlus, IconUser } from "@tabler/icons-react";
-import { useDisclosure } from "@mantine/hooks";
-import { useUserCommittees } from "@hooks/useNewStuff";
-import { CommitteeRow } from "@features/dashboard/components/CommitteeRow";
-import { InviteCard } from "@features/dashboard/components/InviteCard";
-import { auth } from "@packages/firebase/firebaseAuth";
-import { UserCommitteeDoc } from "@features/types";
-import { useNavigate } from "react-router-dom";
+import { ReactElement } from 'react';
+import {
+  ActionIcon,
+  Button,
+  Divider,
+  Drawer,
+  Group,
+  Stack,
+  Table,
+  Text,
+  Title,
+} from '@mantine/core';
+import { IconMail, IconPlus, IconUser } from '@tabler/icons-react';
+import { useDisclosure } from '@mantine/hooks';
+import { useUserCommittees } from '@hooks/useNewStuff';
+import { CommitteeRow } from '@features/dashboard/components/CommitteeRow';
+import { InviteCard } from '@features/dashboard/components/InviteCard';
+import { auth } from '@packages/firebase/firebaseAuth';
+import { UserCommitteeDoc } from '@features/types';
+import { useNavigate } from 'react-router-dom';
 
 export const Dashboard = (): ReactElement => {
   const uid = auth.currentUser?.uid;
   const [opened, { open, close }] = useDisclosure(false);
 
-  const { userCommittees, userInvites, committeeDocs, loading } = useUserCommittees(uid ?? "");
+  const { userCommittees, userInvites, committeeDocs, loading } = useUserCommittees(
+    uid ?? '',
+  );
 
   if (loading) return <div>Loading...</div>;
 
@@ -32,10 +44,17 @@ export const Dashboard = (): ReactElement => {
       <Stack p="lg">
         <Group>
           <ActionIcon size="xl" variant="filled" aria-label="Profile" radius="xl">
-            <IconUser style={{ width: "70%", height: "70%" }} stroke={2} />
+            <IconUser style={{ width: '70%', height: '70%' }} stroke={2} />
           </ActionIcon>
-          <Title order={1} flex={1}>Welcome Back! {uid}</Title>
-          <Button size="sm" variant="filled" onClick={open} rightSection={<IconMail stroke={2} />}>
+          <Title order={1} flex={1}>
+            Welcome Back! {uid}
+          </Title>
+          <Button
+            size="sm"
+            variant="filled"
+            onClick={open}
+            rightSection={<IconMail stroke={2} />}
+          >
             See Invites
           </Button>
         </Group>
@@ -49,7 +68,7 @@ export const Dashboard = (): ReactElement => {
             <Table>
               <Table.Thead>
                 <Table.Tr>
-                  <Table.Th style={{ width: "30%" }}>name</Table.Th>
+                  <Table.Th style={{ width: '30%' }}>name</Table.Th>
                   <Table.Th>role</Table.Th>
                   <Table.Th>date</Table.Th>
                   <Table.Th />
@@ -67,7 +86,7 @@ export const Dashboard = (): ReactElement => {
             </Table>
             <Group justify="flex-end">
               <ActionIcon variant="filled" aria-label="Add Committee">
-                <IconPlus style={{ width: "70%", height: "70%" }} stroke={2} />
+                <IconPlus style={{ width: '70%', height: '70%' }} stroke={2} />
               </ActionIcon>
             </Group>
           </Stack>

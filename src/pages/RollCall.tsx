@@ -39,17 +39,17 @@ import { useCommitteeDelegates } from '@hooks/useNewStuff';
 //   },
 // ];
 
-const {getCommitteeDelegates} = committeeQueries;
+const { getCommitteeDelegates } = committeeQueries;
 
 export const RollCall = (): ReactElement => {
   const { committeeId } = useParams<{ committeeId: string }>();
 
- const { delegates, loading } = useCommitteeDelegates(committeeId);
+  const { delegates, loading } = useCommitteeDelegates(committeeId);
 
   return (
     <Stack p="lg" gap={0}>
       {delegates.map((delegate) => (
-      <DelegateRow key={delegate.id} delegate={delegate}/>
+        <DelegateRow key={delegate.id} delegate={delegate} />
       ))}
     </Stack>
   );

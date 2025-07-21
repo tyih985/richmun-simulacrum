@@ -20,20 +20,16 @@ export const Speakers = (): ReactElement => {
 
   return (
     <Stack p="xl">
-      <Stack align='flex-start'>
-        <Title order={1}>
-          Speakers
-        </Title>
-        <SegmentedControl 
-        data={['primary', 'secondary', 'single']}
-        value={listType}
-        onChange={(value) => setListType(value as 'primary' | 'secondary' | 'single')}
+      <Stack align="flex-start">
+        <Title order={1}>Speakers</Title>
+        <SegmentedControl
+          data={['primary', 'secondary', 'single']}
+          value={listType}
+          onChange={(value) => setListType(value as 'primary' | 'secondary' | 'single')}
         />
       </Stack>
       <DelegateTimer delegate={delegates[0]}></DelegateTimer>
       <AddSpeakers delegates={delegates}></AddSpeakers>
-      
-
     </Stack>
   );
 };
