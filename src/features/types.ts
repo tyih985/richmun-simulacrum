@@ -9,6 +9,7 @@ export type Country = {
 };
 
 export type Delegate = {
+  id: string;
   country: Country;
   email: string;
 };

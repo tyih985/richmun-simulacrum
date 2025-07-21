@@ -15,7 +15,7 @@ import {
 } from '@mantine/core';
 import { DateInputComponentNonRequired } from '@components/DateInput';
 import { useForm } from '@mantine/form';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useDisclosure } from '@mantine/hooks';
 import type { Country, Delegate, StaffDoc, SetupFormValues } from '@features/types';
@@ -31,7 +31,9 @@ import { committeeQueries } from '@mutations/yeahglo';
 import { countriesData } from '@lib/countriesData';
 import { committeeMutations } from '@mutations/committeeMutation';
 import { firestoreTimestampToDate } from '@features/utils';
-import { generateStaffId } from '@packages/generateIds';
+import { generateStaffId, generateRollCallId } from '@packages/generateIds';
+import { Timestamp } from 'firebase/firestore';
+const { addRollCallToCommittee, addRollCallDelegateToCommittee  } = committeeMutations();
 
 const un_countries = countriesData;
 const { createCommittee, addStaffToCommittee, removeStaffFromCommittee, addDelegateToCommittee, removeDelegateFromCommittee } = committeeMutations();
@@ -54,6 +56,7 @@ export const CommitteeDash = () => {
 
   const [staffValues, setStaffValues] = useState<string[]>([]);
   const [availableCountries, setAvailableCountries] = useState<Country[]>(un_countries);
+  const navigate = useNavigate();
 
   const form = useForm<SetupFormValues>({
     initialValues: {
@@ -119,6 +122,7 @@ export const CommitteeDash = () => {
         committeeShortName: c.shortName,
         staff: otherStaff.map((d) => ({ id: d.id, staffRole: d.staffRole, owner: d.owner, email: d.email, inviteStatus: d.inviteStatus })),
         delegates: delegateDocs.map((d) => ({
+          id: d.id,
           country: { value: d.id, name: d.name },
           email: d.email,
         })),
@@ -134,18 +138,14 @@ export const CommitteeDash = () => {
     setAvailableCountries(countriesData.filter((c) => !used.has(c.name)));
   }, [form.values.delegates]);
 
-  const removeStaff = async (i: number) => {
-    await removeStaffFromCommittee(committeeId!, form.values.staff[i].email)
-    console.log('removing staff', form.values.staff[i].email);
+  const removeStaff = (i: number) => {
     form.setFieldValue(
       'staff',
       form.values.staff.filter((_, idx) => idx !== i),
-    )
-  }
+    );
+  };
 
-  const removeDelegate = async (i: number) => {
-    await removeDelegateFromCommittee(committeeId!, form.values.staff[i].email)
-    console.log('removing delegate', form.values.delegates[i].country.name)
+  const removeDelegate = (i: number) => {
     form.setFieldValue(
       'delegates',
       form.values.delegates.filter((_, idx) => idx !== i),
@@ -213,6 +213,27 @@ export const CommitteeDash = () => {
     }
   };
 
+  const handleNewRollCall = async () => {
+    if (!committeeId) return;
+    const rollCallId = generateRollCallId(committeeId);
+    const now = Timestamp.now();
+    await addRollCallToCommittee(committeeId, rollCallId, now);
+    const placeholder = Timestamp.fromMillis(0);
+    for (const del of form.values.delegates) {
+      await addRollCallDelegateToCommittee(
+        committeeId,
+        rollCallId,
+        del.country.value,
+        placeholder,
+        'absent'
+      );
+    }
+    navigate(
+      `/committee/${committeeId}/rollcall/${rollCallId}`,
+      { replace: true }
+    );
+  };
+
   if (loading)
     return (
       <Container>
@@ -222,7 +243,6 @@ export const CommitteeDash = () => {
   if (!committee)
     return (
       <Container>
-        {/* if no committee found do we just redirect to a diff page */}
         <Title>Error: Committee not found</Title> 
       </Container>
     );
@@ -380,7 +400,6 @@ export const CommitteeDash = () => {
               </Table.Tr>
             )}
 
-            {/* -- Other staff rows -- */}
             {form.values.staff.map((_, i) => (
               <Table.Tr key={i}>
                   <StaffRow form={form as any} index={i} />
@@ -429,6 +448,15 @@ export const CommitteeDash = () => {
 
       <Button onClick={handleSaveChanges} disabled={!isFormValid}>
         Save Changes
+      </Button>
+
+      <Button
+        variant="outline"
+        mt="md"
+        onClick={handleNewRollCall}
+        disabled={form.values.delegates.length === 0}
+      >
+        New Roll Call
       </Button>
     </Stack>
   );

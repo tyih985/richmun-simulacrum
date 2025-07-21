@@ -26,6 +26,7 @@ export const CustomModalContent = ({
     if (!customCountryName) return;
 
     const newDelegate: Delegate = {
+      id: "",
       country: {
         name: customCountryName,
         value: customCountryName.toLowerCase().replace(/\s+/g, '-'),

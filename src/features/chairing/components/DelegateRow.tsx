@@ -31,7 +31,7 @@ export const DelegateRow = ({ delegate }: Props): ReactElement => {
     present: '#ccffb8',
   };
 
-  const [status, setStatus] = useState<string | null>(delegateATTENDANCE STATUS GANG);
+  const [status, setStatus] = useState<string | null>();
 
   const color = status ? statusColors[status as keyof typeof statusColors] : 'gray';
 
