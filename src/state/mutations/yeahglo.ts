@@ -13,6 +13,8 @@ import {
   committeeMotionsPath,
   committeeMotionPath,
   userCommitteesPath,
+  committeeRollCallPath,
+  committeeRollCallsPath,
 } from '@packages/firestorePaths';
 import {
   StaffRole,
@@ -138,18 +140,18 @@ export const committeeQueries = {
     committeeId: string,
     rollCallId: string,
   ): Promise<RollCallDoc | null> => {
-    const path = committeeMotionPath(committeeId, rollCallId);
-    const doc = await getFirestoreDocument<Omit<MotionDoc, 'id'>>(path);
+    const path = committeeRollCallPath(committeeId, rollCallId);
+    const doc = await getFirestoreDocument<Omit<RollCallDoc, 'id'>>(path);
     if (!doc) return null;
     return { id: rollCallId, ...doc };
   },
 
-  getCommitteeRollCalls: async (committeeId: string): Promise<MotionDoc[]> => {
-    const path = committeeMotionsPath(committeeId);
+  getCommitteeRollCalls: async (committeeId: string): Promise<RollCallDoc[]> => {
+    const path = committeeRollCallsPath(committeeId);
     const docs = await getFirestoreCollection(path);
     return docs.map((doc) => ({
       id: doc.id,
       ...doc,
-    })) as MotionDoc[];
+    })) as RollCallDoc[];
   },
 };

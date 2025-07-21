@@ -83,7 +83,7 @@ export type MotionDoc = {
 
 export type RollCallDoc = {
   id: string;
-  timestamp: 
+  timestamp: Timestamp;
 };
 
 export const ROLE_OPTIONS = ['director', 'assistant director', 'flex staff'] as const;
