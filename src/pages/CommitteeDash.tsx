@@ -29,8 +29,10 @@ import { StaffRow } from '@features/committeeDash/components/StaffRow';
 import { DelegateRow } from '@features/committeeDash/components/DelegateRow';
 import { committeeQueries } from '@mutations/yeahglo';
 import { countriesData } from '@lib/countriesData';
+import { committeeMutations } from '@mutations/committeeMutation';
 
 const un_countries = countriesData;
+const { createCommittee, addStaffToCommittee, removeStaffFromCommittee, addDelegateToCommittee, removeDelegateFromCommittee } = committeeMutations();
 
 export const CommitteeDash = () => {
   const { committeeId } = useParams<{ committeeId: string }>();
@@ -72,6 +74,8 @@ const isFormValid =
   form.values.dateRange[0] &&
   form.values.dateRange[1];
 
+
+  // TODO: seems scuffed 
   useEffect(() => {
     (async () => {
       if (!auth.currentUser || !committeeId) {
@@ -81,7 +85,7 @@ const isFormValid =
       const c = await committeeQueries.getCommittee(committeeId);
       if (!c) {
         setLoading(false);
-        return;
+        return; 
       }
       setCommittee(c);
       const [staffDocs, delegateDocs] = await Promise.all([
@@ -100,20 +104,25 @@ const isFormValid =
       });
       setLoading(false);
     })();
-  }, [committeeId]);
+  }, []);
 
   useEffect(() => {
     const used = new Set(form.values.delegates.map((d) => d.country.name));
     setAvailableCountries(countriesData.filter((c) => !used.has(c.name)));
   }, [form.values.delegates]);
 
-  const removeStaff = (i: number) =>
+  const removeStaff = async (i: number) => {
+    await removeStaffFromCommittee(committeeId!, form.values.staff[i].email)
+    console.log('removing staff', form.values.staff[i].email);
     form.setFieldValue(
       'staff',
       form.values.staff.filter((_, idx) => idx !== i),
-    );
+    )
+  }
 
-  const removeDelegate = (i: number) => {
+  const removeDelegate = async (i: number) => {
+    await removeDelegateFromCommittee(committeeId!, form.values.staff[i].email)
+    console.log('removing delegate', form.values.delegates[i].country.name)
     form.setFieldValue(
       'delegates',
       form.values.delegates.filter((_, idx) => idx !== i),
@@ -138,7 +147,43 @@ const isFormValid =
   };
 
   const handleSaveChanges = async () => {
-    // TODO: implement persistence mapping front-end values to backend mutations
+    if (!committeeId) return;
+    if (!isFormValid) return;
+    const { committeeLongName, committeeShortName, dateRange } = form.values;
+
+    if (dateRange[0] && dateRange[1]) {
+      console.log('Committee daterange:', dateRange);
+      await createCommittee(
+        committeeId,
+        committeeLongName,
+        committeeShortName,
+        dateRange[0],
+        dateRange[1]
+      );
+      console.log('Committee updated:', committeeId, dateRange);
+      form.reset();
+    }
+
+    for (const staff of form.values.staff) {
+      await addStaffToCommittee(
+        committeeId,
+        'staff-id', // This should be replaced with actual staff ID logic
+        false,
+        staff.staffRole,
+        staff.email,
+      );
+      console.log(`Added staff: ${staff.email}`);
+    }
+
+    for (const delegate of form.values.delegates) {
+      await addDelegateToCommittee(
+        committeeId,
+        'delegate-id', // This should be replaced with actual ID logic
+        delegate.country.name,
+        delegate.email,
+      );
+      console.log(`Added delegate: ${delegate.country.name}`);
+    }
   };
 
   if (loading)
@@ -150,7 +195,8 @@ const isFormValid =
   if (!committee)
     return (
       <Container>
-        <Title>Error: Committee not found</Title>
+        {/* if no committee found do we just redirect to a diff page */}
+        <Title>Error: Committee not found</Title> 
       </Container>
     );
 
@@ -284,10 +330,7 @@ const isFormValid =
           <Table.Tbody>
             {form.values.staff.map((_, i) => (
               <Table.Tr key={i}>
-                <Table.Td>
                   <StaffRow form={form as any} index={i} />
-                </Table.Td>
-                <Table.Td />
                 <Table.Td>
                   <CloseButton onClick={() => removeStaff(i)} />
                 </Table.Td>
@@ -321,10 +364,7 @@ const isFormValid =
           <Table.Tbody>
             {form.values.delegates.map((_, i) => (
               <Table.Tr key={i}>
-                <Table.Td>
                   <DelegateRow form={form as any} index={i} />
-                </Table.Td>
-                <Table.Td />
                 <Table.Td>
                   <CloseButton onClick={() => removeDelegate(i)} />
                 </Table.Td>
