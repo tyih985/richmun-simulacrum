@@ -1,3 +1,6 @@
+import { Dayjs } from "dayjs";
+import { Timestamp } from "firebase/firestore";
+
 export type Country = {
   value: string;
   name: string;
@@ -10,15 +13,10 @@ export type Delegate = {
   email: string;
 };
 
-export type Staff = {
-  staffRole: StaffRole;
-  email: string;
-};
-
 export type SetupFormValues = {
   committeeLongName: string;
   committeeShortName: string;
-  staff: Staff[];
+  staff: StaffDoc[];
   delegates: Delegate[];
   dateRange: [Date | null, Date | null];
 };
@@ -41,8 +39,8 @@ export type CommitteeDoc = {
   id: string;
   longName: string;
   shortName: string;
-  startDate: Date;
-  endDate: Date;
+  startDate: Timestamp;
+  endDate: Timestamp;
 };
 
 export type StaffDoc = {

@@ -18,7 +18,7 @@ import { useForm } from '@mantine/form';
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useDisclosure } from '@mantine/hooks';
-import type { Country, Delegate, Staff, SetupFormValues } from '@features/types';
+import type { Country, Delegate, StaffDoc, SetupFormValues } from '@features/types';
 import type { CommitteeDoc } from '@features/types';
 import { auth } from '@packages/firebase/firebaseAuth';
 import { StaffModalContent } from '@features/committeeDash/components/ModalContentStaff';
@@ -30,6 +30,8 @@ import { DelegateRow } from '@features/committeeDash/components/DelegateRow';
 import { committeeQueries } from '@mutations/yeahglo';
 import { countriesData } from '@lib/countriesData';
 import { committeeMutations } from '@mutations/committeeMutation';
+import { firestoreTimestampToDate } from '@features/utils';
+import { generateStaffId } from '@packages/generateIds';
 
 const un_countries = countriesData;
 const { createCommittee, addStaffToCommittee, removeStaffFromCommittee, addDelegateToCommittee, removeDelegateFromCommittee } = committeeMutations();
@@ -115,12 +117,12 @@ export const CommitteeDash = () => {
       form.setValues({
         committeeLongName: c.longName,
         committeeShortName: c.shortName,
-        staff: otherStaff.map((d) => ({ staffRole: d.staffRole, email: d.email })),
+        staff: otherStaff.map((d) => ({ id: d.id, staffRole: d.staffRole, owner: d.owner, email: d.email, inviteStatus: d.inviteStatus })),
         delegates: delegateDocs.map((d) => ({
           country: { value: d.id, name: d.name },
           email: d.email,
         })),
-        dateRange: [new Date(c.startDate), new Date(c.endDate)],
+        dateRange: [new Date(firestoreTimestampToDate(c.startDate)), new Date(firestoreTimestampToDate(c.endDate))],
       });
 
       setLoading(false);
@@ -151,9 +153,12 @@ export const CommitteeDash = () => {
   };
 
   const addStaffRows = () => {
-    const newRows: Staff[] = staffValues.map((email) => ({
+    const newRows: StaffDoc[] = staffValues.map((email) => ({
+      id: generateStaffId(),
       staffRole: 'flex staff',
-      email,
+      owner: false,
+      email: email,
+      inviteStatus: 'pending',
     }));
     form.setFieldValue('staff', [...form.values.staff, ...newRows]);
     setStaffValues([]);
@@ -182,10 +187,11 @@ export const CommitteeDash = () => {
         dateRange[1]
       );
       console.log('Committee updated:', committeeId, dateRange);
-      form.reset();
+      // TODO: some sort of feedback notif thats like changes saved 
     }
 
     for (const staff of form.values.staff) {
+      if (!staff.owner) continue; // Skip owner
       await addStaffToCommittee(
         committeeId,
         'staff-id', // This should be replaced with actual staff ID logic
