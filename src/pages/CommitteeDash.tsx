@@ -356,7 +356,7 @@ export const CommitteeDash = () => {
                   <Text fw={700}>Owner</Text>
                 </Table.Td>
                 <Table.Td>
-                  {auth.currentUser?.uid === owner.uid ? (
+                  {auth.currentUser?.email === owner.email ? (
                     <TextInput
                       value={owner.email}
                       onChange={(evt) =>
