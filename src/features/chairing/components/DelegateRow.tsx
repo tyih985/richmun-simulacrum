@@ -1,106 +1,57 @@
-import { DelegateDoc } from '@features/types';
-import { Group, Paper, Select, Text } from '@mantine/core';
 import { ReactElement, useState } from 'react';
+import { Group, Paper, Select, Text } from '@mantine/core';
+import { useParams } from 'react-router-dom';
+import { committeeMutations } from '@mutations/committeeMutation';
+import type { RollCallDelegateDoc, AttendanceStatus } from '@features/types';
+import { Timestamp } from 'firebase/firestore';
+
+const { addRollCallDelegateToCommittee } = committeeMutations();
 
 type Props = {
-  delegate: DelegateDoc;
+  delegate: RollCallDelegateDoc;
 };
 
 export const DelegateRow = ({ delegate }: Props): ReactElement => {
-  //   const handleStatusChange = async (value: string | null) => {
-  //   if (!value) return;
+  const { committeeId, rollCallId } = useParams<{
+    committeeId: string;
+    rollCallId: string;
+  }>();
 
-  //   const newStatus = value as AttendanceStatus;
+  const [status, setStatus] = useState<AttendanceStatus>(
+    delegate.attendanceStatus
+  );
 
-  //   await addDelegateToCommittee(
-  //     committeeId,
-  //     delegate.delegateId,
-  //     delegate.name,
-  //     delegate.email,
-  //     delegate.inviteStatus,
-  //     delegate.minutes,
-  //     delegate.positionPaperSent,
-  //     newStatus,
-  //     delegate.spoke,
-  //   );
-  // };
-
-  const statusColors = {
+  const statusColors: Record<AttendanceStatus, string> = {
     absent: '#ffc6c7',
     excused: '#ffeeb9',
     present: '#ccffb8',
   };
+  const bg = statusColors[status];
 
-  const [status, setStatus] = useState<string | null>();
-
-  const color = status ? statusColors[status as keyof typeof statusColors] : 'gray';
+  const handleChange = async (newStatus: AttendanceStatus) => {
+    if (!committeeId || !rollCallId) return;
+    setStatus(newStatus);
+    await addRollCallDelegateToCommittee(
+      committeeId,
+      rollCallId,
+      delegate.id,
+      Timestamp.now(),
+      delegate.name,
+      newStatus
+    );
+  };
 
   return (
-    <Paper bg={color} p={'sm'} radius={'0'}>
+    <Paper bg={bg} p="sm" radius={0}>
       <Group>
         <Text flex={1}>{delegate.name}</Text>
         <Select
           data={['absent', 'excused', 'present']}
           value={status}
-          onChange={setStatus}
+          onChange={(v) => v && handleChange(v as AttendanceStatus)}
           allowDeselect={false}
         />
       </Group>
     </Paper>
   );
 };
-
-// TODO: SHIFT CLICK TO MULTISELECT WOULD BE NICE
-// import React, { useState } from 'react';
-
-// type RowType = {
-//   id: string;
-//   label: string;
-// };
-
-// type Props = {
-//   rows: RowType[];
-// };
-
-// export function SelectableRows({ rows }: Props) {
-//   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-//   const [lastSelectedIndex, setLastSelectedIndex] = useState<number | null>(null);
-
-//   const handleRowClick = (e: React.MouseEvent, index: number, id: string) => {
-//     if (e.shiftKey && lastSelectedIndex !== null) {
-//       const start = Math.min(lastSelectedIndex, index);
-//       const end = Math.max(lastSelectedIndex, index);
-//       const idsInRange = rows.slice(start, end + 1).map((row) => row.id);
-//       const newSelected = Array.from(new Set([...selectedIds, ...idsInRange]));
-//       setSelectedIds(newSelected);
-//     } else {
-//       if (selectedIds.includes(id)) {
-//         setSelectedIds(selectedIds.filter((sid) => sid !== id));
-//       } else {
-//         setSelectedIds([...selectedIds, id]);
-//       }
-//       setLastSelectedIndex(index);
-//     }
-//   };
-
-//   return (
-//     <div>
-//       {rows.map((row, i) => (
-//         <div
-//           key={row.id}
-//           onClick={(e) => handleRowClick(e, i, row.id)}
-//           style={{
-//             cursor: 'pointer',
-//             backgroundColor: selectedIds.includes(row.id) ? '#cce5ff' : undefined,
-//             padding: '8px',
-//             marginBottom: '4px',
-//             borderRadius: '4px',
-//             userSelect: 'none',
-//           }}
-//         >
-//           {row.label}
-//         </div>
-//       ))}
-//     </div>
-//   );
-// }

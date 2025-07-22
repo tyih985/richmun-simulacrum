@@ -184,7 +184,7 @@ export const committeeQueries = {
     committeeId: string,
     rollCallId: string,
     delegateId: string,
-  ): Promise<RollCallDoc | null> => {
+  ): Promise<RollCallDelegateDoc | null> => {
     const path = committeeRollCallDelegatePath(committeeId, rollCallId, delegateId);
     const doc = await getFirestoreDocument<Omit<RollCallDelegateDoc, 'id'>>(path);
     if (!doc) return null;

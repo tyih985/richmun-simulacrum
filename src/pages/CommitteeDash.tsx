@@ -240,24 +240,35 @@ export const CommitteeDash = () => {
     }
   };
 
-  const handleNewRollCall = async () => {
-    if (!committeeId) return;
+const handleNewRollCall = async () => {
+  if (!committeeId) return;
+  try {
     const rollCallId = generateRollCallId(committeeId);
     const now = Timestamp.now();
     await addRollCallToCommittee(committeeId, rollCallId, now);
     const delegateDocs = await committeeQueries.getCommitteeDelegates(committeeId);
     const placeholder = Timestamp.fromMillis(0);
-    for (const d of delegateDocs) {
-      await addRollCallDelegateToCommittee(
-        committeeId,
-        rollCallId,
-        d.id,
-        placeholder,
-        'absent',
-      );
-    }
+    await Promise.all(
+      delegateDocs.map(d =>
+        addRollCallDelegateToCommittee(
+          committeeId,
+          rollCallId,
+          d.id,
+          placeholder,
+          d.name,
+          'absent'
+        ).then(() => {
+          console.log(`created attendance doc for delegate ${d.id}`);
+        })
+      )
+    );
+    console.log('all attendance documents created');
     navigate(`/committee/${committeeId}/rollcall/${rollCallId}`, { replace: false });
-  };
+  } catch (err) {
+    console.error('error in handleNewRollCall:', err);
+  }
+};
+
 
   if (loading)
     return (

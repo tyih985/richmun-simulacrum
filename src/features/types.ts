@@ -86,6 +86,7 @@ export type RollCallDoc = {
 export type RollCallDelegateDoc = {
   id: string;
   timestamp: Timestamp;
+  name: string;
   attendanceStatus: AttendanceStatus;
 };
 

@@ -5,12 +5,13 @@ import {
   CommitteeDoc,
   DelegateDoc,
   MotionDoc,
+  RollCallDelegateDoc,
+  RollCallDoc,
   StaffDoc,
   UserCommitteeDoc,
 } from '@features/types';
-import { getFirestoreDocument } from '@packages/firestoreAsQuery';
 
-const { getUserCommittees, getUserCommittee, getCommittee } = committeeQueries;
+const { getUserCommittees, getUserCommittee, getCommittee, getCommitteeRollCall, getCommitteeRollCalls, getCommitteeRollCallDelegate, getCommitteeRollCallDelegates } = committeeQueries;
 
 export const useUserCommittees = (uid?: string) => {
   const [userCommittees, setUserCommittees] = useState<UserCommitteeDoc[]>([]);
@@ -200,3 +201,110 @@ export const useUserIsStaff = (uid: string, cid: string) => {
 
   return { isStaff, loading };
 }
+
+export const useRollCalls = (cid?: string) => {
+  const [rollCalls, setRollCalls] = useState<RollCallDoc[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!cid) return;
+    const fetchRollCalls = async () => {
+      setLoading(true);
+      try {
+        const data = await getCommitteeRollCalls(cid);
+        setRollCalls(data);
+      } catch (err) {
+        console.error('Error loading roll calls:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRollCalls();
+  }, [cid]);
+
+  return { rollCalls, loading };
+};
+
+export const useRollCall = (committeeId?: string, rollCallId?: string) => {
+  const [rollCall, setRollCall] = useState<RollCallDoc | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!committeeId || !rollCallId) return;
+
+    const fetchRollCall = async () => {
+      try {
+        const data = await getCommitteeRollCall(committeeId, rollCallId);
+        setRollCall(data);
+      } catch (err) {
+        console.error('Error loading roll calls:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRollCall();
+  }, [committeeId, rollCallId]);
+
+  return { rollCall, loading };
+};
+
+export const useRollCallDelegates = (committeeId?: string, rollCallId?: string) => {
+  const [delegates, setDelegates] = useState<RollCallDelegateDoc[]>([]);
+  const [loading, setLoading]     = useState(true);
+
+  useEffect(() => {
+    if (!committeeId || !rollCallId) return;
+
+    const fetchDelegates = async () => {
+      setLoading(true);
+      try {
+        const data = await getCommitteeRollCallDelegates(committeeId, rollCallId);
+        setDelegates(data);
+      } catch (err) {
+        console.error('Error loading roll call delegates:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDelegates();
+  }, [committeeId, rollCallId]);
+
+  return { delegates, loading };
+};
+
+export const useRollCallDelegate = (
+  committeeId?: string,
+  rollCallId?: string,
+  delegateId?: string
+) => {
+  const [delegate, setDelegate] = useState<RollCallDelegateDoc | null>(null);
+  const [loading, setLoading]   = useState(true);
+  useEffect(() => {
+    if (!committeeId || !rollCallId || !delegateId) {
+      setDelegate(null);
+      setLoading(false);
+      return;
+    }
+    const fetch = async () => {
+      setLoading(true);
+      try {
+        const doc = await getCommitteeRollCallDelegate(
+          committeeId,
+          rollCallId,
+          delegateId
+        );
+        setDelegate(doc);
+      } catch (err) {
+        console.error('Error loading roll call delegate:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetch();
+  }, [committeeId, rollCallId, delegateId]);
+
+  return { delegate, loading };
+};

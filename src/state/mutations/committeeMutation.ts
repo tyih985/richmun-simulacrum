@@ -126,12 +126,13 @@ export const committeeMutations = () => {
     rollCallId: string,
     delegateId: string,
     timestamp: Timestamp,
+    name: string,
     attendanceStatus: AttendanceStatus = 'absent',
   ) => {
     const path = committeeRollCallDelegatePath(committeeId, rollCallId, delegateId);
     return createFirestoreDocument(
       path,
-      { rollCallId, timestamp, attendanceStatus },
+      { delegateId, timestamp, name, attendanceStatus },
       true,
     );
   };
