@@ -4,10 +4,7 @@ import { useForm } from '@mantine/form';
 import { Container, Stack, Button, Flex, Stepper, Box, Loader } from '@mantine/core';
 import { IconArrowRight } from '@tabler/icons-react';
 import { committeeMutations } from '@mutations/committeeMutation.ts';
-import {
-  generateCommitteeId,
-  generateStaffId,
-} from '@packages/generateIds';
+import { generateCommitteeId, generateStaffId } from '@packages/generateIds';
 import { auth } from '@packages/firebase/firebaseAuth';
 import { StepOne } from '@features/setup/components/StepOne.tsx';
 import { StepTwo } from '@features/setup/components/StepTwo.tsx';

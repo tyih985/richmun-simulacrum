@@ -155,7 +155,6 @@ export const useUserDelegate = (uid: string, cid: string) => {
   const did = userCommittees.find((uc) => uc.id === cid)?.roleId;
   console.log('delegate id:', did)
 
-
   useEffect(() => {
     if (!did || !cid) return;
     const fetchDelegate = async () => {
@@ -174,4 +173,4 @@ export const useUserDelegate = (uid: string, cid: string) => {
   }, [cid, did, uid]);
 
   return { delegate, loading };
-}
+};

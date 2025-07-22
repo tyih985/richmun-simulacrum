@@ -1,5 +1,13 @@
 import { ReactElement, useState } from 'react';
-import { Center, SegmentedControl, Stack, Text, Title, Group, Paper } from '@mantine/core';
+import {
+  Center,
+  SegmentedControl,
+  Stack,
+  Text,
+  Title,
+  Group,
+  Paper,
+} from '@mantine/core';
 import { DelegateTimer } from '@features/chairing/components/DelegateTimer';
 import { useParams } from 'react-router-dom';
 import { useCommitteeDelegates } from '@hooks/useNewStuff';
@@ -53,7 +61,7 @@ export const Speakers = (): ReactElement => {
         currentDelegate.inviteStatus,
         currentDelegate.minutes,
         currentDelegate.positionPaperSent,
-        true // Mark as spoke
+        true, // Mark as spoke
       );
       console.log(`Delegate ${currentDelegate.name} has started speaking.`);
     }
@@ -79,15 +87,13 @@ export const Speakers = (): ReactElement => {
           onComplete={handleTimerComplete} 
           />
         </>
-      )
-    :
-    ( 
-      <Paper p="xl" radius="md" withBorder>
-            <Stack p='xl' align="center" justify="center" m={'3px'}>
-              <Text c="dimmed">No speakers added.</Text>
-            </Stack>
-      </Paper>
-    )}
+      ) : (
+        <Paper p="xl" radius="md" withBorder>
+          <Stack p="xl" align="center" justify="center" m={'3px'}>
+            <Text c="dimmed">No speakers added.</Text>
+          </Stack>
+        </Paper>
+      )}
 
       <Group grow align="flex-start">
         <SpeakerSelector
