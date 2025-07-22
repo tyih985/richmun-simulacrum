@@ -5,9 +5,10 @@ type Props = {
   duration?: number;
   onStart?: () => void;
   onComplete?: () => void;
+  showNext?: boolean;
 };
 
-export function TimerBar({ duration = 2, onStart, onComplete }: Props) {
+export function TimerBar({ duration = 2, onStart, onComplete, showNext }: Props) {
   const [progress, setProgress] = useState(0);
   const [running, setRunning] = useState(false);
 
@@ -44,7 +45,7 @@ export function TimerBar({ duration = 2, onStart, onComplete }: Props) {
       <Progress value={progress} color={progress == 100? 'red' : ''} />
       <Group mt="md" justify="center">
         <Button onClick={handleStart}>{running ? 'Pause' : 'Start'}</Button>
-        <Button
+        {showNext && <Button
           variant="outline"
           onClick={() => {
             setRunning(false);
@@ -53,7 +54,7 @@ export function TimerBar({ duration = 2, onStart, onComplete }: Props) {
           }}
         >
           Next
-        </Button>
+        </Button>}
         <Button
           variant="outline"
           color="red"

@@ -3,16 +3,18 @@ import { Button, Group, Stack, Text, Title } from '@mantine/core';
 import { MotionDoc } from '@features/types';
 import { Motion } from '@features/chairing/components/Motion';
 import { useCommitteeDelegates } from '@hooks/useNewStuff';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { committeeMutations } from '@mutations/committeeMutation';
 import { generateMotionId } from '@packages/generateIds';
 
 const { addCommitteeMotion, removeCommitteeMotion } = committeeMutations();
 
 export const Motions = (): ReactElement => {
+  const navigate = useNavigate();
   const { committeeId } = useParams<{ committeeId: string }>();
   const [motions, setMotions] = useState<MotionDoc[]>([]);
   const { delegates } = useCommitteeDelegates(committeeId);
+  
 
   if (!committeeId) {
     console.error('committeeId is undefined');
@@ -79,6 +81,12 @@ export const Motions = (): ReactElement => {
     }
   };
 
+  const startMotion = (motionId: string) => {
+    navigate(`/committee/${committeeId}/caucus/${motionId}`);
+    console.log(`Starting motion ${motionId} in committee ${committeeId}`);
+  };
+
+
   return (
     <Stack p="xl">
       <Group p="xl" align="flex-start">
@@ -98,6 +106,7 @@ export const Motions = (): ReactElement => {
               delegates={delegates}
               onChange={updateMotion}
               onRemove={removeMotion}
+              onStart={startMotion}
             />
           ))}
           <Button color="red" onClick={clearMotions}>

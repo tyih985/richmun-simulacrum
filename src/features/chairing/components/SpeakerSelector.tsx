@@ -5,8 +5,8 @@ import { ReactElement } from 'react';
 
 type Props = {
   delegates: DelegateDoc[];
-  onAddSpeaker: (name: string) => void;
-  currentSpeakers: string[];
+  onAddSpeaker: (delegate: DelegateDoc) => void;
+  currentSpeakers?: string[];
 };
 
 export const SpeakerSelector = ({ delegates, onAddSpeaker, currentSpeakers }: Props): ReactElement => {
@@ -20,8 +20,8 @@ export const SpeakerSelector = ({ delegates, onAddSpeaker, currentSpeakers }: Pr
             variant="subtle"
             size="compact-md"
             key={d.id}
-            disabled={currentSpeakers.includes(d.name)}
-            onClick={() => onAddSpeaker(d.name)}
+            disabled={currentSpeakers?.includes(d.name)}
+            onClick={() => onAddSpeaker(d)}
             radius={0}
           >
             {d.name}

@@ -8,11 +8,12 @@ type Props = {
   motion: MotionDoc;
   onChange: (motion: MotionDoc) => void;
   onRemove: (motionId: string) => void;
+  onStart: (motionId: string) => void;
 };
 
-export const Motion = ({ delegates, motion, onChange, onRemove }: Props): ReactElement => {
+export const Motion = ({ delegates, motion, onChange, onRemove, onStart}: Props): ReactElement => {
   const [type, setType] = useState<MotionDoc['type']>(motion.type || 'moderated');
-
+  
   return (
     <>
     <Paper p="lg" radius="md" withBorder>
@@ -81,7 +82,7 @@ export const Motion = ({ delegates, motion, onChange, onRemove }: Props): ReactE
         value={motion.topic}
         onChange={(event) => onChange({ ...motion, topic: event.currentTarget.value })}
       />
-      <Button>
+      <Button onClick={() => onStart(motion.id)} variant="outline" size="md">
         Start
       </Button>
         
