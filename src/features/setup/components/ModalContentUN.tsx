@@ -2,15 +2,15 @@ import { CountryMultiSelect } from '@components/CountryMultiSelect';
 // import { ImageUploader } from "@components/ImageUploader";
 import { Button, Group, Stack } from '@mantine/core';
 import { ReactElement, useState } from 'react';
-import { Country, Delegate } from 'src/features/types';
+import { Country, DelegateDoc } from 'src/features/types';
 
 type DelegateModalProps = {
   availableCountries: Country[];
   setAvailableCountries: (countries: Country[]) => void;
-  addRows: (newDelegates: Delegate[]) => void;
+  addRows: (newDelegates: DelegateDoc[]) => void;
 };
 
-function CountryToDelegate(countries: Country[]): Delegate[] {
+function CountryToDelegate(countries: Country[]): DelegateDoc[] {
   return countries.map((country) => ({
     country: country as unknown as Country,
     email: '',

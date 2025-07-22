@@ -1,24 +1,17 @@
-import { Dayjs } from "dayjs";
 import { Timestamp } from "firebase/firestore";
 
 export type Country = {
-  value: string;
+  // value: string;
   name: string;
   longName?: string;
   flag?: string;
-};
-
-export type Delegate = {
-  id: string;
-  country: Country;
-  email: string;
 };
 
 export type SetupFormValues = {
   committeeLongName: string;
   committeeShortName: string;
   staff: StaffDoc[];
-  delegates: Delegate[];
+  delegates: DelegateDoc[];
   dateRange: [Date | null, Date | null];
 };
 

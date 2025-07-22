@@ -1,7 +1,7 @@
 import React, { ReactNode, useEffect, useMemo, useState } from 'react';
 import { CommitteeContext } from './CommitteeContext';
 import { useSession } from '@hooks/useSession';
-import { committeeQueries } from '@mutations/yeahglo';
+import { committeeQueries } from '@mutations/committeeQueries';
 import { CommitteeDoc, UserCommitteeDoc } from '@features/types';
 
 const { getUserCommittees } = committeeQueries;

@@ -1,12 +1,13 @@
 import { Button, Group, Stack, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { ReactElement } from 'react';
-import { Country, Delegate } from '@features/types';
+import { Country, DelegateDoc } from '@features/types';
+import { generateDelegateId } from '@packages/generateIds';
 
 type DelegateModalProps = {
   availableCountries: Country[];
   setAvailableCountries: (countries: Country[]) => void;
-  addRows: (newDelegates: Delegate[]) => void;
+  addRows: (newDelegates: DelegateDoc[]) => void;
 };
 
 export const CustomModalContent = ({
@@ -25,14 +26,15 @@ export const CustomModalContent = ({
     const customCountryName = form.values.country.trim();
     if (!customCountryName) return;
 
-    const newDelegate: Delegate = {
-      id: "",
-      country: {
-        name: customCountryName,
-        value: customCountryName.toLowerCase().replace(/\s+/g, '-'),
-        longName: form.values.alias || undefined,
-      },
+    const newDelegate: DelegateDoc = {
+      id: generateDelegateId(customCountryName),
+      name: customCountryName,
       email: '',
+      inviteStatus: 'pending',
+      minutes: 0,
+      positionPaperSent: false,
+      attendanceStatus: 'absent',
+      spoke: false,
     };
 
     addRows([newDelegate]);

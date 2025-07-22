@@ -11,13 +11,13 @@ import {
 } from '@mantine/core';
 import { IconFileSpreadsheet } from '@tabler/icons-react';
 import { ReactElement, useState } from 'react';
-import { Country, Delegate } from '@features/types';
+import { Country, DelegateDoc } from '@features/types';
 
 type DelegateModalProps = {
   availableCountries: Country[];
   setAvailableCountries: (countries: Country[]) => void;
   existingCountries: Set<Country>;
-  addRows: (newDelegates: Delegate[]) => void;
+  addRows: (newDelegates: DelegateDoc[]) => void;
 };
 
 export const ImportSheetContent = (props: DelegateModalProps): ReactElement => {
@@ -42,7 +42,7 @@ export const ImportSheetContent = (props: DelegateModalProps): ReactElement => {
     setImportedValues([]);
   };
 
-  function transformData(data: Record<string, unknown>[]): Delegate[] {
+  function transformData(data: Record<string, unknown>[]): DelegateDoc[] {
     if (!Array.isArray(data)) {
       console.warn('No new delegates to add.');
       return [];
@@ -58,7 +58,7 @@ export const ImportSheetContent = (props: DelegateModalProps): ReactElement => {
       return {
         country: { name: country } as Country,
         email: email,
-      } as Delegate;
+      } as DelegateDoc;
     });
 
     console.log('mapped:', mappedData);

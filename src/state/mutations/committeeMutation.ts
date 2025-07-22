@@ -32,11 +32,9 @@ export const committeeMutations = () => {
     endDate: Date,
   ) => {
     const path = committeePath(committeeId);
-    return createFirestoreDocument(
-      path,
-      { longName, shortName, startDate, endDate },
-      true,
-    );
+    const data = { longName, shortName, startDate, endDate };
+    console.log('Creating committee at:', path, 'with data:', data);
+    return createFirestoreDocument(path, data, true);
   };
 
   const deleteCommittee = (committeeId: string) => {
@@ -52,7 +50,9 @@ export const committeeMutations = () => {
     inviteStatus: InviteStatus,
   ) => {
     const path = userCommitteePath(uid, committeeId);
-    return createFirestoreDocument(path, { role, roleId, inviteStatus }, true);
+    const data = { role, roleId, inviteStatus };
+    console.log('Adding user committee at:', path, 'with data:', data);
+    return createFirestoreDocument(path, data, true);
   };
 
   const removeUserCommittee = (uid: string, committeeId: string) => {
@@ -69,7 +69,9 @@ export const committeeMutations = () => {
     inviteStatus: InviteStatus = 'pending',
   ) => {
     const path = committeeStaffMemberPath(committeeId, staffId);
-    return createFirestoreDocument(path, { owner, staffRole, email, inviteStatus }, true);
+    const data = { owner, staffRole, email, inviteStatus };
+    console.log('Adding staff to committee at:', path, 'with data:', data);
+    return createFirestoreDocument(path, data, true);
   };
 
   const removeStaffFromCommittee = (committeeId: string, staffId: string) => {
@@ -88,11 +90,16 @@ export const committeeMutations = () => {
     spoke: boolean = false,
   ) => {
     const path = committeeDelegatePath(committeeId, delegateId);
-    return createFirestoreDocument(
-      path,
-      { name, email, inviteStatus, minutes, positionPaperSent, spoke },
-      true,
-    );
+    const data = {
+      name,
+      email,
+      inviteStatus,
+      minutes,
+      positionPaperSent,
+      spoke,
+    };
+    console.log('Adding delegate to committee at:', path, 'with data:', data);
+    return createFirestoreDocument(path, data, true);
   };
 
   const removeDelegateFromCommittee = (committeeId: string, delegateId: string) => {
@@ -151,37 +158,25 @@ export const committeeMutations = () => {
     upVotes: number = 0,
   ) => {
     const path = committeeDirectivePath(committeeId, directiveId);
+    const baseData = {
+      directiveId,
+      title,
+      description,
+      privateStatus,
+      sponsors,
+      signatories,
+      passed,
+      read,
+    };
+
     if (privateStatus) {
-      return createFirestoreDocument(
-        path,
-        {
-          directiveId,
-          title,
-          description,
-          privateStatus,
-          sponsors,
-          signatories,
-          passed,
-          read,
-        },
-        true,
-      );
+      console.log('Adding PRIVATE directive at:', path, 'with data:', baseData);
+      return createFirestoreDocument(path, baseData, true);
     }
-    return createFirestoreDocument(
-      path,
-      {
-        directiveId,
-        title,
-        description,
-        privateStatus,
-        sponsors,
-        signatories,
-        passed,
-        read,
-        upVotes,
-      },
-      true,
-    );
+
+    const publicData = { ...baseData, upVotes };
+    console.log('Adding PUBLIC directive at:', path, 'with data:', publicData);
+    return createFirestoreDocument(path, publicData, true);
   };
 
   const removeDirectiveFromCommittee = (committeeId: string, directiveId: string) => {
@@ -198,16 +193,11 @@ export const committeeMutations = () => {
     speakingTime?: number,
   ) => {
     const path = committeeMotionPath(committeeId, motionId);
-    const data: any = {
-      delegate,
-      type,
-    };
-    if (totalTime !== undefined) {
-      data.totalTime = totalTime;
-    }
-    if (speakingTime !== undefined) {
-      data.speakingTime = speakingTime;
-    }
+    const data: any = { delegate, type };
+    if (totalTime !== undefined) data.totalTime = totalTime;
+    if (speakingTime !== undefined) data.speakingTime = speakingTime;
+
+    console.log('Adding committee motion at:', path, 'with data:', data);
     return createFirestoreDocument(path, data, true);
   };
 

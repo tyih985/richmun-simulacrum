@@ -1,13 +1,13 @@
 import { Group, TextInput, Text, Table } from '@mantine/core';
 import { UseFormReturnType } from '@mantine/form';
-import { Delegate } from '@features/types';
+import { DelegateDoc } from '@features/types';
 
 interface DelegateRowProps {
   form: UseFormReturnType<{
     longName: string;
     shortName: string;
     staff: any[];
-    delegates: Delegate[];
+    delegates: DelegateDoc[];
     dateRange: [Date | null, Date | null];
   }>;
   index: number;
@@ -15,7 +15,7 @@ interface DelegateRowProps {
 
 export const DelegateRow = ({ form, index }: DelegateRowProps) => {
   const emailField = `delegates.${index}.email`;
-  const countryField = `delegates.${index}.country.name`;
+  const countryField = `delegates.${index}.name`;
 
 
   return (

@@ -13,7 +13,7 @@ import { auth } from '@packages/firebase/firebaseAuth';
 import { StepOne } from '@features/setup/components/StepOne.tsx';
 import { StepTwo } from '@features/setup/components/StepTwo.tsx';
 import { StepThree } from '@features/setup/components/StepThree.tsx';
-import { Delegate, RoleOption, StaffDoc } from '@features/types';
+import { DelegateDoc, RoleOption, StaffDoc } from '@features/types';
 
 const { createCommittee, addStaffToCommittee, addDelegateToCommittee, addUserCommittee } =
   committeeMutations();
@@ -25,7 +25,7 @@ export const Setup = (): ReactElement => {
       committeeLongName: '',
       committeeShortName: '',
       staff: [] as StaffDoc[],
-      delegates: [] as Delegate[],
+      delegates: [] as DelegateDoc[],
       dateRange: [null, null] as [Date | null, Date | null],
     },
     validate: {

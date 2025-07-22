@@ -11,13 +11,15 @@ import {
 } from '@mantine/core';
 import { IconFileSpreadsheet } from '@tabler/icons-react';
 import { ReactElement, useState } from 'react';
-import { Country, Delegate } from '@features/types';
+import { Country, DelegateDoc } from '@features/types';
+import { generateDelegateId } from '@packages/generateIds';
+import { countriesHash } from '@lib/countriesData';
 
 type DelegateModalProps = {
   availableCountries: Country[];
   setAvailableCountries: (countries: Country[]) => void;
   existingCountries: Set<Country>;
-  addRows: (newDelegates: Delegate[]) => void;
+  addRows: (newDelegates: DelegateDoc[]) => void;
 };
 
 export const ImportSheetContent = (props: DelegateModalProps): ReactElement => {
@@ -37,12 +39,12 @@ export const ImportSheetContent = (props: DelegateModalProps): ReactElement => {
     addRows(newDelegates);
 
     setAvailableCountries(
-      availableCountries.filter((c) => !newDelegates.some((d) => d.country === c)),
+      availableCountries.filter((c) => !newDelegates.some((d) => countriesHash[d.name] === c)),
     );
     setImportedValues([]);
   };
 
-  function transformData(data: Record<string, unknown>[]): Delegate[] {
+  function transformData(data: Record<string, unknown>[]): DelegateDoc[] {
     if (!Array.isArray(data)) {
       console.warn('No new delegates to add.');
       return [];
@@ -56,17 +58,23 @@ export const ImportSheetContent = (props: DelegateModalProps): ReactElement => {
           ? row[delegateCol].trim()
           : '';
       return {
-        country: { name: country } as Country,
-        email: email,
-      } as Delegate;
+        id: generateDelegateId(country),
+        name: country,
+        email: email, 
+        inviteStatus: 'pending',
+        minutes: 0,
+        positionPaperSent: false,
+        attendanceStatus: 'absent',
+        spoke: false,
+      } as DelegateDoc;
     });
 
     console.log('mapped:', mappedData);
 
     const filteredData = mappedData.filter(
       (d) =>
-        d.country &&
-        !Array.from(existingCountries).some((c) => c.name === d.country.name),
+        countriesHash[d.name]&&
+        !Array.from(existingCountries).some((c) => c.name === d.name),
     );
 
     console.log('filtered:', filteredData);

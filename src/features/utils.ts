@@ -1,6 +1,6 @@
 import dayjs, { Dayjs } from 'dayjs';
 import { InviteStatus, UserCommitteeDoc } from '@features/types';
-import { committeeQueries } from '@mutations/yeahglo';
+import { committeeQueries } from '@mutations/committeeQueries';
 import { Timestamp } from 'firebase/firestore';
 
 export const getCommitteeBy = async (
@@ -14,7 +14,7 @@ export const getCommitteeBy = async (
 
   // Filter by invite status
   const filtered = userCommittees.filter((uc) => uc.inviteStatus === status);
-  console.log('User Committees:', userCommittees);
+  console.log('User Committees:', filtered);
 
   // Fetch full committee data for each filtered committee
   const committeeData = await Promise.all(
@@ -37,7 +37,11 @@ export const firestoreTimestampToDate = (timestamp: Timestamp | Date): Date => {
     return timestamp.toDate();
   }
 
-  if (timestamp instanceof Date) {
+  else {
     return timestamp;
   }
 }
+
+// export function normalizeDateToUTC(date: Date): Date {
+//   return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+// }
