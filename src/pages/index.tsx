@@ -51,18 +51,19 @@ export const RootRoutes = () => {
         <Route path="/setup" element={<Setup />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/committee/:committeeId/speakers" element={<Speakers />} />
-        <Route path="/committee/:committeeId/caucus" element={<Caucus />} />
         <Route path="/committee/:committeeId/dashboard" element={<CommitteeDash />} />
         <Route
           path="/committee/:committeeId/directive/history"
           element={<DirectiveHistory />}
         />
-        <Route path="/committee/:committeeId/directive" element={<DirectiveInbox />} />
+        <Route path="/committee/:committeeId/directives" element={<DirectiveInbox />} />
         <Route
           path="/committee/:committeeId/directive/make"
           element={<MakeDirective />}
         />
         <Route path="/committee/:committeeId/motions" element={<Motions />} />
+        <Route path="/committee/:committeeId/caucus/:motionId" element={<Caucus />} />
+
        <Route path="/committee/:committeeId/rollcall" element={<RollCall />} />
 
        <Route

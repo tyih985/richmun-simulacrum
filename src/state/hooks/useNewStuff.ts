@@ -74,6 +74,30 @@ export const useCommitteeDelegates = (committeeId?: string) => {
   return { delegates, loading };
 };
 
+export const useCommitteeDirectives = (committeeId?: string) => {
+  const [directives, setDirectives] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!committeeId) return;
+
+    const fetchDirectives = async () => {
+      try {
+        const data = await committeeQueries.getCommitteeDirectives(committeeId);
+        setDirectives(data);
+      } catch (err) {
+        console.error('Error loading directives:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDirectives();
+  }, [committeeId]);
+
+  return { directives, loading };
+};
+
 export const useCommitteeStaff = (committeeId?: string) => {
   const [staff, setStaff] = useState<StaffDoc[]>([]);
   const [loading, setLoading] = useState(true);
@@ -98,17 +122,17 @@ export const useCommitteeStaff = (committeeId?: string) => {
   return { staff, loading };
 };
 
-export const useMotions = (committeeId?: string) => {
-  const [motions, setMotions] = useState<MotionDoc[]>([]);
+export const useMotion = (committeeId?: string, motionId?: string) => {
+  const [motion, setMotion] = useState<MotionDoc | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!committeeId) return;
+    if (!committeeId || !motionId) return;
 
     const fetchMotions = async () => {
       try {
-        const data = await committeeQueries.getCommitteeMotions(committeeId);
-        setMotions(data);
+        const data = await committeeQueries.getCommitteeMotion(committeeId, motionId);
+        setMotion(data);
       } catch (err) {
         console.error('Error loading motions:', err);
       } finally {
@@ -117,7 +141,34 @@ export const useMotions = (committeeId?: string) => {
     };
 
     fetchMotions();
-  }, [committeeId]);
+  }, [committeeId, motionId]);
 
-  return { motions, loading };
+  return { motion, loading };
 };
+
+export const useUserDelegate = (uid: string, cid: string) => {
+  const [delegate, setDelegate] = useState<DelegateDoc | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const { userCommittees } = useUserCommittees(uid);
+  const did = userCommittees.find((uc) => uc.id === cid)?.roleId;
+
+
+  useEffect(() => {
+    if (!did || !cid) return;
+    const fetchDelegate = async () => {
+      try {
+        const data = await committeeQueries.getCommitteeDelegate(did, cid);
+        setDelegate(data);
+      } catch (err) {
+        console.error('Error loading user delegates:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDelegate();
+  }, [cid, did, uid]);
+
+  return { delegate, loading };
+}
