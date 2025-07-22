@@ -16,7 +16,7 @@ import {
 import { UseFormReturnType } from '@mantine/form';
 import type { DelegateDoc, SetupFormValues } from '@features/types';
 import { ExpandableButton } from '@components/ExpandableButton';
-import { countriesData } from '@lib/countriesData';
+import { countriesData, countriesHash } from '@lib/countriesData';
 import { useDisclosure } from '@mantine/hooks';
 import { UNModalContent } from './ModalContentUN';
 import { CustomModalContent } from './ModalContentCustom';
@@ -39,7 +39,7 @@ export function StepThree({ form }: StepThreeProps): ReactElement {
   // State for available countries
   const [availableCountries, setAvailableCountries] = useState(un_countries);
 
-  const existingCountries = new Set(form.values.delegates.map((d) => d.country));
+  const existingCountries = new Set(form.values.delegates.map((d) => countriesHash[d.name]));
 
   // State for focused delegate index
   const [focusedDelegateIdx, setFocusedDelegateIdx] = useState<number | null>(null);
@@ -49,7 +49,7 @@ export function StepThree({ form }: StepThreeProps): ReactElement {
     form.setFieldValue(
       'delegates',
       [...form.values.delegates, ...newDelegates].sort((a, b) =>
-        a.country.name.localeCompare(b.country.name),
+        a.name.localeCompare(b.name),
       ),
     );
 
@@ -65,14 +65,14 @@ export function StepThree({ form }: StepThreeProps): ReactElement {
     setAvailableCountries(un_countries.filter((c) => !existingCountries.has(c)));
   };
 
-  const delegateRows = form.values.delegates.map(({ country, email }, idx) => (
-    <Table.Tr key={`${country}-${idx}`}>
+  const delegateRows = form.values.delegates.map((d, idx) => (
+    <Table.Tr key={`${d.name}-${idx}`}>
       <Table.Td>
         <Stack gap={2}>
-          <Text size="sm">{country.name}</Text>
-          {country.longName?.trim() && (
+          <Text size="sm">{d.name}</Text>
+          {d.longName?.trim() && (
             <Text size="xs" c="dimmed">
-              ({country.longName})
+              ({d.longName})
             </Text>
           )}
         </Stack>
@@ -80,7 +80,7 @@ export function StepThree({ form }: StepThreeProps): ReactElement {
       <Table.Td>
         <TextInput
           placeholder="Add delegate email here..."
-          value={email}
+          value={d.email}
           onChange={(e) => {
             const list = [...form.values.delegates];
             list[idx].email = e.currentTarget.value;
@@ -89,7 +89,7 @@ export function StepThree({ form }: StepThreeProps): ReactElement {
           onFocus={() => setFocusedDelegateIdx(idx)}
           onBlur={() => setFocusedDelegateIdx(null)}
           error={
-            idx !== focusedDelegateIdx && email.trim() !== '' && !isValidEmail(email)
+            idx !== focusedDelegateIdx && d.email.trim() !== '' && !isValidEmail(d.email)
               ? 'Invalid email'
               : undefined
           }

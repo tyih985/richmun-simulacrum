@@ -6,7 +6,6 @@ import { IconArrowRight } from '@tabler/icons-react';
 import { committeeMutations } from '@mutations/committeeMutation.ts';
 import {
   generateCommitteeId,
-  generateDelegateId,
   generateStaffId,
 } from '@packages/generateIds';
 import { auth } from '@packages/firebase/firebaseAuth';
@@ -14,12 +13,15 @@ import { StepOne } from '@features/setup/components/StepOne.tsx';
 import { StepTwo } from '@features/setup/components/StepTwo.tsx';
 import { StepThree } from '@features/setup/components/StepThree.tsx';
 import { DelegateDoc, RoleOption, StaffDoc } from '@features/types';
+import { useNavigate } from 'react-router-dom';
 
 const { createCommittee, addStaffToCommittee, addDelegateToCommittee, addUserCommittee } =
   committeeMutations();
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export const Setup = (): ReactElement => {
+  const navigate = useNavigate();
+
   const form = useForm({
     initialValues: {
       committeeLongName: '',
@@ -84,13 +86,15 @@ export const Setup = (): ReactElement => {
       });
 
       // delegates
-      const delegateTasks = form.values.delegates.map(async ({ country, email }) => {
-        const delegateId = generateDelegateId(country.name);
+      const delegateTasks = form.values.delegates.map(async (d) => {
+        console.log('delegate:', d);
+        if (!d) return;
+        console.log('delegate:', { committeeId, d });
         await addDelegateToCommittee(
           committeeId,
-          delegateId,
-          country.name,
-          email.trim().toLowerCase(),
+          d.id,
+          d.name,
+          d.email.trim().toLowerCase(),
           'pending',
         );
       });
@@ -99,6 +103,7 @@ export const Setup = (): ReactElement => {
       // await ultimateConsoleLog();
       form.reset();
       console.log('Form reset; flow complete.');
+      navigate('/dashboard');
     } catch (err) {
       console.error('Error in handleSubmit:', err);
     } finally {

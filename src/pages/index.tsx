@@ -63,12 +63,12 @@ export const RootRoutes = () => {
           element={<MakeDirective />}
         />
         <Route path="/committee/:committeeId/motions" element={<Motions />} />
-       <Route path="/committee/:committeeId/rollcall" element={<RollCall />} />
+        <Route path="/committee/:committeeId/rollcall" element={<RollCall />} />
 
-       <Route
-         path="/committee/:committeeId/rollcall/:rollCallId"
-         element={<RollCall />}
-       />
+        <Route
+          path="/committee/:committeeId/rollcall/:rollCallId"
+          element={<RollCall />}
+        />
       </Routes>
     );
 

@@ -34,12 +34,12 @@ export const Dashboard = (): ReactElement => {
           .filter((inv) => inv.inviteStatus === 'pending')
           .map((invite: UserCommitteeDoc) => (
             <InviteCard
-  key={invite.id}
-  uid={uid}
-  invite={invite}
-  committee={committeeDocs[invite.id]}
-onRespondSuccess={refresh}
-/>
+              key={invite.id}
+              uid={uid}
+              invite={invite}
+              committee={committeeDocs[invite.id]}
+              onRespondSuccess={refresh}
+            />
           ))}
       </Drawer>
 
@@ -87,8 +87,11 @@ onRespondSuccess={refresh}
               </Table.Tbody>
             </Table>
             <Group justify="flex-end">
-              <ActionIcon variant="filled" 
-  onClick={() => navigate('/setup')} aria-label="Add Committee">
+              <ActionIcon
+                variant="filled"
+                onClick={() => navigate('/setup')}
+                aria-label="Add Committee"
+              >
                 <IconPlus style={{ width: '70%', height: '70%' }} stroke={2} />
               </ActionIcon>
             </Group>

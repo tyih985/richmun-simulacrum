@@ -38,9 +38,7 @@ export const CustomModalContent = ({
     };
 
     addRows([newDelegate]);
-    setAvailableCountries(
-      availableCountries.filter((c) => c.name !== customCountryName),
-    );
+    setAvailableCountries(availableCountries.filter((c) => c.name !== customCountryName));
 
     form.reset();
   }

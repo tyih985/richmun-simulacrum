@@ -30,17 +30,15 @@ export const dateToTimestamp = (date: Dayjs | Date): Timestamp => {
     return Timestamp.fromDate(date.toDate());
   }
   return Timestamp.fromDate(date);
-}
+};
 
 export const firestoreTimestampToDate = (timestamp: Timestamp | Date): Date => {
   if (timestamp instanceof Timestamp) {
     return timestamp.toDate();
-  }
-
-  else {
+  } else {
     return timestamp;
   }
-}
+};
 
 // export function normalizeDateToUTC(date: Date): Date {
 //   return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));

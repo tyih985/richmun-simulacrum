@@ -241,5 +241,5 @@ export const countriesHash: Record<string, Country> = countriesData.reduce(
     acc[country.name] = country;
     return acc;
   },
-  {} as Record<string, Country>
+  {} as Record<string, Country>,
 );

@@ -17,22 +17,15 @@ export const DelegateRow = ({ form, index }: DelegateRowProps) => {
   const emailField = `delegates.${index}.email`;
   const countryField = `delegates.${index}.name`;
 
-
   return (
     <>
-        <Table.Td>
-          <TextInput
-        {...form.getInputProps(countryField)}
-        placeholder="Delegate country"
-        />
-        </Table.Td>
-    
       <Table.Td>
-      <TextInput
-        {...form.getInputProps(emailField)}
-        placeholder="Delegate email"
-      />
-</Table.Td>
-      </>
+        <TextInput {...form.getInputProps(countryField)} placeholder="Delegate country" />
+      </Table.Td>
+
+      <Table.Td>
+        <TextInput {...form.getInputProps(emailField)} placeholder="Delegate email" />
+      </Table.Td>
+    </>
   );
 };

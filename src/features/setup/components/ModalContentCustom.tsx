@@ -2,6 +2,7 @@ import { Button, Group, Stack, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { ReactElement, useState } from 'react';
 import { Country, DelegateDoc } from '@features/types';
+import { generateDelegateId } from '@packages/generateIds';
 
 type DelegateModalProps = {
   availableCountries: Country[];
@@ -72,8 +73,14 @@ export const CustomModalContent = (props: DelegateModalProps): ReactElement => {
 function InputToDelegate(countryname: string, countryalias: string): DelegateDoc[] {
   return [
     {
-      country: { name: countryname, longName: countryalias } as Country,
+      id: generateDelegateId(countryname),
+      name: countryname, 
+      longName: countryalias,
       email: '',
+      inviteStatus: 'pending',
+      minutes: 0,
+      positionPaperSent: false,
+      spoke: false,
     },
   ];
 }

@@ -1,4 +1,4 @@
-import { Timestamp } from "firebase/firestore";
+import { Timestamp } from 'firebase/firestore';
 
 export type Country = {
   // value: string;
@@ -48,6 +48,7 @@ export type StaffDoc = {
 export type DelegateDoc = {
   id: string;
   name: string;
+  longName?: string;
   email: string;
   inviteStatus: InviteStatus;
   minutes: number;

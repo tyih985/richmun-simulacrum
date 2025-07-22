@@ -23,8 +23,8 @@ export function TimerBar() {
 
   return (
     <Stack>
-      <Progress value={progress}/>
-      <Group mt="md" justify='center'>
+      <Progress value={progress} />
+      <Group mt="md" justify="center">
         <Button onClick={() => setRunning((r) => !r)}>
           {running ? 'Pause' : 'Start'}
         </Button>

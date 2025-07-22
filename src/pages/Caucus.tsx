@@ -20,15 +20,11 @@ export const Caucus = (): ReactElement => {
 
   return (
     <Stack p="xl">
-      <Stack align='flex-start'>
-        <Title order={1}>
-          Caucus
-        </Title>
+      <Stack align="flex-start">
+        <Title order={1}>Caucus</Title>
       </Stack>
       <DelegateTimer delegate={delegates[0]}></DelegateTimer>
       <AddSpeakers delegates={delegates}></AddSpeakers>
-      
-
     </Stack>
   );
 };

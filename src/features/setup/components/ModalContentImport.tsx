@@ -12,6 +12,7 @@ import {
 import { IconFileSpreadsheet } from '@tabler/icons-react';
 import { ReactElement, useState } from 'react';
 import { Country, DelegateDoc } from '@features/types';
+import { generateDelegateId } from '@packages/generateIds';
 
 type DelegateModalProps = {
   availableCountries: Country[];
@@ -37,7 +38,7 @@ export const ImportSheetContent = (props: DelegateModalProps): ReactElement => {
     addRows(newDelegates);
 
     setAvailableCountries(
-      availableCountries.filter((c) => !newDelegates.some((d) => d.country === c)),
+      availableCountries.filter((c) => !newDelegates.some((d) => d.name === c.name)),
     );
     setImportedValues([]);
   };
@@ -56,8 +57,13 @@ export const ImportSheetContent = (props: DelegateModalProps): ReactElement => {
           ? row[delegateCol].trim()
           : '';
       return {
-        country: { name: country } as Country,
+        id: generateDelegateId(country),
+        name: country,
         email: email,
+        inviteStatus: 'pending',
+        minutes: 0,
+        positionPaperSent: false,
+        spoke: false,
       } as DelegateDoc;
     });
 
@@ -65,8 +71,8 @@ export const ImportSheetContent = (props: DelegateModalProps): ReactElement => {
 
     const filteredData = mappedData.filter(
       (d) =>
-        d.country &&
-        !Array.from(existingCountries).some((c) => c.name === d.country.name),
+        d.name &&
+        !Array.from(existingCountries).some((c) => c.name === d.name),
     );
 
     console.log('filtered:', filteredData);
