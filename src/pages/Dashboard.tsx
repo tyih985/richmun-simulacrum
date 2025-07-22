@@ -1,4 +1,5 @@
 import { ReactElement } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   ActionIcon,
   Button,
@@ -16,29 +17,30 @@ import { useUserCommittees } from '@hooks/useNewStuff';
 import { CommitteeRow } from '@features/dashboard/components/CommitteeRow';
 import { InviteCard } from '@features/dashboard/components/InviteCard';
 import { auth } from '@packages/firebase/firebaseAuth';
-import { UserCommitteeDoc } from '@features/types';
-import { useNavigate } from 'react-router-dom';
+import type { UserCommitteeDoc } from '@features/types';
 
 export const Dashboard = (): ReactElement => {
-  const uid = auth.currentUser?.uid;
+  const uid = auth.currentUser!.uid;
+  const navigate = useNavigate();
   const [opened, { open, close }] = useDisclosure(false);
-
-  const { userCommittees, userInvites, committeeDocs, loading } = useUserCommittees(
-    uid ?? '',
-  );
-
+  const { userCommittees, userInvites, committeeDocs, loading, refresh } =
+    useUserCommittees(uid);
   if (loading) return <div>Loading...</div>;
 
   return (
     <>
       <Drawer opened={opened} onClose={close} title="Your Invites" position="right">
-        {userInvites.map((invite: UserCommitteeDoc) => (
-          <InviteCard
-            key={invite.id}
-            invite={invite}
-            committee={committeeDocs[invite.id]}
-          />
-        ))}
+        {userInvites
+          .filter((inv) => inv.inviteStatus === 'pending')
+          .map((invite: UserCommitteeDoc) => (
+            <InviteCard
+  key={invite.id}
+  uid={uid}
+  invite={invite}
+  committee={committeeDocs[invite.id]}
+onRespondSuccess={refresh}
+/>
+          ))}
       </Drawer>
 
       <Stack p="lg">
@@ -47,7 +49,7 @@ export const Dashboard = (): ReactElement => {
             <IconUser style={{ width: '70%', height: '70%' }} stroke={2} />
           </ActionIcon>
           <Title order={1} flex={1}>
-            Welcome Back! {uid}
+            Welcome Back! {auth.currentUser?.displayName}
           </Title>
           <Button
             size="sm"
@@ -85,7 +87,8 @@ export const Dashboard = (): ReactElement => {
               </Table.Tbody>
             </Table>
             <Group justify="flex-end">
-              <ActionIcon variant="filled" aria-label="Add Committee">
+              <ActionIcon variant="filled" 
+  onClick={() => navigate('/setup')} aria-label="Add Committee">
                 <IconPlus style={{ width: '70%', height: '70%' }} stroke={2} />
               </ActionIcon>
             </Group>

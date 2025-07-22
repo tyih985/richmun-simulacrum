@@ -220,26 +220,27 @@ export const CommitteeDash = () => {
     }
   };
 
-  const handleNewRollCall = async () => {
-    if (!committeeId) return;
-    const rollCallId = generateRollCallId(committeeId);
-    const now = Timestamp.now();
-    await addRollCallToCommittee(committeeId, rollCallId, now);
-    const placeholder = Timestamp.fromMillis(0);
-    for (const del of form.values.delegates) {
-      await addRollCallDelegateToCommittee(
-        committeeId,
-        rollCallId,
-        del.name,
-        placeholder,
-        'absent'
-      );
-    }
-    navigate(
-      `/committee/${committeeId}/rollcall/${rollCallId}`,
-      { replace: true }
+const handleNewRollCall = async () => {
+  if (!committeeId) return;
+  const rollCallId = generateRollCallId(committeeId);
+  const now = Timestamp.now();
+  await addRollCallToCommittee(committeeId, rollCallId, now);
+  const delegateDocs = await committeeQueries.getCommitteeDelegates(committeeId);
+  const placeholder = Timestamp.fromMillis(0);
+  for (const d of delegateDocs) {
+    await addRollCallDelegateToCommittee(
+      committeeId,
+      rollCallId,
+      d.id,
+      placeholder,
+      'absent'
     );
-  };
+  }
+  navigate(
+    `/committee/${committeeId}/rollcall/${rollCallId}`,
+    { replace: false }
+  );
+};
 
   if (loading)
     return (

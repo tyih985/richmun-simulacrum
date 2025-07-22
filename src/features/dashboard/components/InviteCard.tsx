@@ -1,21 +1,66 @@
-import { Badge, Card, Group, Text } from '@mantine/core';
-import { CommitteeDoc, UserCommitteeDoc } from '@features/types';
-import { ReactElement } from 'react';
+import { ReactElement, useState } from 'react';
+import { Badge, Card, Group, Text, Button } from '@mantine/core';
+import { committeeMutations } from '@mutations/committeeMutation';
+import type { CommitteeDoc, UserCommitteeDoc } from '@features/types';
+
+const { updateUserCommitteeInvite } = committeeMutations();
 
 type Props = {
+  uid: string;
   invite: UserCommitteeDoc;
-  committee?: CommitteeDoc;
+  committee: CommitteeDoc;
+  onRespondSuccess: () => void;
 };
 
-export const InviteCard = ({ committee }: Props): ReactElement => {
+export const InviteCard = ({
+  uid,
+  invite,
+  committee,
+  onRespondSuccess,
+}: Props): ReactElement => {
+  const [loading, setLoading] = useState(false);
+
+  const onRespond = async (newStatus: 'accepted' | 'rejected') => {
+    setLoading(true);
+    try {
+      await updateUserCommitteeInvite(uid, invite.id, newStatus);
+      onRespondSuccess();
+    } catch (err) {
+      console.error('Failed to update invite status', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <Card shadow="sm" padding="lg">
-      <Group justify="space-between" mt="md" mb="xs" align="flex-start">
-        <Text flex={1}>
-          Someone invited you to{' '}
-          {committee ? `${committee.shortName} (${committee.longName})` : 'a committee'}
+    <Card shadow="sm" padding="lg" mb="md">
+      <Group mb="sm">
+        <Text>
+          You’ve been invited to{' '}
+          {committee
+            ? `${committee.shortName} (${committee.longName})`
+            : 'a committee'}
         </Text>
-        <Badge color="grey">"time ago"</Badge>
+        <Badge color="gray">Pending</Badge>
+      </Group>
+
+      <Group>
+        <Button
+          size="xs"
+          color="green"
+          onClick={() => onRespond('accepted')}
+          loading={loading}
+        >
+          Accept
+        </Button>
+        <Button
+          size="xs"
+          color="red"
+          onClick={() => onRespond('rejected')}
+          loading={loading}
+        >
+          Reject
+        </Button>
       </Group>
     </Card>
   );

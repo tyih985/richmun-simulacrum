@@ -17,37 +17,38 @@ export const useUserCommittees = (uid?: string) => {
   const [committeeDocs, setCommitteeDocs] = useState<Record<string, CommitteeDoc>>({});
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const fetchData = async () => {
     if (!uid) return;
 
-    const fetchData = async () => {
-      try {
-        const all = await getUserCommittees(uid);
-        const accepted = await getCommitteesForUser(all, 'accepted');
-        const pending = await getCommitteesForUser(all, 'pending');
+    setLoading(true);
+    try {
+      const all = await getUserCommittees(uid);
+      const accepted = await getCommitteesForUser(all, 'accepted');
+      const pending = await getCommitteesForUser(all, 'pending');
 
-        const committeeMap: Record<string, CommitteeDoc> = {};
-        await Promise.all(
-          accepted.concat(pending).map(async (uc) => {
-            const committee = await getCommittee(uc.id);
-            if (committee) committeeMap[uc.id] = committee;
-          }),
-        );
+      const committeeMap: Record<string, CommitteeDoc> = {};
+      await Promise.all(
+        accepted.concat(pending).map(async (uc) => {
+          const committee = await getCommittee(uc.id);
+          if (committee) committeeMap[uc.id] = committee;
+        }),
+      );
 
-        setUserCommittees(accepted);
-        setUserInvites(pending);
-        setCommitteeDocs(committeeMap);
-      } catch (err) {
-        console.error('Error loading committees:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
+      setUserCommittees(accepted);
+      setUserInvites(pending);
+      setCommitteeDocs(committeeMap);
+    } catch (err) {
+      console.error('Error loading committees:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchData();
   }, [uid]);
 
-  return { userCommittees, userInvites, committeeDocs, loading };
+  return { userCommittees, userInvites, committeeDocs, loading, refresh: fetchData };
 };
 
 export const useCommitteeDelegates = (committeeId?: string) => {
