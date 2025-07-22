@@ -33,7 +33,6 @@ export const CustomModalContent = ({
       inviteStatus: 'pending',
       minutes: 0,
       positionPaperSent: false,
-      attendanceStatus: 'absent',
       spoke: false,
     };
 

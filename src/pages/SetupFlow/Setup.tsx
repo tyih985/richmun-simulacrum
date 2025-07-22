@@ -84,12 +84,12 @@ export const Setup = (): ReactElement => {
       });
 
       // delegates
-      const delegateTasks = form.values.delegates.map(async ({ country, email }) => {
-        const delegateId = generateDelegateId(country.name);
+      const delegateTasks = form.values.delegates.map(async ({ name, email }) => {
+        const delegateId = generateDelegateId(name);
         await addDelegateToCommittee(
           committeeId,
           delegateId,
-          country.name,
+          name,
           email.trim().toLowerCase(),
           'pending',
         );
