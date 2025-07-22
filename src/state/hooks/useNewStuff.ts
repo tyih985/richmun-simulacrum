@@ -160,7 +160,7 @@ export const useUserDelegate = (uid: string, cid: string) => {
     if (!did || !cid) return;
     const fetchDelegate = async () => {
       try {
-        const data = await committeeQueries.getCommitteeDelegate(did, cid);
+        const data = await committeeQueries.getCommitteeDelegate(cid, did);
         setDelegate(data);
       } catch (err) {
         console.error('Error loading user delegates:', err);
@@ -168,6 +168,7 @@ export const useUserDelegate = (uid: string, cid: string) => {
         setLoading(false);
       }
     };
+    console.log('delegate doc:', delegate)
 
     fetchDelegate();
   }, [cid, did, uid]);
