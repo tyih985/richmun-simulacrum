@@ -33,6 +33,7 @@ import { committeeMutations } from '@mutations/committeeMutation';
 import { firestoreTimestampToDate } from '@features/utils';
 import { generateRollCallId, generateStaffId } from '@packages/generateIds';
 import { Timestamp } from 'firebase/firestore';
+import { useUserIsStaff } from '@hooks/useNewStuff';
 
 const un_countries = countriesData;
 const {
@@ -63,6 +64,9 @@ export const CommitteeDash = () => {
 
   const [staffValues, setStaffValues] = useState<string[]>([]);
   const [availableCountries, setAvailableCountries] = useState<Country[]>(un_countries);
+
+  // assumes uid & cid exist
+  const { isStaff } = useUserIsStaff(auth.currentUser!.uid, committeeId!);
   const navigate = useNavigate();
 
   const form = useForm<SetupFormValues>({
@@ -269,121 +273,132 @@ export const CommitteeDash = () => {
       </Container>
     );
 
-  return (
-    <Stack p="lg">
-      <Modal
-        opened={openedStaffModal}
-        onClose={closeStaffModal}
-        title="Add Staff Members"
-        centered
-        size="lg"
-      >
-        <StaffModalContent onTagChange={setStaffValues} onSubmit={addStaffRows} />
-      </Modal>
-
-      <Modal
-        opened={openedDelegateModal}
-        onClose={closeDelegateModal}
-        title={
-          activeModal === 'UN'
-            ? 'Add UN Countries'
-            : activeModal === 'custom'
-              ? 'Add Custom Country'
-              : 'Import Delegates'
-        }
-        centered
-        size="lg"
-      >
-        <Group mb="md">
-          <Button
-            variant={activeModal === 'UN' ? 'filled' : 'outline'}
-            onClick={() => setActiveModal('UN')}
-          >
-            UN
-          </Button>
-          <Button
-            variant={activeModal === 'custom' ? 'filled' : 'outline'}
-            onClick={() => setActiveModal('custom')}
-          >
-            Custom
-          </Button>
-          <Button
-            variant={activeModal === 'import' ? 'filled' : 'outline'}
-            onClick={() => setActiveModal('import')}
-          >
-            Import
-          </Button>
-        </Group>
-
-        {activeModal === 'UN' && (
-          <UNModalContent
-            availableCountries={availableCountries}
-            setAvailableCountries={setAvailableCountries}
-            addRows={addRows}
-          />
-        )}
-        {activeModal === 'custom' && (
-          <CustomModalContent
-            availableCountries={availableCountries}
-            setAvailableCountries={setAvailableCountries}
-            addRows={addRows}
-          />
-        )}
-        {activeModal === 'import' && (
-          <ImportSheetContent
-            availableCountries={availableCountries}
-            setAvailableCountries={setAvailableCountries}
-            existingCountries={
-              new Set(form.values.delegates.map((d) => countriesHash[d.name]))
-            }
-            addRows={addRows}
-          />
-        )}
-      </Modal>
-
-      <Group>
-        <Stack>
-          <Title size="xl">Committee Details</Title>
-          <Text size="sm">Overview of your committee</Text>
-        </Stack>
-        {/* <Button>Launch</Button> */}
+return (
+  <Stack p="lg">
+    <Modal
+      opened={openedStaffModal}
+      onClose={closeStaffModal}
+      title="Add Staff Members"
+      centered
+      size="lg"
+    >
+      <StaffModalContent onTagChange={setStaffValues} onSubmit={addStaffRows} />
+    </Modal>
+    <Modal
+      opened={openedDelegateModal}
+      onClose={closeDelegateModal}
+      title={
+        activeModal === 'UN'
+          ? 'Add UN Countries'
+          : activeModal === 'custom'
+          ? 'Add Custom Country'
+          : 'Import Delegates'
+      }
+      centered
+      size="lg"
+    >
+      <Group mb="md">
+        <Button
+          variant={activeModal === 'UN' ? 'filled' : 'outline'}
+          onClick={() => setActiveModal('UN')}
+        >
+          UN
+        </Button>
+        <Button
+          variant={activeModal === 'custom' ? 'filled' : 'outline'}
+          onClick={() => setActiveModal('custom')}
+        >
+          Custom
+        </Button>
+        <Button
+          variant={activeModal === 'import' ? 'filled' : 'outline'}
+          onClick={() => setActiveModal('import')}
+        >
+          Import
+        </Button>
       </Group>
-      <Divider />
 
-      <Table striped withColumnBorders>
-        <Table.Thead>
-          <Table.Tr>
-            <Table.Th>Field</Table.Th>
-            <Table.Th>Value</Table.Th>
-          </Table.Tr>
-        </Table.Thead>
-        <Table.Tbody>
-          <Table.Tr>
-            <Table.Td>Long Name</Table.Td>
-            <Table.Td>
+      {activeModal === 'UN' && (
+        <UNModalContent
+          availableCountries={availableCountries}
+          setAvailableCountries={setAvailableCountries}
+          addRows={addRows}
+        />
+      )}
+      {activeModal === 'custom' && (
+        <CustomModalContent
+          availableCountries={availableCountries}
+          setAvailableCountries={setAvailableCountries}
+          addRows={addRows}
+        />
+      )}
+      {activeModal === 'import' && (
+        <ImportSheetContent
+          availableCountries={availableCountries}
+          setAvailableCountries={setAvailableCountries}
+          existingCountries={
+            new Set(form.values.delegates.map((d) => countriesHash[d.name]))
+          }
+          addRows={addRows}
+        />
+      )}
+    </Modal>
+    <Group>
+      <Stack>
+        <Title size="xl">Committee Details</Title>
+        <Text size="sm">Overview of your committee</Text>
+      </Stack>
+    </Group>
+    <Divider />
+    <Table striped withColumnBorders>
+      <Table.Thead>
+        <Table.Tr>
+          <Table.Th>Field</Table.Th>
+          <Table.Th>Value</Table.Th>
+        </Table.Tr>
+      </Table.Thead>
+      <Table.Tbody>
+        <Table.Tr>
+          <Table.Td>Long Name</Table.Td>
+          <Table.Td>
+            {isStaff ? (
               <TextInput {...form.getInputProps('committeeLongName')} />
-            </Table.Td>
-          </Table.Tr>
-          <Table.Tr>
-            <Table.Td>Short Name</Table.Td>
-            <Table.Td>
+            ) : (
+              <Text>{form.values.committeeLongName}</Text>
+            )}
+          </Table.Td>
+        </Table.Tr>
+        <Table.Tr>
+          <Table.Td>Short Name</Table.Td>
+          <Table.Td>
+            {isStaff ? (
               <TextInput {...form.getInputProps('committeeShortName')} />
-            </Table.Td>
-          </Table.Tr>
-          <Table.Tr>
-            <Table.Td>Event Dates</Table.Td>
-            <Table.Td>
+            ) : (
+              <Text>{form.values.committeeShortName}</Text>
+            )}
+          </Table.Td>
+        </Table.Tr>
+        <Table.Tr>
+          <Table.Td>Event Dates</Table.Td>
+          <Table.Td>
+            {isStaff ? (
               <DateInputComponentNonRequired
                 value={form.values.dateRange}
                 onChange={(r) => form.setFieldValue('dateRange', r!)}
               />
-            </Table.Td>
-          </Table.Tr>
-        </Table.Tbody>
-      </Table>
-
-      <Stack>
-        <Title order={3}>Staff</Title>
+            ) : (
+              <Text>
+                {form.values.dateRange[0]?.toLocaleDateString()} –{' '}
+                {form.values.dateRange[1]?.toLocaleDateString()}
+              </Text>
+            )}
+          </Table.Td>
+        </Table.Tr>
+      </Table.Tbody>
+    </Table>
+    <Stack>
+      <Title order={3}>Staff</Title>
+      {isStaff && (
         <Flex justify="flex-end" mb="xs">
           <Button variant="outline" onClick={openStaffModal}>
             Add Staff
@@ -421,8 +436,9 @@ export const CommitteeDash = () => {
         </Table>
       </Stack>
 
-      <Stack>
-        <Title order={3}>Delegates</Title>
+    <Stack>
+      <Title order={3}>Delegates</Title>
+      {isStaff && (
         <Flex justify="flex-end" mb="xs">
           <Button
             variant="outline"
@@ -434,39 +450,45 @@ export const CommitteeDash = () => {
             Add Delegate
           </Button>
         </Flex>
-        <Table striped highlightOnHover withColumnBorders>
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th>Country</Table.Th>
-              <Table.Th>Email</Table.Th>
-              <Table.Th />
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {form.values.delegates.map((_, i) => (
-              <Table.Tr key={i}>
-                <DelegateRow form={form as any} index={i} />
-                <Table.Td>
+      )}
+      <Table striped highlightOnHover withColumnBorders>
+        <Table.Thead>
+          <Table.Tr>
+            <Table.Th>Country</Table.Th>
+            <Table.Th>Email</Table.Th>
+            <Table.Th />
+          </Table.Tr>
+        </Table.Thead>
+        <Table.Tbody>
+          {form.values.delegates.map((_, i) => (
+            <Table.Tr key={i}>
+              <DelegateRow form={form as any} index={i} isStaff={isStaff}/>
+              <Table.Td>
+                {isStaff ? (
                   <CloseButton onClick={() => removeDelegate(i)} />
-                </Table.Td>
-              </Table.Tr>
-            ))}
-          </Table.Tbody>
-        </Table>
-      </Stack>
-
-      <Button onClick={handleSaveChanges} disabled={!isFormValid}>
-        Save Changes
-      </Button>
-
-      <Button
-        variant="outline"
-        mt="md"
-        onClick={handleNewRollCall}
-        disabled={form.values.delegates.length === 0}
-      >
-        New Roll Call
-      </Button>
+                ) : null}
+              </Table.Td>
+            </Table.Tr>
+          ))}
+        </Table.Tbody>
+      </Table>
     </Stack>
-  );
+
+    {isStaff && (
+      <>
+        <Button onClick={handleSaveChanges} disabled={!isFormValid}>
+          Save Changes
+        </Button>
+        <Button
+          variant="outline"
+          mt="md"
+          onClick={handleNewRollCall}
+          disabled={form.values.delegates.length === 0}
+        >
+          New Roll Call
+        </Button>
+      </>
+    )}
+  </Stack>
+);
 };

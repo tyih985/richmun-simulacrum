@@ -57,6 +57,7 @@ export const StaffRow = ({ form, index, onRemove }: StaffRowProps) => {
         )}
       </Table.Td>
 
+
       <Table.Td>
         {!staffMember.owner && (
           <CloseButton onClick={() => onRemove(index)} />

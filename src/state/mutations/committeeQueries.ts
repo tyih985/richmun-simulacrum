@@ -13,6 +13,7 @@ import {
   committeeMotionsPath,
   committeeMotionPath,
   userCommitteesPath,
+  userCommitteePath,
   committeeRollCallPath,
   committeeRollCallsPath,
   committeeRollCallDelegatePath,
@@ -64,6 +65,16 @@ export const committeeQueries = {
         return base;
       }),
     );
+  },
+
+  getUserCommittee: async (
+    uid: string,
+    committeeId: string,
+  ): Promise<UserCommitteeDoc | null> => {
+    const path = userCommitteePath(uid, committeeId);
+    const doc = await getFirestoreDocument<Omit<UserCommitteeDoc, 'id'>>(path);
+    if (!doc) return null;
+    return { id: committeeId, ...doc };
   },
 
   getCommitteeStaffMember: async (

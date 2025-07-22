@@ -8,8 +8,9 @@ import {
   StaffDoc,
   UserCommitteeDoc,
 } from '@features/types';
+import { getFirestoreDocument } from '@packages/firestoreAsQuery';
 
-const { getUserCommittees, getCommittee } = committeeQueries;
+const { getUserCommittees, getUserCommittee, getCommittee } = committeeQueries;
 
 export const useUserCommittees = (uid?: string) => {
   const [userCommittees, setUserCommittees] = useState<UserCommitteeDoc[]>([]);
@@ -174,3 +175,28 @@ export const useUserDelegate = (uid: string, cid: string) => {
 
   return { delegate, loading };
 };
+
+export const useUserIsStaff = (uid: string, cid: string) => {
+  const [isStaff, setIsStaff] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!uid || !cid) return;
+    const fetchRole = async () => {
+      try {
+        const usercomdoc = await getUserCommittee(uid, cid);
+        if (usercomdoc?.role === 'staff') {
+          setIsStaff(true);
+        }
+      } catch (err) {
+        console.error('Error loading user role:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRole();
+  }, [uid, cid]);
+
+  return { isStaff, loading };
+}

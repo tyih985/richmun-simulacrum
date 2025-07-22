@@ -1,4 +1,4 @@
-import { Group, TextInput, Text, Table } from '@mantine/core';
+import { Table, TextInput, Text } from '@mantine/core';
 import { UseFormReturnType } from '@mantine/form';
 import { DelegateDoc } from '@features/types';
 
@@ -11,20 +11,35 @@ interface DelegateRowProps {
     dateRange: [Date | null, Date | null];
   }>;
   index: number;
+  isStaff: boolean;
 }
 
-export const DelegateRow = ({ form, index }: DelegateRowProps) => {
-  const emailField = `delegates.${index}.email`;
+export const DelegateRow = ({ form, index, isStaff }: DelegateRowProps) => {
+  const emailField   = `delegates.${index}.email`;
   const countryField = `delegates.${index}.name`;
 
   return (
     <>
       <Table.Td>
-        <TextInput {...form.getInputProps(countryField)} placeholder="Delegate country" />
+        {isStaff ? (
+          <TextInput
+            {...form.getInputProps(countryField)}
+            placeholder="Delegate country"
+          />
+        ) : (
+          <Text>{form.values.delegates[index].name}</Text>
+        )}
       </Table.Td>
 
       <Table.Td>
-        <TextInput {...form.getInputProps(emailField)} placeholder="Delegate email" />
+        {isStaff ? (
+          <TextInput
+            {...form.getInputProps(emailField)}
+            placeholder="Delegate email"
+          />
+        ) : (
+          <Text>{form.values.delegates[index].email}</Text>
+        )}
       </Table.Td>
     </>
   );
