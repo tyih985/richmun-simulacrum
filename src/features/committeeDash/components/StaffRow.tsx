@@ -7,24 +7,25 @@ interface StaffRowProps {
   form: UseFormReturnType<{
     longName: string;
     shortName: string;
-    staff: (StaffDoc & { isOwner?: boolean })[];
+    staff: StaffDoc[];
     delegates: any[];
     dateRange: [Date | null, Date | null];
   }>;
+  owner: string;
   index: number;
   onRemove: (i: number) => void;
 }
 
-export const StaffRow = ({ form, index, onRemove }: StaffRowProps) => {
+export const StaffRow = ({ form, index, onRemove, owner}: StaffRowProps) => {
   const staffMember = form.values.staff[index];
-  const isOwner = staffMember?.owner || false;
-  const isCurrentUserOwner = auth.currentUser?.email === staffMember.email;
+  const isRowOwner = staffMember?.owner || false;
+  const isCurrentUserOwner = auth.currentUser?.email === owner;
 
   const fieldName = `staff.${index}.email`;
   const roleField = `staff.${index}.staffRole`;
 
   // Condition for editable inputs
-  const canEdit = !(isOwner && !isCurrentUserOwner);
+  const canEdit = !(isRowOwner && !isCurrentUserOwner);
 
   return (
     <>

@@ -396,45 +396,47 @@ return (
         </Table.Tr>
       </Table.Tbody>
     </Table>
-    <Stack>
-      <Title order={3}>Staff</Title>
       {isStaff && (
-        <Flex justify="flex-end" mb="xs">
-          <Button variant="outline" onClick={openStaffModal}>
-            Add Staff
-          </Button>
-        </Flex>
-        <Table striped highlightOnHover withColumnBorders>
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th>Role</Table.Th>
-              <Table.Th>Email</Table.Th>
-              <Table.Th />
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {/* -- Owner row, editable only by the owner user -- */}
-            {/* {owner && (
-              <Table.Tr key="owner">
-                  {auth.currentUser?.email === owner.email ? (
-                    <StaffRow form={form as any} index={0}></StaffRow>
-                  ) : (
-                    <Text>{owner.email}</Text>
-                  )}
-                <Table.Td> */}
-                  {/* No delete button for the owner */}
-                  {/* </Table.Td>
+      <Stack>
+        <Title order={3}>Staff</Title>
+          <Flex justify="flex-end" mb="xs">
+            <Button variant="outline" onClick={openStaffModal}>
+              Add Staff
+            </Button>
+          </Flex>
+          <Table striped highlightOnHover withColumnBorders>
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Th>Role</Table.Th>
+                <Table.Th>Email</Table.Th>
+                <Table.Th />
               </Table.Tr>
-            )} */}
+            </Table.Thead>
+            <Table.Tbody>
+              {/* -- Owner row, editable only by the owner user -- */}
+              {/* {owner && (
+                <Table.Tr key="owner">
+                    {auth.currentUser?.email === owner.email ? (
+                      <StaffRow form={form as any} index={0}></StaffRow>
+                    ) : (
+                      <Text>{owner.email}</Text>
+                    )}
+                  <Table.Td> */}
+                    {/* No delete button for the owner */}
+                    {/* </Table.Td>
+                </Table.Tr>
+              )} */}
 
-            {form.values.staff.map((_, i) => (
-              <Table.Tr key={i}>
-                <StaffRow form={form as any} index={i} onRemove={removeStaff}/>
-              </Table.Tr>
-            ))}
-          </Table.Tbody>
-        </Table>
-      </Stack>
+              {form.values.staff.map((_, i) => (
+                <Table.Tr key={i}>
+                  <StaffRow form={form as any} index={i} onRemove={removeStaff} owner={owner.email}/>
+                </Table.Tr>
+              ))}
+            </Table.Tbody>
+          </Table>
+        </Stack>
+      )}
+      
 
     <Stack>
       <Title order={3}>Delegates</Title>

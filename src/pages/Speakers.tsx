@@ -23,6 +23,7 @@ export const Speakers = (): ReactElement => {
   const { committeeId } = useParams<{ committeeId: string }>();
   const [listType, setListType] = useState<'primary' | 'secondary' | 'single'>('primary');
   const [speakers, setSpeakers] = useState<DelegateDoc[]>([]);
+  const [currentSpeaker, setCurrentSpeaker] = useState<DelegateDoc | null>(null);
   const { delegates, loading } = useCommitteeDelegates(committeeId);
 
   if (loading) {
@@ -33,11 +34,15 @@ export const Speakers = (): ReactElement => {
     );
   }
 
-  const addSpeaker = (delegate: DelegateDoc) => {
+  const addPrimarySpeaker = (delegate: DelegateDoc) => {
     if (!speakers.includes(delegate)) {
       setSpeakers([...speakers, delegate]);
       console.log('adding delegate:', delegate.name)
     }
+  };
+
+  const addSingleSpeaker = (delegate: DelegateDoc) => {
+    setCurrentSpeaker(delegate);
   };
 
   const clearSpeakers = () => {
@@ -74,35 +79,95 @@ export const Speakers = (): ReactElement => {
         <SegmentedControl
           data={['primary', 'secondary', 'single']}
           value={listType}
-          onChange={(value) => setListType(value as 'primary' | 'secondary' | 'single')}
+          onChange={(value) => {
+            setListType(value as 'primary' | 'secondary' | 'single'); 
+            clearSpeakers()
+          }}
         />
+        <Text c="dimmed">{listType} speakers</Text>
       </Stack>
 
-      {currentDelegate ? (
+      {listType === 'primary' && (
         <>
-          <DelegateTimer 
-          delegate={currentDelegate} 
-          showNext={true}
-          onStart={handleTimerStart}
-          onComplete={handleTimerComplete} 
-          />
+          {currentDelegate ? (
+            <DelegateTimer 
+              delegate={currentDelegate} 
+              showNext={true}
+              onStart={handleTimerStart}
+              onComplete={handleTimerComplete} 
+            />
+          ) : (
+            <Paper p="xl" radius="md" withBorder>
+              <Stack p="xl" align="center" justify="center" m={'3px'}>
+                <Text c="dimmed">No speakers added.</Text>
+              </Stack>
+            </Paper>
+          )}
+
+          <Group grow align="flex-start">
+            <SpeakerSelector
+              delegates={delegates}
+              onAddSpeaker={addPrimarySpeaker}
+              currentSpeakers={speakers.map((d) => d.name)}
+            />
+            <SpeakerList speakers={speakers.map((d) => d.name)} onClear={clearSpeakers} />
+          </Group>
         </>
-      ) : (
-        <Paper p="xl" radius="md" withBorder>
-          <Stack p="xl" align="center" justify="center" m={'3px'}>
-            <Text c="dimmed">No speakers added.</Text>
-          </Stack>
-        </Paper>
       )}
 
-      <Group grow align="flex-start">
-        <SpeakerSelector
-          delegates={delegates}
-          onAddSpeaker={addSpeaker}
-          currentSpeakers={speakers.map((d)=>d.name)}
-        />
-        <SpeakerList speakers={speakers.map((d)=>d.name)} onClear={clearSpeakers} />
-      </Group>
+      {listType === 'secondary' && (
+         <>
+          {currentDelegate ? (
+            <DelegateTimer 
+              delegate={currentDelegate} 
+              showNext={true}
+              onStart={handleTimerStart}
+              onComplete={handleTimerComplete} 
+            />
+          ) : (
+            <Paper p="xl" radius="md" withBorder>
+              <Stack p="xl" align="center" justify="center" m={'3px'}>
+                <Text c="dimmed">No speakers added.</Text>
+              </Stack>
+            </Paper>
+          )}
+
+          <Group grow align="flex-start">
+            <SpeakerSelector
+              delegates={delegates}
+              onAddSpeaker={addPrimarySpeaker}
+              currentSpeakers={speakers.map((d) => d.name)}
+            />
+            <SpeakerList speakers={speakers.map((d) => d.name)} onClear={clearSpeakers} />
+          </Group>
+        </>
+      )}
+
+      {listType === 'single' && (
+         <>
+          {currentSpeaker ? (
+            <DelegateTimer 
+              delegate={currentSpeaker} 
+              showNext={true}
+              onStart={handleTimerStart}
+              onComplete={handleTimerComplete} 
+            />
+          ) : (
+            <Paper p="xl" radius="md" withBorder>
+              <Stack p="xl" align="center" justify="center" m={'3px'}>
+                <Text c="dimmed">No speakers added.</Text>
+              </Stack>
+            </Paper>
+          )}
+
+          <Group grow align="flex-start">
+            <SpeakerSelector
+            delegates={delegates}
+            onAddSpeaker={addSingleSpeaker}
+            />
+          </Group>
+        </>
+      )}
     </Stack>
   );
 };
