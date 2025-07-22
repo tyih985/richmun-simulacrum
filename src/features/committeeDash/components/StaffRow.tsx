@@ -23,14 +23,14 @@ export const StaffRow = ({ form, index }: StaffRowProps) => {
     <>
       <Table.Td>
         <Select
-        {...form.getInputProps(roleField)}
-        data={[
-          { value: 'director', label: 'Director' },
-          { value: 'assistant director', label: 'Assistant Director' },
-          { value: 'flex staff', label: 'Flex Staff' },
-        ]}
-        placeholder="Select role"
-      />
+          {...form.getInputProps(roleField)}
+          data={[
+            { value: 'director', label: 'Director' },
+            { value: 'assistant director', label: 'Assistant Director' },
+            { value: 'flex staff', label: 'Flex Staff' },
+          ]}
+          placeholder="Select role"
+        />
       </Table.Td>
       <Table.Td>
         <TextInput {...form.getInputProps(fieldName)} placeholder="Email" />

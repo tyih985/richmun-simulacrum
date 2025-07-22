@@ -70,9 +70,7 @@ export const ImportSheetContent = (props: DelegateModalProps): ReactElement => {
     console.log('mapped:', mappedData);
 
     const filteredData = mappedData.filter(
-      (d) =>
-        d.name &&
-        !Array.from(existingCountries).some((c) => c.name === d.name),
+      (d) => d.name && !Array.from(existingCountries).some((c) => c.name === d.name),
     );
 
     console.log('filtered:', filteredData);

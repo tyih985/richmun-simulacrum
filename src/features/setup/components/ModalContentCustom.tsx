@@ -74,7 +74,7 @@ function InputToDelegate(countryname: string, countryalias: string): DelegateDoc
   return [
     {
       id: generateDelegateId(countryname),
-      name: countryname, 
+      name: countryname,
       longName: countryalias,
       email: '',
       inviteStatus: 'pending',

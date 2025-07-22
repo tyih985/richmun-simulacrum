@@ -39,7 +39,9 @@ export function StepThree({ form }: StepThreeProps): ReactElement {
   // State for available countries
   const [availableCountries, setAvailableCountries] = useState(un_countries);
 
-  const existingCountries = new Set(form.values.delegates.map((d) => countriesHash[d.name]));
+  const existingCountries = new Set(
+    form.values.delegates.map((d) => countriesHash[d.name]),
+  );
 
   // State for focused delegate index
   const [focusedDelegateIdx, setFocusedDelegateIdx] = useState<number | null>(null);

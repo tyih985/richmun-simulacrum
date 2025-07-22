@@ -13,15 +13,15 @@ type DelegateModalProps = {
 
 function CountryToDelegate(countries: Country[]): DelegateDoc[] {
   return countries.map((country) => ({
-      id: generateDelegateId(country.name),
-      name: country.name,
-      email: '',
-      inviteStatus: 'pending',
-      minutes: 0,
-      positionPaperSent: false,
-      attendanceStatus: 'absent',
-      spoke: false,
-    }));
+    id: generateDelegateId(country.name),
+    name: country.name,
+    email: '',
+    inviteStatus: 'pending',
+    minutes: 0,
+    positionPaperSent: false,
+    attendanceStatus: 'absent',
+    spoke: false,
+  }));
 }
 
 export const UNModalContent = (props: DelegateModalProps): ReactElement => {

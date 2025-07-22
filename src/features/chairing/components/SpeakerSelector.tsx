@@ -9,7 +9,11 @@ type Props = {
   currentSpeakers?: string[];
 };
 
-export const SpeakerSelector = ({ delegates, onAddSpeaker, currentSpeakers }: Props): ReactElement => {
+export const SpeakerSelector = ({
+  delegates,
+  onAddSpeaker,
+  currentSpeakers,
+}: Props): ReactElement => {
   return (
     <Card bg="gray.0" p="md">
       <Stack gap={0}>
