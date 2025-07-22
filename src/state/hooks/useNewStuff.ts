@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { committeeQueries } from '@mutations/yeahglo';
+import { committeeQueries } from '@mutations/committeeQueries';
 import { getCommitteesForUser } from '@features/dashboard/utils';
 import {
   CommitteeDoc,

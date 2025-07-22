@@ -14,7 +14,7 @@ import {
   Modal,
 } from '@mantine/core';
 import { UseFormReturnType } from '@mantine/form';
-import type { Delegate, SetupFormValues } from '@features/types';
+import type { DelegateDoc, SetupFormValues } from '@features/types';
 import { ExpandableButton } from '@components/ExpandableButton';
 import { countriesData } from '@lib/countriesData';
 import { useDisclosure } from '@mantine/hooks';
@@ -44,7 +44,7 @@ export function StepThree({ form }: StepThreeProps): ReactElement {
   // State for focused delegate index
   const [focusedDelegateIdx, setFocusedDelegateIdx] = useState<number | null>(null);
 
-  const addRows = (newDelegates: Delegate[]) => {
+  const addRows = (newDelegates: DelegateDoc[]) => {
     console.log('adding delegates:', newDelegates);
     form.setFieldValue(
       'delegates',

@@ -1,4 +1,4 @@
-import { Country } from '../features/setup/types';
+import { Country } from '@features/types';
 
 export const countriesData: Country[] = [
   {
@@ -235,3 +235,11 @@ export const countriesData: Country[] = [
   { name: 'Zambia', longName: '', flag: '🇿🇲' },
   { name: 'Zimbabwe', longName: '', flag: '🇿🇼' },
 ];
+
+export const countriesHash: Record<string, Country> = countriesData.reduce(
+  (acc, country) => {
+    acc[country.name] = country;
+    return acc;
+  },
+  {} as Record<string, Country>
+);

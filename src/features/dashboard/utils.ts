@@ -1,5 +1,5 @@
 import { InviteStatus, UserCommitteeDoc } from '@features/types';
-import { committeeQueries } from '@mutations/yeahglo';
+import { committeeQueries } from '@mutations/committeeQueries';
 
 const { getUserCommittees } = committeeQueries;
 

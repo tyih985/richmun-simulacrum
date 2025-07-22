@@ -2,7 +2,7 @@ import { ReactElement, use, useEffect, useState } from 'react';
 import { Stack, Text } from '@mantine/core';
 import { DelegateRow } from '@features/chairing/components/DelegateRow';
 import { DelegateDoc } from '@features/types';
-import { committeeQueries } from '@mutations/yeahglo';
+import { committeeQueries } from '@mutations/committeeQueries';
 import { useParams } from 'react-router-dom';
 import { useCommitteeDelegates } from '@hooks/useNewStuff';
 

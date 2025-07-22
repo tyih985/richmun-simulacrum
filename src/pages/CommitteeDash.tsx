@@ -18,7 +18,7 @@ import { useForm } from '@mantine/form';
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useDisclosure } from '@mantine/hooks';
-import type { Country, Delegate, StaffDoc, SetupFormValues } from '@features/types';
+import type { Country, DelegateDoc, StaffDoc, SetupFormValues } from '@features/types';
 import type { CommitteeDoc } from '@features/types';
 import { auth } from '@packages/firebase/firebaseAuth';
 import { StaffModalContent } from '@features/committeeDash/components/ModalContentStaff';
@@ -27,11 +27,12 @@ import { CustomModalContent } from '@features/committeeDash/components/ModalCont
 import { ImportSheetContent } from '@features/committeeDash/components/ModalContentImport';
 import { StaffRow } from '@features/committeeDash/components/StaffRow';
 import { DelegateRow } from '@features/committeeDash/components/DelegateRow';
-import { committeeQueries } from '@mutations/yeahglo';
-import { countriesData } from '@lib/countriesData';
+import { committeeQueries } from '@mutations/committeeQueries';
+import { countriesData, countriesHash } from '@lib/countriesData';
 import { committeeMutations } from '@mutations/committeeMutation';
-import { firestoreTimestampToDate } from '@features/utils';
-import { generateStaffId } from '@packages/generateIds';
+import { dateToTimestamp, firestoreTimestampToDate } from '@features/utils';
+import { generateDelegateId, generateStaffId } from '@packages/generateIds';
+import { Timestamp } from 'firebase/firestore';
 
 const un_countries = countriesData;
 const { createCommittee, addStaffToCommittee, removeStaffFromCommittee, addDelegateToCommittee, removeDelegateFromCommittee } = committeeMutations();
@@ -83,6 +84,7 @@ export const CommitteeDash = () => {
 
 
   // TODO: seems scuffed 
+  // sets the initial values of the form based on the committee data
   useEffect(() => {
     (async () => {
       if (!auth.currentUser || !committeeId) {
@@ -119,8 +121,14 @@ export const CommitteeDash = () => {
         committeeShortName: c.shortName,
         staff: otherStaff.map((d) => ({ id: d.id, staffRole: d.staffRole, owner: d.owner, email: d.email, inviteStatus: d.inviteStatus })),
         delegates: delegateDocs.map((d) => ({
-          country: { value: d.id, name: d.name },
+          id: d.id,
+          name: d.name,
           email: d.email,
+          inviteStatus: d.inviteStatus,
+          minutes: d.minutes,
+          positionPaperSent: d.positionPaperSent,
+          attendanceStatus: d.attendanceStatus,
+          spoke: d.spoke,
         })),
         dateRange: [new Date(firestoreTimestampToDate(c.startDate)), new Date(firestoreTimestampToDate(c.endDate))],
       });
@@ -130,12 +138,12 @@ export const CommitteeDash = () => {
   }, []);
 
   useEffect(() => {
-    const used = new Set(form.values.delegates.map((d) => d.country.name));
+    const used = new Set(form.values.delegates.map((d) => d.name));
     setAvailableCountries(countriesData.filter((c) => !used.has(c.name)));
   }, [form.values.delegates]);
 
   const removeStaff = async (i: number) => {
-    await removeStaffFromCommittee(committeeId!, form.values.staff[i].email)
+    await removeStaffFromCommittee(committeeId!, form.values.staff[i].id)
     console.log('removing staff', form.values.staff[i].email);
     form.setFieldValue(
       'staff',
@@ -144,8 +152,8 @@ export const CommitteeDash = () => {
   }
 
   const removeDelegate = async (i: number) => {
-    await removeDelegateFromCommittee(committeeId!, form.values.staff[i].email)
-    console.log('removing delegate', form.values.delegates[i].country.name)
+    await removeDelegateFromCommittee(committeeId!, form.values.delegates[i].id)
+    console.log('removing delegate', form.values.delegates[i].name)
     form.setFieldValue(
       'delegates',
       form.values.delegates.filter((_, idx) => idx !== i),
@@ -165,9 +173,9 @@ export const CommitteeDash = () => {
     closeStaffModal();
   };
 
-  const addRows = (rows: Delegate[]) => {
-    const existing = new Set(form.values.delegates.map((d) => d.country.value));
-    const unique = rows.filter((r) => !existing.has(r.country.value));
+  const addRows = (rows: DelegateDoc[]) => {
+    const existing = new Set(form.values.delegates.map((d) => d.name));
+    const unique = rows.filter((r) => !existing.has(r.name));
     form.setFieldValue('delegates', [...form.values.delegates, ...unique]);
     closeDelegateModal();
   };
@@ -191,11 +199,10 @@ export const CommitteeDash = () => {
     }
 
     for (const staff of form.values.staff) {
-      if (!staff.owner) continue; // Skip owner
       await addStaffToCommittee(
         committeeId,
-        'staff-id', // This should be replaced with actual staff ID logic
-        false,
+        staff.id, 
+        staff.owner,
         staff.staffRole,
         staff.email,
       );
@@ -205,11 +212,11 @@ export const CommitteeDash = () => {
     for (const delegate of form.values.delegates) {
       await addDelegateToCommittee(
         committeeId,
-        'delegate-id', // This should be replaced with actual ID logic
-        delegate.country.name,
+        delegate.id,
+        delegate.name,
         delegate.email,
       );
-      console.log(`Added delegate: ${delegate.country.name}`);
+      console.log(`Added delegate: ${delegate.name}`);
     }
   };
 
@@ -291,7 +298,7 @@ export const CommitteeDash = () => {
           <ImportSheetContent
             availableCountries={availableCountries}
             setAvailableCountries={setAvailableCountries}
-            existingCountries={new Set(form.values.delegates.map((d) => d.country))}
+            existingCountries={new Set(form.values.delegates.map((d) => countriesHash[d.name]))}
             addRows={addRows}
           />
         )}
@@ -302,7 +309,7 @@ export const CommitteeDash = () => {
           <Title size="xl">Committee Details</Title>
           <Text size="sm">Overview of your committee</Text>
         </Stack>
-        <Button>Launch</Button>
+        {/* <Button>Launch</Button> */}
       </Group>
       <Divider />
 
@@ -317,13 +324,13 @@ export const CommitteeDash = () => {
           <Table.Tr>
             <Table.Td>Long Name</Table.Td>
             <Table.Td>
-              <TextInput {...form.getInputProps('committeeLongName')} radius="sm" />
+              <TextInput {...form.getInputProps('committeeLongName')}/>
             </Table.Td>
           </Table.Tr>
           <Table.Tr>
             <Table.Td>Short Name</Table.Td>
             <Table.Td>
-              <TextInput {...form.getInputProps('committeeShortName')} radius="sm" />
+              <TextInput {...form.getInputProps('committeeShortName')}/>
             </Table.Td>
           </Table.Tr>
           <Table.Tr>
@@ -332,7 +339,6 @@ export const CommitteeDash = () => {
               <DateInputComponentNonRequired
                 value={form.values.dateRange}
                 onChange={(r) => form.setFieldValue('dateRange', r!)}
-                radius="sm"
               />
             </Table.Td>
           </Table.Tr>
@@ -368,7 +374,6 @@ export const CommitteeDash = () => {
                       onChange={(evt) =>
                         setOwner((o) => o && { ...o, email: evt.currentTarget.value })
                       }
-                      radius="sm"
                     />
                   ) : (
                     <Text>{owner.email}</Text>

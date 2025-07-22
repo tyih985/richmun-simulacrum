@@ -1,12 +1,12 @@
 import { Button, Group, Stack, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { ReactElement, useState } from 'react';
-import { Country, Delegate } from '@features/types';
+import { Country, DelegateDoc } from '@features/types';
 
 type DelegateModalProps = {
   availableCountries: Country[];
   setAvailableCountries: (countries: Country[]) => void;
-  addRows: (newDelegates: Delegate[]) => void;
+  addRows: (newDelegates: DelegateDoc[]) => void;
 };
 
 export const CustomModalContent = (props: DelegateModalProps): ReactElement => {
@@ -69,7 +69,7 @@ export const CustomModalContent = (props: DelegateModalProps): ReactElement => {
     </Stack>
   );
 };
-function InputToDelegate(countryname: string, countryalias: string): Delegate[] {
+function InputToDelegate(countryname: string, countryalias: string): DelegateDoc[] {
   return [
     {
       country: { name: countryname, longName: countryalias } as Country,
