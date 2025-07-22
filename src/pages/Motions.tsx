@@ -97,6 +97,7 @@ export const Motions = (): ReactElement => {
           Add Motion
         </Button>
       </Group>
+      <Stack p={"xl"}>
       {motions.length > 0 ? (
         <>
           {motions.map((motion) => (
@@ -109,13 +110,18 @@ export const Motions = (): ReactElement => {
               onStart={startMotion}
             />
           ))}
-          <Button color="red" onClick={clearMotions}>
+          
+          <Group justify='flex-end'>
+            <Button color="red" onClick={clearMotions}>
             Clear Motions
           </Button>
+          </Group>
+          
         </>
       ) : (
         <Text c="dimmed">No motions added yet.</Text>
       )}
+      </Stack>
     </Stack>
   );
 };
