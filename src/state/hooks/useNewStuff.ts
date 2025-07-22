@@ -10,6 +10,9 @@ import {
   StaffDoc,
   UserCommitteeDoc,
 } from '@features/types';
+import { collection, DocumentData, onSnapshot, orderBy, query } from 'firebase/firestore';
+import { committeeRollCallsDelegatesPath } from '@packages/firestorePaths';
+import { firestoreDb } from '@packages/firebase/firestoreDb';
 
 const { getUserCommittees, getUserCommittee, getCommittee, getCommitteeRollCall, getCommitteeRollCalls, getCommitteeRollCallDelegate, getCommitteeRollCallDelegates } = committeeQueries;
 
@@ -250,26 +253,40 @@ export const useRollCall = (committeeId?: string, rollCallId?: string) => {
   return { rollCall, loading };
 };
 
-export const useRollCallDelegates = (committeeId?: string, rollCallId?: string) => {
+export const useRollCallDelegates = (
+  committeeId?: string,
+  rollCallId?: string
+) => {
   const [delegates, setDelegates] = useState<RollCallDelegateDoc[]>([]);
   const [loading, setLoading]     = useState(true);
 
   useEffect(() => {
     if (!committeeId || !rollCallId) return;
 
-    const fetchDelegates = async () => {
-      setLoading(true);
-      try {
-        const data = await getCommitteeRollCallDelegates(committeeId, rollCallId);
-        setDelegates(data);
-      } catch (err) {
-        console.error('Error loading roll call delegates:', err);
-      } finally {
+    setLoading(true);
+    const path = committeeRollCallsDelegatesPath(
+      committeeId,
+      rollCallId
+    );
+    const q = query(collection(firestoreDb, path), orderBy('name'));
+
+    const unsub = onSnapshot(
+      q,
+      (snapshot) => {
+        const docs = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...(doc.data() as DocumentData),
+        })) as RollCallDelegateDoc[];
+        setDelegates(docs);
+        setLoading(false);
+      },
+      (err) => {
+        console.error('Realtime listener error:', err);
         setLoading(false);
       }
-    };
+    );
 
-    fetchDelegates();
+    return () => unsub();
   }, [committeeId, rollCallId]);
 
   return { delegates, loading };
