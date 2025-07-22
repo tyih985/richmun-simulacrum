@@ -59,7 +59,7 @@ export const Speakers = (): ReactElement => {
         currentDelegate.name,
         currentDelegate.email,
         currentDelegate.inviteStatus,
-        currentDelegate.minutes,
+        currentDelegate.totalSpeakingDuration,
         currentDelegate.positionPaperSent,
         true, // Mark as spoke
       );

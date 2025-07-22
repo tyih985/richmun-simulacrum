@@ -93,7 +93,7 @@ export const MakeDirective = (): ReactElement => {
           required
           autosize
           minRows={2}
-          maxRows={4}
+          maxRows={10}
           {...form.getInputProps('description')}
           placeholder="Enter directive description"
         />

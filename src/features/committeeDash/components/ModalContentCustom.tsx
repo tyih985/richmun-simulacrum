@@ -31,7 +31,7 @@ export const CustomModalContent = ({
       name: customCountryName,
       email: '',
       inviteStatus: 'pending',
-      minutes: 0,
+      totalSpeakingDuration: 0,
       positionPaperSent: false,
       spoke: false,
     };

@@ -51,7 +51,7 @@ export const CommitteeDash = () => {
   const [loading, setLoading] = useState(true);
   const [committee, setCommittee] = useState<CommitteeDoc | null>(null);
   const [owner, setOwner] = useState<{
-    uid: string;
+    id: string;
     email: string;
     staffRole: string;
   } | null>(null);
@@ -117,10 +117,11 @@ export const CommitteeDash = () => {
 
       const ownerDoc = staffDocs.find((d) => d.owner) ?? null;
       const otherStaff = staffDocs.filter((d) => !d.owner);
+      const orderedStaff = ownerDoc ? [ownerDoc, ...otherStaff] : otherStaff;
 
       if (ownerDoc) {
         setOwner({
-          uid: ownerDoc.id,
+          id: ownerDoc.id,
           email: ownerDoc.email,
           staffRole: ownerDoc.staffRole,
         });
@@ -131,7 +132,7 @@ export const CommitteeDash = () => {
       form.setValues({
         committeeLongName: c.longName,
         committeeShortName: c.shortName,
-        staff: otherStaff.map((d) => ({
+        staff: orderedStaff.map((d) => ({
           id: d.id,
           staffRole: d.staffRole,
           owner: d.owner,
@@ -143,7 +144,7 @@ export const CommitteeDash = () => {
           name: d.name,
           email: d.email,
           inviteStatus: d.inviteStatus,
-          minutes: d.minutes,
+          totalSpeakingDuration: d.totalSpeakingDuration,
           positionPaperSent: d.positionPaperSent,
           spoke: d.spoke,
         })),
@@ -414,50 +415,37 @@ return (
             Add Staff
           </Button>
         </Flex>
-      )}
-      <Table striped highlightOnHover withColumnBorders>
-        <Table.Thead>
-          <Table.Tr>
-            <Table.Th>Role</Table.Th>
-            <Table.Th>Email</Table.Th>
-            <Table.Th />
-          </Table.Tr>
-        </Table.Thead>
-        <Table.Tbody>
-          {owner && (
-            <Table.Tr key="owner">
-              <Table.Td>
-                <Text fw={700}>Owner</Text>
-              </Table.Td>
-              <Table.Td>
-                {auth.currentUser?.email === owner.email && isStaff ? (
-                  <TextInput
-                    value={owner.email}
-                    onChange={(evt) =>
-                      setOwner((o) => o && { ...o, email: evt.currentTarget.value })
-                    }
-                  />
-                ) : (
-                  <Text>{owner.email}</Text>
-                )}
-              </Table.Td>
-              <Table.Td />
+        <Table striped highlightOnHover withColumnBorders>
+          <Table.Thead>
+            <Table.Tr>
+              <Table.Th>Role</Table.Th>
+              <Table.Th>Email</Table.Th>
+              <Table.Th />
             </Table.Tr>
-          )}
+          </Table.Thead>
+          <Table.Tbody>
+            {/* -- Owner row, editable only by the owner user -- */}
+            {/* {owner && (
+              <Table.Tr key="owner">
+                  {auth.currentUser?.email === owner.email ? (
+                    <StaffRow form={form as any} index={0}></StaffRow>
+                  ) : (
+                    <Text>{owner.email}</Text>
+                  )}
+                <Table.Td> */}
+                  {/* No delete button for the owner */}
+                  {/* </Table.Td>
+              </Table.Tr>
+            )} */}
 
-          {form.values.staff.map((_, i) => (
-            <Table.Tr key={i}>
-              <StaffRow form={form as any} index={i} isStaff={isStaff}/>
-              <Table.Td>
-                {isStaff ? (
-                  <CloseButton onClick={() => removeStaff(i)} />
-                ) : null}
-              </Table.Td>
-            </Table.Tr>
-          ))}
-        </Table.Tbody>
-      </Table>
-    </Stack>
+            {form.values.staff.map((_, i) => (
+              <Table.Tr key={i}>
+                <StaffRow form={form as any} index={i} onRemove={removeStaff}/>
+              </Table.Tr>
+            ))}
+          </Table.Tbody>
+        </Table>
+      </Stack>
 
     <Stack>
       <Title order={3}>Delegates</Title>

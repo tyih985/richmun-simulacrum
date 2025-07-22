@@ -1,4 +1,5 @@
 import { Timestamp } from 'firebase/firestore';
+import { SpeakingLogEntry } from './chairing/components/minuteLog/types';
 
 export type Country = {
   // value: string;
@@ -51,7 +52,8 @@ export type DelegateDoc = {
   longName?: string;
   email: string;
   inviteStatus: InviteStatus;
-  minutes: number;
+  totalSpeakingDuration: number;
+  // speakingLog: SpeakingLogEntry[];
   positionPaperSent: boolean;
   spoke: boolean;
 };
