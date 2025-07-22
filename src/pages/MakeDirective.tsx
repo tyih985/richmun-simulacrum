@@ -13,15 +13,15 @@ const {addDirectiveToCommittee} = committeeMutations();
 export const MakeDirective = (): ReactElement => {
   const { committeeId } = useParams<{ committeeId: string }>();
   // assumes uid exists
-  // const { delegate } = useUserDelegate(auth.currentUser!.uid, committeeId || '');
-  const delegate = 'delegate'
+  const { delegate } = useUserDelegate(auth.currentUser!.uid, committeeId || '');
+  // const delegate = 'delegate'
   console.log('delegate:', delegate)
   const { delegates } = useCommitteeDelegates(committeeId);
   
   const form = useForm({
     initialValues: {
-      // id: generateDirectiveId(delegate?.id || ''),
-      id: generateDirectiveId(delegate ),
+      id: generateDirectiveId(delegate?.id || ''),
+      // id: generateDirectiveId(delegate),
       title: '',
       description: '',
       privateStatus: false,
