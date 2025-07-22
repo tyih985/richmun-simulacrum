@@ -37,9 +37,7 @@ export const InviteCard = ({
       <Group mb="sm">
         <Text>
           You’ve been invited to{' '}
-          {committee
-            ? `${committee.shortName} (${committee.longName})`
-            : 'a committee'}
+          {committee ? `${committee.shortName} (${committee.longName})` : 'a committee'}
         </Text>
         <Badge color="gray">Pending</Badge>
       </Group>

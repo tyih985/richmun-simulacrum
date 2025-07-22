@@ -9,8 +9,12 @@ const NUM_DIGITS = 5;
 export const generateCommitteeId = (shortName: string) =>
   `${shortName}-${nano(NUM_DIGITS)}`;
 
-export const generateDelegateId = (delegationShortName: string) => {
-  const parsedName = delegationShortName
+export const generateDelegateId = (name: string) => {
+  if (!name) {
+    console.warn('generateDelegateId called with empty name');
+    return `delegate-${nano(NUM_DIGITS)}`;
+  }
+  const parsedName = name
     .split(/[\s_\-\W]+/)
     .slice(0, 2)
     .join('-')

@@ -1,6 +1,7 @@
 import { CountryMultiSelect } from '@components/CountryMultiSelect';
 // import { ImageUploader } from "@components/ImageUploader";
 import { Button, Group, Stack } from '@mantine/core';
+import { generateDelegateId } from '@packages/generateIds';
 import { ReactElement, useState } from 'react';
 import { Country, DelegateDoc } from 'src/features/types';
 
@@ -12,8 +13,14 @@ type DelegateModalProps = {
 
 function CountryToDelegate(countries: Country[]): DelegateDoc[] {
   return countries.map((country) => ({
-    country: country as unknown as Country,
+    id: generateDelegateId(country.name),
+    name: country.name,
     email: '',
+    inviteStatus: 'pending',
+    minutes: 0,
+    positionPaperSent: false,
+    attendanceStatus: 'absent',
+    spoke: false,
   }));
 }
 

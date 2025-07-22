@@ -39,7 +39,9 @@ export const ImportSheetContent = (props: DelegateModalProps): ReactElement => {
     addRows(newDelegates);
 
     setAvailableCountries(
-      availableCountries.filter((c) => !newDelegates.some((d) => countriesHash[d.name] === c)),
+      availableCountries.filter(
+        (c) => !newDelegates.some((d) => countriesHash[d.name] === c),
+      ),
     );
     setImportedValues([]);
   };
@@ -60,7 +62,7 @@ export const ImportSheetContent = (props: DelegateModalProps): ReactElement => {
       return {
         id: generateDelegateId(country),
         name: country,
-        email: email, 
+        email: email,
         inviteStatus: 'pending',
         minutes: 0,
         positionPaperSent: false,
@@ -72,7 +74,7 @@ export const ImportSheetContent = (props: DelegateModalProps): ReactElement => {
 
     const filteredData = mappedData.filter(
       (d) =>
-        countriesHash[d.name]&&
+        countriesHash[d.name] &&
         !Array.from(existingCountries).some((c) => c.name === d.name),
     );
 

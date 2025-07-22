@@ -80,7 +80,12 @@ export const committeeRollCallsPath = (committeeId: string) =>
 export const committeeRollCallPath = (committeeId: string, rollCallId: string) =>
   `committees/${committeeId}/rollcalls/${rollCallId}`;
 
-export const committeeRollCallsDelegatesPath = (committeeId: string, rollCallId: string) =>
-  `committees/${committeeId}/rollcalls/${rollCallId}/delegates`;
-export const committeeRollCallDelegatePath = (committeeId: string, rollCallId: string, delegateId: string) =>
-  `committees/${committeeId}/rollcalls/${rollCallId}/delegates/${delegateId}`;
+export const committeeRollCallsDelegatesPath = (
+  committeeId: string,
+  rollCallId: string,
+) => `committees/${committeeId}/rollcalls/${rollCallId}/delegates`;
+export const committeeRollCallDelegatePath = (
+  committeeId: string,
+  rollCallId: string,
+  delegateId: string,
+) => `committees/${committeeId}/rollcalls/${rollCallId}/delegates/${delegateId}`;

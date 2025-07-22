@@ -180,7 +180,10 @@ export const committeeQueries = {
     return { id: delegateId, ...doc };
   },
 
-  getCommitteeRollCallDelegates: async (committeeId: string, rollCallId: string): Promise<RollCallDelegateDoc[]> => {
+  getCommitteeRollCallDelegates: async (
+    committeeId: string,
+    rollCallId: string,
+  ): Promise<RollCallDelegateDoc[]> => {
     const path = committeeRollCallsDelegatesPath(committeeId, rollCallId);
     const docs = await getFirestoreCollection(path);
     return docs.map((doc) => ({
@@ -188,6 +191,4 @@ export const committeeQueries = {
       ...doc,
     })) as RollCallDelegateDoc[];
   },
-
-
 };

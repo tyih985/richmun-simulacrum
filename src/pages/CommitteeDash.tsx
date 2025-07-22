@@ -35,7 +35,15 @@ import { generateRollCallId, generateStaffId } from '@packages/generateIds';
 import { Timestamp } from 'firebase/firestore';
 
 const un_countries = countriesData;
-const { createCommittee, addStaffToCommittee, removeStaffFromCommittee, addDelegateToCommittee, removeDelegateFromCommittee, addRollCallToCommittee, addRollCallDelegateToCommittee} = committeeMutations();
+const {
+  createCommittee,
+  addStaffToCommittee,
+  removeStaffFromCommittee,
+  addDelegateToCommittee,
+  removeDelegateFromCommittee,
+  addRollCallToCommittee,
+  addRollCallDelegateToCommittee,
+} = committeeMutations();
 
 export const CommitteeDash = () => {
   const { committeeId } = useParams<{ committeeId: string }>();
@@ -83,8 +91,7 @@ export const CommitteeDash = () => {
     form.values.dateRange[0] &&
     form.values.dateRange[1];
 
-
-  // TODO: seems scuffed 
+  // TODO: seems scuffed
   // sets the initial values of the form based on the committee data
   useEffect(() => {
     (async () => {
@@ -95,7 +102,7 @@ export const CommitteeDash = () => {
       const c = await committeeQueries.getCommittee(committeeId);
       if (!c) {
         setLoading(false);
-        return; 
+        return;
       }
       setCommittee(c);
 
@@ -120,7 +127,13 @@ export const CommitteeDash = () => {
       form.setValues({
         committeeLongName: c.longName,
         committeeShortName: c.shortName,
-        staff: otherStaff.map((d) => ({ id: d.id, staffRole: d.staffRole, owner: d.owner, email: d.email, inviteStatus: d.inviteStatus })),
+        staff: otherStaff.map((d) => ({
+          id: d.id,
+          staffRole: d.staffRole,
+          owner: d.owner,
+          email: d.email,
+          inviteStatus: d.inviteStatus,
+        })),
         delegates: delegateDocs.map((d) => ({
           id: d.id,
           name: d.name,
@@ -130,7 +143,10 @@ export const CommitteeDash = () => {
           positionPaperSent: d.positionPaperSent,
           spoke: d.spoke,
         })),
-        dateRange: [new Date(firestoreTimestampToDate(c.startDate)), new Date(firestoreTimestampToDate(c.endDate))],
+        dateRange: [
+          new Date(firestoreTimestampToDate(c.startDate)),
+          new Date(firestoreTimestampToDate(c.endDate)),
+        ],
       });
 
       setLoading(false);
@@ -143,7 +159,7 @@ export const CommitteeDash = () => {
   }, [form.values.delegates]);
 
   const removeStaff = async (i: number) => {
-    await removeStaffFromCommittee(committeeId!, form.values.staff[i].id)
+    await removeStaffFromCommittee(committeeId!, form.values.staff[i].id);
     console.log('removing staff', form.values.staff[i].email);
     form.setFieldValue(
       'staff',
@@ -152,8 +168,8 @@ export const CommitteeDash = () => {
   };
 
   const removeDelegate = async (i: number) => {
-    await removeDelegateFromCommittee(committeeId!, form.values.delegates[i].id)
-    console.log('removing delegate', form.values.delegates[i].name)
+    await removeDelegateFromCommittee(committeeId!, form.values.delegates[i].id);
+    console.log('removing delegate', form.values.delegates[i].name);
     form.setFieldValue(
       'delegates',
       form.values.delegates.filter((_, idx) => idx !== i),
@@ -192,16 +208,16 @@ export const CommitteeDash = () => {
         committeeLongName,
         committeeShortName,
         dateRange[0],
-        dateRange[1]
+        dateRange[1],
       );
       console.log('Committee updated:', committeeId, dateRange);
-      // TODO: some sort of feedback notif thats like changes saved 
+      // TODO: some sort of feedback notif thats like changes saved
     }
 
     for (const staff of form.values.staff) {
       await addStaffToCommittee(
         committeeId,
-        staff.id, 
+        staff.id,
         staff.owner,
         staff.staffRole,
         staff.email,
@@ -220,27 +236,24 @@ export const CommitteeDash = () => {
     }
   };
 
-const handleNewRollCall = async () => {
-  if (!committeeId) return;
-  const rollCallId = generateRollCallId(committeeId);
-  const now = Timestamp.now();
-  await addRollCallToCommittee(committeeId, rollCallId, now);
-  const delegateDocs = await committeeQueries.getCommitteeDelegates(committeeId);
-  const placeholder = Timestamp.fromMillis(0);
-  for (const d of delegateDocs) {
-    await addRollCallDelegateToCommittee(
-      committeeId,
-      rollCallId,
-      d.id,
-      placeholder,
-      'absent'
-    );
-  }
-  navigate(
-    `/committee/${committeeId}/rollcall/${rollCallId}`,
-    { replace: false }
-  );
-};
+  const handleNewRollCall = async () => {
+    if (!committeeId) return;
+    const rollCallId = generateRollCallId(committeeId);
+    const now = Timestamp.now();
+    await addRollCallToCommittee(committeeId, rollCallId, now);
+    const delegateDocs = await committeeQueries.getCommitteeDelegates(committeeId);
+    const placeholder = Timestamp.fromMillis(0);
+    for (const d of delegateDocs) {
+      await addRollCallDelegateToCommittee(
+        committeeId,
+        rollCallId,
+        d.id,
+        placeholder,
+        'absent',
+      );
+    }
+    navigate(`/committee/${committeeId}/rollcall/${rollCallId}`, { replace: false });
+  };
 
   if (loading)
     return (
@@ -251,7 +264,7 @@ const handleNewRollCall = async () => {
   if (!committee)
     return (
       <Container>
-        <Title>Error: Committee not found</Title> 
+        <Title>Error: Committee not found</Title>
       </Container>
     );
 
@@ -274,8 +287,8 @@ const handleNewRollCall = async () => {
           activeModal === 'UN'
             ? 'Add UN Countries'
             : activeModal === 'custom'
-            ? 'Add Custom Country'
-            : 'Import Delegates'
+              ? 'Add Custom Country'
+              : 'Import Delegates'
         }
         centered
         size="lg"
@@ -319,7 +332,9 @@ const handleNewRollCall = async () => {
           <ImportSheetContent
             availableCountries={availableCountries}
             setAvailableCountries={setAvailableCountries}
-            existingCountries={new Set(form.values.delegates.map((d) => countriesHash[d.name]))}
+            existingCountries={
+              new Set(form.values.delegates.map((d) => countriesHash[d.name]))
+            }
             addRows={addRows}
           />
         )}
@@ -345,13 +360,13 @@ const handleNewRollCall = async () => {
           <Table.Tr>
             <Table.Td>Long Name</Table.Td>
             <Table.Td>
-              <TextInput {...form.getInputProps('committeeLongName')}/>
+              <TextInput {...form.getInputProps('committeeLongName')} />
             </Table.Td>
           </Table.Tr>
           <Table.Tr>
             <Table.Td>Short Name</Table.Td>
             <Table.Td>
-              <TextInput {...form.getInputProps('committeeShortName')}/>
+              <TextInput {...form.getInputProps('committeeShortName')} />
             </Table.Td>
           </Table.Tr>
           <Table.Tr>
@@ -400,15 +415,13 @@ const handleNewRollCall = async () => {
                     <Text>{owner.email}</Text>
                   )}
                 </Table.Td>
-                <Table.Td>
-                  {/* No delete button for the owner */}
-                </Table.Td>
+                <Table.Td>{/* No delete button for the owner */}</Table.Td>
               </Table.Tr>
             )}
 
             {form.values.staff.map((_, i) => (
               <Table.Tr key={i}>
-                  <StaffRow form={form as any} index={i} />
+                <StaffRow form={form as any} index={i} />
                 <Table.Td>
                   <CloseButton onClick={() => removeStaff(i)} />
                 </Table.Td>
@@ -442,7 +455,7 @@ const handleNewRollCall = async () => {
           <Table.Tbody>
             {form.values.delegates.map((_, i) => (
               <Table.Tr key={i}>
-                  <DelegateRow form={form as any} index={i} />
+                <DelegateRow form={form as any} index={i} />
                 <Table.Td>
                   <CloseButton onClick={() => removeDelegate(i)} />
                 </Table.Td>

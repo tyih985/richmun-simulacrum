@@ -21,7 +21,7 @@ import {
   MotionType,
   AttendanceStatus,
 } from 'src/features/types';
-import { Timestamp } from "firebase/firestore";
+import { Timestamp } from 'firebase/firestore';
 
 export const committeeMutations = () => {
   const createCommittee = (
@@ -113,11 +113,7 @@ export const committeeMutations = () => {
     timestamp: Timestamp,
   ) => {
     const path = committeeRollCallPath(committeeId, rollCallId);
-    return createFirestoreDocument(
-      path,
-      { rollCallId, timestamp },
-      true,
-    );
+    return createFirestoreDocument(path, { rollCallId, timestamp }, true);
   };
 
   const removeRollCallFromCommittee = (committeeId: string, rollCallId: string) => {
@@ -140,7 +136,11 @@ export const committeeMutations = () => {
     );
   };
 
-  const removeRollCallDelegateFromCommittee = (committeeId: string, rollCallId: string, delegateId: string) => {
+  const removeRollCallDelegateFromCommittee = (
+    committeeId: string,
+    rollCallId: string,
+    delegateId: string,
+  ) => {
     const path = committeeRollCallDelegatePath(committeeId, rollCallId, delegateId);
     return deleteFirestoreDocument(path);
   };
@@ -207,10 +207,10 @@ export const committeeMutations = () => {
     return deleteFirestoreDocument(path);
   };
 
-    const updateUserCommitteeInvite = (
+  const updateUserCommitteeInvite = (
     uid: string,
     committeeId: string,
-    inviteStatus: InviteStatus
+    inviteStatus: InviteStatus,
   ) => {
     const path = userCommitteePath(uid, committeeId);
     return updateFirestoreDocument(path, { inviteStatus });
