@@ -41,7 +41,7 @@ export const DateInputComponent = (props: DateInputProps) => {
       label="What date(s) will your event take place?"
       placeholder="Pick a date range"
       value={props.value}
-      onChange={props.onChange}
+      onChange={(value) => props.onChange?.(value as [Date | null, Date | null])} 
       radius="lg"
       leftSection={<IconCalendar size={20} />}
       valueFormatter={formatter}
@@ -60,8 +60,8 @@ export const DateInputComponentNonRequired = (props: DateInputProps) => {
       label="What date(s) will your event take place?"
       placeholder="Pick a date range"
       value={props.value}
-      onChange={props.onChange}
-      radius="lg"
+      // valueFormat="date"
+      onChange={(value) => props.onChange?.(value as [Date | null, Date | null])} 
       leftSection={<IconCalendar size={20} />}
       valueFormatter={formatter}
       allowSingleDateInRange

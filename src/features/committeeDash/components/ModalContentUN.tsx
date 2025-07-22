@@ -2,7 +2,6 @@ import { CountryMultiSelect } from '@components/CountryMultiSelect';
 // import { ImageUploader } from "@components/ImageUploader";
 import { Button, Group, Stack } from '@mantine/core';
 import { generateDelegateId } from '@packages/generateIds';
-import { count } from 'console';
 import { ReactElement, useState } from 'react';
 import { Country, DelegateDoc } from 'src/features/types';
 
@@ -20,7 +19,6 @@ function CountryToDelegate(countries: Country[]): DelegateDoc[] {
     inviteStatus: 'pending',
     minutes: 0,
     positionPaperSent: false,
-    attendanceStatus: 'absent',
     spoke: false,
   }));
 }

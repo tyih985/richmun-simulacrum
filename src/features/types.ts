@@ -74,6 +74,8 @@ export type MotionDoc = {
   type: MotionType;
   totalTime?: number;
   speakingTime?: number;
+  topic: string;
+  status?: 'pending' | 'in-progress' | 'completed'; // idk if we need completed lol
 };
 
 export type RollCallDoc = {

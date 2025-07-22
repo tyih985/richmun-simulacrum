@@ -191,9 +191,10 @@ export const committeeMutations = () => {
     type: MotionType,
     totalTime?: number,
     speakingTime?: number,
+    topic: string = '',
   ) => {
     const path = committeeMotionPath(committeeId, motionId);
-    const data: any = { delegate, type };
+    const data: any = { delegate, type, topic};
     if (totalTime !== undefined) data.totalTime = totalTime;
     if (speakingTime !== undefined) data.speakingTime = speakingTime;
 

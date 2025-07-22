@@ -36,7 +36,9 @@ export const CommitteeRow = ({ committee, userCommittee }: Props): ReactElement 
         <Text>{roleLabel}</Text>
       </Table.Td>
       <Table.Td>
-        {/* <Text>{committee?.startDate?.toLocaleDateString()}</Text> */}
+        <Text>{committee?.startDate?.toString()}</Text>
+        {/* <Text>{committee?.startDate.isEqual(committee?.endDate) ? (`${committee?.startDate?.toString()} - ${committee?.endDate?.toString()}`) : (committee?.startDate?.toString())}</Text> 
+        highkey in tears idk why it says isEqual is not a function for startDate :,| */}
       </Table.Td>
       <Table.Td>
         <ActionIcon

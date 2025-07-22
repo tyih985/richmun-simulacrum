@@ -66,7 +66,6 @@ export const ImportSheetContent = (props: DelegateModalProps): ReactElement => {
         inviteStatus: 'pending',
         minutes: 0,
         positionPaperSent: false,
-        attendanceStatus: 'absent',
         spoke: false,
       } as DelegateDoc;
     });
