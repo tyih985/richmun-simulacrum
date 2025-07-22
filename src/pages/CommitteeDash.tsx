@@ -31,11 +31,11 @@ import { committeeQueries } from '@mutations/committeeQueries';
 import { countriesData, countriesHash } from '@lib/countriesData';
 import { committeeMutations } from '@mutations/committeeMutation';
 import { dateToTimestamp, firestoreTimestampToDate } from '@features/utils';
-import { generateDelegateId, generateStaffId } from '@packages/generateIds';
+import { generateDelegateId, generateRollCallId, generateStaffId } from '@packages/generateIds';
 import { Timestamp } from 'firebase/firestore';
 
 const un_countries = countriesData;
-const { createCommittee, addStaffToCommittee, removeStaffFromCommittee, addDelegateToCommittee, removeDelegateFromCommittee } = committeeMutations();
+const { createCommittee, addStaffToCommittee, removeStaffFromCommittee, addDelegateToCommittee, removeDelegateFromCommittee, addRollCallToCommittee, addRollCallDelegateToCommittee} = committeeMutations();
 
 export const CommitteeDash = () => {
   const { committeeId } = useParams<{ committeeId: string }>();
@@ -128,7 +128,6 @@ export const CommitteeDash = () => {
           inviteStatus: d.inviteStatus,
           minutes: d.minutes,
           positionPaperSent: d.positionPaperSent,
-          attendanceStatus: d.attendanceStatus,
           spoke: d.spoke,
         })),
         dateRange: [new Date(firestoreTimestampToDate(c.startDate)), new Date(firestoreTimestampToDate(c.endDate))],
@@ -231,28 +230,7 @@ export const CommitteeDash = () => {
       await addRollCallDelegateToCommittee(
         committeeId,
         rollCallId,
-        del.country.value,
-        placeholder,
-        'absent'
-      );
-    }
-    navigate(
-      `/committee/${committeeId}/rollcall/${rollCallId}`,
-      { replace: true }
-    );
-  };
-
-  const handleNewRollCall = async () => {
-    if (!committeeId) return;
-    const rollCallId = generateRollCallId(committeeId);
-    const now = Timestamp.now();
-    await addRollCallToCommittee(committeeId, rollCallId, now);
-    const placeholder = Timestamp.fromMillis(0);
-    for (const del of form.values.delegates) {
-      await addRollCallDelegateToCommittee(
-        committeeId,
-        rollCallId,
-        del.country.value,
+        del.name,
         placeholder,
         'absent'
       );
