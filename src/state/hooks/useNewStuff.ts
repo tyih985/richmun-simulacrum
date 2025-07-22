@@ -153,6 +153,7 @@ export const useUserDelegate = (uid: string, cid: string) => {
 
   const { userCommittees } = useUserCommittees(uid);
   const did = userCommittees.find((uc) => uc.id === cid)?.roleId;
+  console.log('delegate id:', did)
 
 
   useEffect(() => {
