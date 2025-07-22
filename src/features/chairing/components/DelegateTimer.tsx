@@ -5,18 +5,18 @@ import { ReactElement } from "react";
 
 type Props = {
   delegate: DelegateDoc;
+  onStart?: () => void;
+  onComplete?: () => void;
 };
 
-export const DelegateTimer = ({ delegate }: Props): ReactElement => {
-    return (
-        <Paper p="md" radius="md" withBorder>
-            {/* <Text>flag</Text> TODO: bc i realize the countriesData should probably be a map bc rn its cringe and you have to iterate through the whole thing and no one wants to do that*/ }
-            <Stack align="center" justify="center" mb="md">
-                <Title order={2}>
-                    {delegate ? delegate.name : ''}
-                </Title>
-            </Stack>
-            <TimerBar></TimerBar>
-        </Paper>
-    )
-}
+export const DelegateTimer = ({ delegate, onStart, onComplete }: Props): ReactElement => {
+  return (
+    <Paper p="md" radius="md" withBorder>
+      <Stack align="center" justify="center" mb="md">
+        <Title order={2}>{delegate.name}</Title>
+      </Stack>
+      <TimerBar onStart={onStart} onComplete={onComplete} />
+    </Paper>
+  );
+};
+
