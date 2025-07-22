@@ -29,6 +29,15 @@ export const generateDirectiveId = (delegateId: string) => {
   return `${parsedName}-${nano(NUM_DIGITS)}`;
 };
 
+export const generateRollCallId = (committeeId: string) => {
+  const parsedName = committeeId
+    .split(/[\s_\-\W]+/)
+    .slice(0, 2)
+    .join('-')
+    .toLocaleLowerCase();
+  return `${parsedName}-${nano(NUM_DIGITS)}`;
+};
+
 // should be reasonably unique within a larger collection (expect max: 1000)
 // a block is for rich text: description, paragraph
 export const generateBlockId = () => nano(8);

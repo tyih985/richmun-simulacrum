@@ -15,7 +15,7 @@ import {
 } from '@mantine/core';
 import { DateInputComponentNonRequired } from '@components/DateInput';
 import { useForm } from '@mantine/form';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useDisclosure } from '@mantine/hooks';
 import type { Country, DelegateDoc, StaffDoc, SetupFormValues } from '@features/types';
@@ -55,6 +55,7 @@ export const CommitteeDash = () => {
 
   const [staffValues, setStaffValues] = useState<string[]>([]);
   const [availableCountries, setAvailableCountries] = useState<Country[]>(un_countries);
+  const navigate = useNavigate();
 
   const form = useForm<SetupFormValues>({
     initialValues: {
@@ -148,8 +149,8 @@ export const CommitteeDash = () => {
     form.setFieldValue(
       'staff',
       form.values.staff.filter((_, idx) => idx !== i),
-    )
-  }
+    );
+  };
 
   const removeDelegate = async (i: number) => {
     await removeDelegateFromCommittee(committeeId!, form.values.delegates[i].id)
@@ -220,6 +221,48 @@ export const CommitteeDash = () => {
     }
   };
 
+  const handleNewRollCall = async () => {
+    if (!committeeId) return;
+    const rollCallId = generateRollCallId(committeeId);
+    const now = Timestamp.now();
+    await addRollCallToCommittee(committeeId, rollCallId, now);
+    const placeholder = Timestamp.fromMillis(0);
+    for (const del of form.values.delegates) {
+      await addRollCallDelegateToCommittee(
+        committeeId,
+        rollCallId,
+        del.country.value,
+        placeholder,
+        'absent'
+      );
+    }
+    navigate(
+      `/committee/${committeeId}/rollcall/${rollCallId}`,
+      { replace: true }
+    );
+  };
+
+  const handleNewRollCall = async () => {
+    if (!committeeId) return;
+    const rollCallId = generateRollCallId(committeeId);
+    const now = Timestamp.now();
+    await addRollCallToCommittee(committeeId, rollCallId, now);
+    const placeholder = Timestamp.fromMillis(0);
+    for (const del of form.values.delegates) {
+      await addRollCallDelegateToCommittee(
+        committeeId,
+        rollCallId,
+        del.country.value,
+        placeholder,
+        'absent'
+      );
+    }
+    navigate(
+      `/committee/${committeeId}/rollcall/${rollCallId}`,
+      { replace: true }
+    );
+  };
+
   if (loading)
     return (
       <Container>
@@ -229,7 +272,6 @@ export const CommitteeDash = () => {
   if (!committee)
     return (
       <Container>
-        {/* if no committee found do we just redirect to a diff page */}
         <Title>Error: Committee not found</Title> 
       </Container>
     );
@@ -385,7 +427,6 @@ export const CommitteeDash = () => {
               </Table.Tr>
             )}
 
-            {/* -- Other staff rows -- */}
             {form.values.staff.map((_, i) => (
               <Table.Tr key={i}>
                   <StaffRow form={form as any} index={i} />
@@ -434,6 +475,15 @@ export const CommitteeDash = () => {
 
       <Button onClick={handleSaveChanges} disabled={!isFormValid}>
         Save Changes
+      </Button>
+
+      <Button
+        variant="outline"
+        mt="md"
+        onClick={handleNewRollCall}
+        disabled={form.values.delegates.length === 0}
+      >
+        New Roll Call
       </Button>
     </Stack>
   );

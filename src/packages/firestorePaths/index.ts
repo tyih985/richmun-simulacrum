@@ -74,3 +74,13 @@ export const committeeMotionsPath = (committeeId: string) =>
   `committees/${committeeId}/motions`;
 export const committeeMotionPath = (committeeId: string, motionId: string) =>
   `committees/${committeeId}/motions/${motionId}`;
+
+export const committeeRollCallsPath = (committeeId: string) =>
+  `committees/${committeeId}/rollcalls`;
+export const committeeRollCallPath = (committeeId: string, rollCallId: string) =>
+  `committees/${committeeId}/rollcalls/${rollCallId}`;
+
+export const committeeRollCallsDelegatesPath = (committeeId: string, rollCallId: string) =>
+  `committees/${committeeId}/rollcalls/${rollCallId}/delegates`;
+export const committeeRollCallDelegatePath = (committeeId: string, rollCallId: string, delegateId: string) =>
+  `committees/${committeeId}/rollcalls/${rollCallId}/delegates/${delegateId}`;
