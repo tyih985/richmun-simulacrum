@@ -78,7 +78,7 @@ function InputToDelegate(countryname: string, countryalias: string): DelegateDoc
       longName: countryalias,
       email: '',
       inviteStatus: 'pending',
-      minutes: 0,
+      totalSpeakingDuration: 0,
       positionPaperSent: false,
       spoke: false,
     },

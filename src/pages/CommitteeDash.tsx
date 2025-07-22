@@ -50,7 +50,7 @@ export const CommitteeDash = () => {
   const [loading, setLoading] = useState(true);
   const [committee, setCommittee] = useState<CommitteeDoc | null>(null);
   const [owner, setOwner] = useState<{
-    uid: string;
+    id: string;
     email: string;
     staffRole: string;
   } | null>(null);
@@ -113,10 +113,11 @@ export const CommitteeDash = () => {
 
       const ownerDoc = staffDocs.find((d) => d.owner) ?? null;
       const otherStaff = staffDocs.filter((d) => !d.owner);
+      const orderedStaff = ownerDoc ? [ownerDoc, ...otherStaff] : otherStaff;
 
       if (ownerDoc) {
         setOwner({
-          uid: ownerDoc.id,
+          id: ownerDoc.id,
           email: ownerDoc.email,
           staffRole: ownerDoc.staffRole,
         });
@@ -127,7 +128,7 @@ export const CommitteeDash = () => {
       form.setValues({
         committeeLongName: c.longName,
         committeeShortName: c.shortName,
-        staff: otherStaff.map((d) => ({
+        staff: orderedStaff.map((d) => ({
           id: d.id,
           staffRole: d.staffRole,
           owner: d.owner,
@@ -139,7 +140,7 @@ export const CommitteeDash = () => {
           name: d.name,
           email: d.email,
           inviteStatus: d.inviteStatus,
-          minutes: d.minutes,
+          totalSpeakingDuration: d.totalSpeakingDuration,
           positionPaperSent: d.positionPaperSent,
           spoke: d.spoke,
         })),
@@ -398,33 +399,22 @@ export const CommitteeDash = () => {
           </Table.Thead>
           <Table.Tbody>
             {/* -- Owner row, editable only by the owner user -- */}
-            {owner && (
+            {/* {owner && (
               <Table.Tr key="owner">
-                <Table.Td>
-                  <Text fw={700}>Owner</Text>
-                </Table.Td>
-                <Table.Td>
                   {auth.currentUser?.email === owner.email ? (
-                    <TextInput
-                      value={owner.email}
-                      onChange={(evt) =>
-                        setOwner((o) => o && { ...o, email: evt.currentTarget.value })
-                      }
-                    />
+                    <StaffRow form={form as any} index={0}></StaffRow>
                   ) : (
                     <Text>{owner.email}</Text>
                   )}
-                </Table.Td>
-                <Table.Td>{/* No delete button for the owner */}</Table.Td>
+                <Table.Td> */}
+                  {/* No delete button for the owner */}
+                  {/* </Table.Td>
               </Table.Tr>
-            )}
+            )} */}
 
             {form.values.staff.map((_, i) => (
               <Table.Tr key={i}>
-                <StaffRow form={form as any} index={i} />
-                <Table.Td>
-                  <CloseButton onClick={() => removeStaff(i)} />
-                </Table.Td>
+                <StaffRow form={form as any} index={i} onRemove={removeStaff}/>
               </Table.Tr>
             ))}
           </Table.Tbody>
