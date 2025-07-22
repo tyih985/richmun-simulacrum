@@ -1,6 +1,7 @@
 import {
   createFirestoreDocument,
   deleteFirestoreDocument,
+  updateFirestoreDocument,
 } from '@packages/firestoreAsQuery/firestoreRequests';
 import {
   committeePath,
@@ -215,6 +216,15 @@ export const committeeMutations = () => {
     return deleteFirestoreDocument(path);
   };
 
+    const updateUserCommitteeInvite = (
+    uid: string,
+    committeeId: string,
+    inviteStatus: InviteStatus
+  ) => {
+    const path = userCommitteePath(uid, committeeId);
+    return updateFirestoreDocument(path, { inviteStatus });
+  };
+
   return {
     createCommittee,
     deleteCommittee,
@@ -232,5 +242,6 @@ export const committeeMutations = () => {
     removeRollCallFromCommittee,
     addRollCallDelegateToCommittee,
     removeRollCallDelegateFromCommittee,
+    updateUserCommitteeInvite,
   };
 };
