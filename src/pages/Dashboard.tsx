@@ -17,7 +17,6 @@ import { useUserCommittees } from '@hooks/useNewStuff';
 import { CommitteeRow } from '@features/dashboard/components/CommitteeRow';
 import { InviteCard } from '@features/dashboard/components/InviteCard';
 import { auth } from '@packages/firebase/firebaseAuth';
-import type { UserCommitteeDoc } from '@features/types';
 
 export const Dashboard = (): ReactElement => {
   const uid = auth.currentUser!.uid;
@@ -30,9 +29,8 @@ export const Dashboard = (): ReactElement => {
   return (
     <>
       <Drawer opened={opened} onClose={close} title="Your Invites" position="right">
-        {userInvites
-          .filter((inv) => inv.inviteStatus === 'pending')
-          .map((invite: UserCommitteeDoc) => (
+        {userInvites.length > 0 ? (
+          userInvites.map((invite) => (
             <InviteCard
               key={invite.id}
               uid={uid}
@@ -40,7 +38,11 @@ export const Dashboard = (): ReactElement => {
               committee={committeeDocs[invite.id]}
               onRespondSuccess={refresh}
             />
-          ))}
+          ))
+        ) : (
+          <Text>No invites yet.</Text>
+        ) 
+        }
       </Drawer>
 
       <Stack p="lg">

@@ -15,13 +15,14 @@ import { SpeakerSelector } from '@features/chairing/components/SpeakerSelector';
 import { SpeakerList } from '@features/chairing/components/SpeakerList';
 import { committeeMutations } from '@mutations/committeeMutation';
 import { TimerBar } from '@components/Timer';
+import { DelegateDoc } from '@features/types';
 
 const { addDelegateToCommittee } = committeeMutations();
 
 export const Speakers = (): ReactElement => {
   const { committeeId } = useParams<{ committeeId: string }>();
   const [listType, setListType] = useState<'primary' | 'secondary' | 'single'>('primary');
-  const [speakers, setSpeakers] = useState<string[]>([]);
+  const [speakers, setSpeakers] = useState<DelegateDoc[]>([]);
   const { delegates, loading } = useCommitteeDelegates(committeeId);
 
   if (loading) {
@@ -32,9 +33,10 @@ export const Speakers = (): ReactElement => {
     );
   }
 
-  const addSpeaker = (name: string) => {
-    if (!speakers.includes(name)) {
-      setSpeakers([...speakers, name]);
+  const addSpeaker = (delegate: DelegateDoc) => {
+    if (!speakers.includes(delegate)) {
+      setSpeakers([...speakers, delegate]);
+      console.log('adding delegate:', delegate.name)
     }
   };
 
@@ -42,7 +44,7 @@ export const Speakers = (): ReactElement => {
     setSpeakers([]);
   };
 
-  const currentDelegate = delegates.find((d) => d.name === speakers[0]);
+  const currentDelegate = delegates.find((d) => d === speakers[0]);
 
   const handleTimerComplete = () => {
     setSpeakers((prev) => prev.slice(1)); // removes the first speaker
@@ -78,10 +80,11 @@ export const Speakers = (): ReactElement => {
 
       {currentDelegate ? (
         <>
-          <DelegateTimer
-            delegate={currentDelegate}
-            onStart={handleTimerStart}
-            onComplete={handleTimerComplete}
+          <DelegateTimer 
+          delegate={currentDelegate} 
+          showNext={true}
+          onStart={handleTimerStart}
+          onComplete={handleTimerComplete} 
           />
         </>
       ) : (
@@ -96,9 +99,9 @@ export const Speakers = (): ReactElement => {
         <SpeakerSelector
           delegates={delegates}
           onAddSpeaker={addSpeaker}
-          currentSpeakers={speakers}
+          currentSpeakers={speakers.map((d)=>d.name)}
         />
-        <SpeakerList speakers={speakers} onClear={clearSpeakers} />
+        <SpeakerList speakers={speakers.map((d)=>d.name)} onClear={clearSpeakers} />
       </Group>
     </Stack>
   );
