@@ -30,8 +30,8 @@ import { DelegateRow } from '@features/committeeDash/components/DelegateRow';
 import { committeeQueries } from '@mutations/committeeQueries';
 import { countriesData, countriesHash } from '@lib/countriesData';
 import { committeeMutations } from '@mutations/committeeMutation';
-import { dateToTimestamp, firestoreTimestampToDate } from '@features/utils';
-import { generateDelegateId, generateRollCallId, generateStaffId } from '@packages/generateIds';
+import { firestoreTimestampToDate } from '@features/utils';
+import { generateRollCallId, generateStaffId } from '@packages/generateIds';
 import { Timestamp } from 'firebase/firestore';
 
 const un_countries = countriesData;

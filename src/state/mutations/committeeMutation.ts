@@ -190,6 +190,7 @@ export const committeeMutations = () => {
     type: MotionType,
     totalTime?: number,
     speakingTime?: number,
+    topic: string = '',
   ) => {
     const path = committeeMotionPath(committeeId, motionId);
     const data: any = { delegate, type };

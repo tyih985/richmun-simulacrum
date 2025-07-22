@@ -30,11 +30,10 @@ export const StaffRow = ({ form, index }: StaffRowProps) => {
           { value: 'flex staff', label: 'Flex Staff' },
         ]}
         placeholder="Select role"
-        radius="sm"
       />
       </Table.Td>
       <Table.Td>
-<TextInput
+      <TextInput
         {...form.getInputProps(fieldName)}
         placeholder="Email"
       />
