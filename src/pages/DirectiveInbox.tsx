@@ -5,7 +5,6 @@ import { DirectiveDoc } from '@features/types';
 import { useCommitteeDirectives } from '@hooks/useNewStuff';
 import { useParams } from 'react-router-dom';
 
-
 export const DirectiveInbox = (): ReactElement => {
   const { committeeId } = useParams<{ committeeId: string }>();
   const { directives } = useCommitteeDirectives(committeeId);

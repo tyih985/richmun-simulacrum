@@ -14,7 +14,6 @@ export const Motions = (): ReactElement => {
   const { committeeId } = useParams<{ committeeId: string }>();
   const [motions, setMotions] = useState<MotionDoc[]>([]);
   const { delegates } = useCommitteeDelegates(committeeId);
-  
 
   if (!committeeId) {
     console.error('committeeId is undefined');
@@ -48,7 +47,9 @@ export const Motions = (): ReactElement => {
 
   const updateMotion = (updatedMotion: MotionDoc) => {
     setMotions((prevMotions) =>
-      prevMotions.map((motion) => (motion.id === updatedMotion.id ? updatedMotion : motion))
+      prevMotions.map((motion) =>
+        motion.id === updatedMotion.id ? updatedMotion : motion,
+      ),
     );
 
     // Call update mutation
@@ -86,7 +87,6 @@ export const Motions = (): ReactElement => {
     console.log(`Starting motion ${motionId} in committee ${committeeId}`);
   };
 
-
   return (
     <Stack p="xl">
       <Group p="xl" align="flex-start">
@@ -97,30 +97,29 @@ export const Motions = (): ReactElement => {
           Add Motion
         </Button>
       </Group>
-      <Stack p={"xl"}>
-      {motions.length > 0 ? (
-        <>
-          {motions.map((motion) => (
-            <Motion
-              key={motion.id}
-              motion={motion}
-              delegates={delegates}
-              onChange={updateMotion}
-              onRemove={removeMotion}
-              onStart={startMotion}
-            />
-          ))}
-          
-          <Group justify='flex-end'>
-            <Button color="red" onClick={clearMotions}>
-            Clear Motions
-          </Button>
-          </Group>
-          
-        </>
-      ) : (
-        <Text c="dimmed">No motions added yet.</Text>
-      )}
+      <Stack p={'xl'}>
+        {motions.length > 0 ? (
+          <>
+            {motions.map((motion) => (
+              <Motion
+                key={motion.id}
+                motion={motion}
+                delegates={delegates}
+                onChange={updateMotion}
+                onRemove={removeMotion}
+                onStart={startMotion}
+              />
+            ))}
+
+            <Group justify="flex-end">
+              <Button color="red" onClick={clearMotions}>
+                Clear Motions
+              </Button>
+            </Group>
+          </>
+        ) : (
+          <Text c="dimmed">No motions added yet.</Text>
+        )}
       </Stack>
     </Stack>
   );

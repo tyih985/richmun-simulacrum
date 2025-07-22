@@ -6,7 +6,6 @@ import { useCommitteeDelegates, useMotion } from '@hooks/useNewStuff';
 import { SpeakerSelector } from '@features/chairing/components/SpeakerSelector';
 import { DelegateDoc } from '@features/types';
 
-
 export const Caucus = (): ReactElement => {
   const { motionId } = useParams<{ motionId: string }>();
   const { committeeId } = useParams<{ committeeId: string }>();
@@ -32,25 +31,17 @@ export const Caucus = (): ReactElement => {
       </Text>
 
       {currentSpeaker ? (
-        <DelegateTimer 
-        delegate={currentSpeaker}
-        showNext={false}
-        />
-        )
-        :
-        ( 
+        <DelegateTimer delegate={currentSpeaker} showNext={false} />
+      ) : (
         <Paper p="xl" radius="md" withBorder>
-          <Stack p='xl' align="center" justify="center" m={'3px'}>
+          <Stack p="xl" align="center" justify="center" m={'3px'}>
             <Text c="dimmed">No current speaker.</Text>
           </Stack>
         </Paper>
       )}
 
       <Group grow align="flex-start">
-        <SpeakerSelector
-          delegates={delegates}
-          onAddSpeaker={setCurrentSpeaker}
-        />
+        <SpeakerSelector delegates={delegates} onAddSpeaker={setCurrentSpeaker} />
       </Group>
     </Stack>
   );
