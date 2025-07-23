@@ -16,7 +16,7 @@ interface StaffRowProps {
   onRemove: (i: number) => void;
 }
 
-export const StaffRow = ({ form, index, onRemove, owner}: StaffRowProps) => {
+export const StaffRow = ({ form, index, onRemove, owner }: StaffRowProps) => {
   const staffMember = form.values.staff[index];
   const isRowOwner = staffMember?.owner || false;
   const isCurrentUserOwner = auth.currentUser?.email === owner;
@@ -40,29 +40,24 @@ export const StaffRow = ({ form, index, onRemove, owner}: StaffRowProps) => {
               { value: 'flex staff', label: 'flex staff' },
             ]}
             placeholder="Select role"
-            
           />
         ) : (
-          <Text size='sm' p={'xs'}>{staffMember.staffRole}</Text>
+          <Text size="sm" p={'xs'}>
+            {staffMember.staffRole}
+          </Text>
         )}
       </Table.Td>
 
       <Table.Td w={'50%'}>
         {canEdit ? (
-          <TextInput
-            {...form.getInputProps(fieldName)}
-            placeholder="Email"
-          />
+          <TextInput {...form.getInputProps(fieldName)} placeholder="Email" />
         ) : (
-          <Text size='sm'>{staffMember.email}</Text>
+          <Text size="sm">{staffMember.email}</Text>
         )}
       </Table.Td>
 
-
       <Table.Td>
-        {!staffMember.owner && (
-          <CloseButton onClick={() => onRemove(index)} />
-        )}
+        {!staffMember.owner && <CloseButton onClick={() => onRemove(index)} />}
       </Table.Td>
     </>
   );

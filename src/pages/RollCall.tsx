@@ -10,10 +10,7 @@ export const RollCall = (): ReactElement => {
     rollCallId: string;
   }>();
 
-  const { delegates, loading } = useRollCallDelegates(
-    committeeId,
-    rollCallId
-  );
+  const { delegates, loading } = useRollCallDelegates(committeeId, rollCallId);
 
   if (loading) {
     return (

@@ -36,12 +36,12 @@ export const Speakers = (): ReactElement => {
   const addPrimarySpeaker = (delegate: DelegateDoc) => {
     if (!speakers.includes(delegate)) {
       setSpeakers([...speakers, delegate]);
-      console.log('adding delegate:', delegate.name)
+      console.log('adding delegate:', delegate.name);
     }
   };
 
   // const removePrimarySpeaker = () => {
-    
+
   // }
 
   const addSingleSpeaker = (delegate: DelegateDoc) => {
@@ -83,8 +83,8 @@ export const Speakers = (): ReactElement => {
           data={['primary', 'secondary', 'single']}
           value={listType}
           onChange={(value) => {
-            setListType(value as 'primary' | 'secondary' | 'single'); 
-            clearSpeakers()
+            setListType(value as 'primary' | 'secondary' | 'single');
+            clearSpeakers();
           }}
         />
         <Text c="dimmed">{listType} speakers</Text>
@@ -93,11 +93,11 @@ export const Speakers = (): ReactElement => {
       {listType === 'primary' && (
         <>
           {currentDelegate ? (
-            <DelegateTimer 
-              delegate={currentDelegate} 
+            <DelegateTimer
+              delegate={currentDelegate}
               showNext={true}
               onStart={handleTimerStart}
-              onComplete={handleTimerComplete} 
+              onComplete={handleTimerComplete}
             />
           ) : (
             <Paper p="xl" radius="md" withBorder>
@@ -119,13 +119,13 @@ export const Speakers = (): ReactElement => {
       )}
 
       {listType === 'secondary' && (
-         <>
+        <>
           {currentDelegate ? (
-            <DelegateTimer 
-              delegate={currentDelegate} 
+            <DelegateTimer
+              delegate={currentDelegate}
               showNext={true}
               onStart={handleTimerStart}
-              onComplete={handleTimerComplete} 
+              onComplete={handleTimerComplete}
             />
           ) : (
             <Paper p="xl" radius="md" withBorder>
@@ -147,13 +147,13 @@ export const Speakers = (): ReactElement => {
       )}
 
       {listType === 'single' && (
-         <>
+        <>
           {currentSpeaker ? (
-            <DelegateTimer 
-              delegate={currentSpeaker} 
+            <DelegateTimer
+              delegate={currentSpeaker}
               showNext={true}
               onStart={handleTimerStart}
-              onComplete={handleTimerComplete} 
+              onComplete={handleTimerComplete}
             />
           ) : (
             <Paper p="xl" radius="md" withBorder>
@@ -164,10 +164,7 @@ export const Speakers = (): ReactElement => {
           )}
 
           <Group grow align="flex-start">
-            <SpeakerSelector
-            delegates={delegates}
-            onAddSpeaker={addSingleSpeaker}
-            />
+            <SpeakerSelector delegates={delegates} onAddSpeaker={addSingleSpeaker} />
           </Group>
         </>
       )}

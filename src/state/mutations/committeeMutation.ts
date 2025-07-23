@@ -211,17 +211,13 @@ export const committeeMutations = () => {
     return deleteFirestoreDocument(path);
   };
 
-    const addMotionSpeaker = (
+  const addMotionSpeaker = (
     committeeId: string,
     motionId: string,
     delegateId: string,
     order: number,
   ) => {
-    const path = motionSpeakerPath(
-      committeeId,
-      motionId,
-      delegateId
-    );
+    const path = motionSpeakerPath(committeeId, motionId, delegateId);
     const data = { delegateId, order };
     return createFirestoreDocument(path, data, true);
   };
@@ -229,13 +225,9 @@ export const committeeMutations = () => {
   const removeMotionSpeaker = (
     committeeId: string,
     motionId: string,
-    delegateId: string
+    delegateId: string,
   ) => {
-    const path = motionSpeakerPath(
-      committeeId,
-      motionId,
-      delegateId
-    );
+    const path = motionSpeakerPath(committeeId, motionId, delegateId);
     return deleteFirestoreDocument(path);
   };
 
@@ -247,12 +239,7 @@ export const committeeMutations = () => {
     type: SpeakerLogEntry,
     timestamp: Timestamp,
   ) => {
-    const path = motionSpeakerLogPath(
-      committeeId,
-      motionId,
-      delegateId,
-      logId
-    );
+    const path = motionSpeakerLogPath(committeeId, motionId, delegateId, logId);
     const data = { type, timestamp };
     return createFirestoreDocument(path, data, true);
   };
@@ -261,14 +248,9 @@ export const committeeMutations = () => {
     committeeId: string,
     motionId: string,
     speakerId: string,
-    logId: string
+    logId: string,
   ) => {
-    const path = motionSpeakerLogPath(
-      committeeId,
-      motionId,
-      speakerId,
-      logId
-    );
+    const path = motionSpeakerLogPath(committeeId, motionId, speakerId, logId);
     return deleteFirestoreDocument(path);
   };
 

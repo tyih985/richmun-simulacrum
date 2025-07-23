@@ -1,5 +1,13 @@
 import { ReactElement, useState } from 'react';
-import { Button, CloseButton, Group, NumberInput, Paper, Select, TextInput } from '@mantine/core';
+import {
+  Button,
+  CloseButton,
+  Group,
+  NumberInput,
+  Paper,
+  Select,
+  TextInput,
+} from '@mantine/core';
 import { TimePicker } from '@mantine/dates';
 import { DelegateDoc, MotionDoc } from '@features/types';
 
@@ -59,7 +67,10 @@ export const Motion = ({
                 label="Speaking Time (seconds)"
                 value={motion.totalTime}
                 onChange={(value) =>
-                  onChange({ ...motion, totalTime: typeof value === 'number' ? value : undefined })
+                  onChange({
+                    ...motion,
+                    totalTime: typeof value === 'number' ? value : undefined,
+                  })
                 }
                 min={0}
                 step={30}
@@ -72,7 +83,10 @@ export const Motion = ({
                 label="Total Time (seconds)"
                 value={motion.totalTime}
                 onChange={(value) =>
-                  onChange({ ...motion, totalTime: typeof value === 'number' ? value : undefined })
+                  onChange({
+                    ...motion,
+                    totalTime: typeof value === 'number' ? value : undefined,
+                  })
                 }
                 min={0}
                 step={30}

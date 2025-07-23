@@ -1,14 +1,28 @@
-import { useFirestoreCollectionQuery } from "@packages/firestoreAsQuery"
-import { motionSpeakerLogsPath } from "@packages/firestorePaths"
+import { useState, useEffect } from 'react';
+import { useFirestoreCollectionQuery } from '@packages/firestoreAsQuery';
+import { motionSpeakerLogsPath } from '@packages/firestorePaths';
+import type { MotionSpeakerLogDoc } from 'src/features/types';
 
-export const useSpeakerLog = (cid: string, mid: string, did: string) => {
-    const path = motionSpeakerLogsPath(cid, mid, did);
-    const state = useFirestoreCollectionQuery(path, {enabled: true, sortBy: 'timestamp'});
-    if (state.isLoading) {
-        console.log('loading');
-    }
-    
-    console.log(state.data);
+export const useSpeakerLog = (
+  cid: string,
+  mid: string,
+  did: string,
+): { logs: MotionSpeakerLogDoc[]; loading: boolean } => {
+  const path = motionSpeakerLogsPath(cid, mid, did);
 
-    return state.data;
-}
+  const state = useFirestoreCollectionQuery<MotionSpeakerLogDoc>(path, {
+    enabled: true,
+    sortBy: 'timestamp',
+  });
+
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(state.isLoading);
+  }, [state.isLoading]);
+
+  return {
+    logs: state.data ?? [],
+    loading,
+  };
+};

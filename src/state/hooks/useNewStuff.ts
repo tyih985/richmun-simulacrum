@@ -14,7 +14,15 @@ import { collection, DocumentData, onSnapshot, orderBy, query } from 'firebase/f
 import { committeeRollCallsDelegatesPath } from '@packages/firestorePaths';
 import { firestoreDb } from '@packages/firebase/firestoreDb';
 
-const { getUserCommittees, getUserCommittee, getCommittee, getCommitteeRollCall, getCommitteeRollCalls, getCommitteeRollCallDelegate, getCommitteeRollCallDelegates } = committeeQueries;
+const {
+  getUserCommittees,
+  getUserCommittee,
+  getCommittee,
+  getCommitteeRollCall,
+  getCommitteeRollCalls,
+  getCommitteeRollCallDelegate,
+  getCommitteeRollCallDelegates,
+} = committeeQueries;
 
 export const useUserCommittees = (uid?: string) => {
   const [userCommittees, setUserCommittees] = useState<UserCommitteeDoc[]>([]);
@@ -158,7 +166,7 @@ export const useUserDelegate = (uid: string, cid: string) => {
 
   const { userCommittees } = useUserCommittees(uid);
   const did = userCommittees.find((uc) => uc.id === cid)?.roleId;
-  console.log('delegate id:', did)
+  console.log('delegate id:', did);
 
   useEffect(() => {
     if (!did || !cid) return;
@@ -172,7 +180,7 @@ export const useUserDelegate = (uid: string, cid: string) => {
         setLoading(false);
       }
     };
-    console.log('delegate doc:', delegate)
+    console.log('delegate doc:', delegate);
 
     fetchDelegate();
   }, [cid, did, uid]);
@@ -203,7 +211,7 @@ export const useUserIsStaff = (uid: string, cid: string) => {
   }, [uid, cid]);
 
   return { isStaff, loading };
-}
+};
 
 export const useRollCalls = (cid?: string) => {
   const [rollCalls, setRollCalls] = useState<RollCallDoc[]>([]);
@@ -253,21 +261,15 @@ export const useRollCall = (committeeId?: string, rollCallId?: string) => {
   return { rollCall, loading };
 };
 
-export const useRollCallDelegates = (
-  committeeId?: string,
-  rollCallId?: string
-) => {
+export const useRollCallDelegates = (committeeId?: string, rollCallId?: string) => {
   const [delegates, setDelegates] = useState<RollCallDelegateDoc[]>([]);
-  const [loading, setLoading]     = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!committeeId || !rollCallId) return;
 
     setLoading(true);
-    const path = committeeRollCallsDelegatesPath(
-      committeeId,
-      rollCallId
-    );
+    const path = committeeRollCallsDelegatesPath(committeeId, rollCallId);
     const q = query(collection(firestoreDb, path), orderBy('name'));
 
     const unsub = onSnapshot(
@@ -283,7 +285,7 @@ export const useRollCallDelegates = (
       (err) => {
         console.error('Realtime listener error:', err);
         setLoading(false);
-      }
+      },
     );
 
     return () => unsub();
@@ -295,10 +297,10 @@ export const useRollCallDelegates = (
 export const useRollCallDelegate = (
   committeeId?: string,
   rollCallId?: string,
-  delegateId?: string
+  delegateId?: string,
 ) => {
   const [delegate, setDelegate] = useState<RollCallDelegateDoc | null>(null);
-  const [loading, setLoading]   = useState(true);
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
     if (!committeeId || !rollCallId || !delegateId) {
       setDelegate(null);
@@ -311,7 +313,7 @@ export const useRollCallDelegate = (
         const doc = await getCommitteeRollCallDelegate(
           committeeId,
           rollCallId,
-          delegateId
+          delegateId,
         );
         setDelegate(doc);
       } catch (err) {

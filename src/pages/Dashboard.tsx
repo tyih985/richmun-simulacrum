@@ -41,8 +41,7 @@ export const Dashboard = (): ReactElement => {
           ))
         ) : (
           <Text>No invites yet.</Text>
-        ) 
-        }
+        )}
       </Drawer>
 
       <Stack p="lg">

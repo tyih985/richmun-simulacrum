@@ -16,19 +16,18 @@ export const Motions = (): ReactElement => {
   const [motions, setMotions] = useState<MotionDoc[]>([]);
   const { delegates } = useCommitteeDelegates(committeeId);
   useEffect(() => {
-      if (committeeId) {
-        committeeQueries.getCommitteeMotions(committeeId)
-          .then(setMotions)
-          .catch((err) => console.error('Failed to fetch motions:', err));
-      }
-    }, [committeeId]);
-    
+    if (committeeId) {
+      committeeQueries
+        .getCommitteeMotions(committeeId)
+        .then(setMotions)
+        .catch((err) => console.error('Failed to fetch motions:', err));
+    }
+  }, [committeeId]);
+
   if (!committeeId) {
     console.error('committeeId is undefined');
     return <Text c="red">Committee ID is missing.</Text>;
   }
-
- 
 
   const addMotion = () => {
     const motion: MotionDoc = {
@@ -41,26 +40,26 @@ export const Motions = (): ReactElement => {
     };
     setMotions((prev) => [...prev, motion]);
 
-  //   // Call DB mutation with empty/default values
-  //   addCommitteeMotion(
-  //     committeeId,
-  //     motion.id,
-  //     motion.delegate,
-  //     motion.type,
-  //     motion.totalTime,
-  //     motion.speakingTime,
-  //     motion.topic,
-  //   )
-  //     .then(() => console.log(`Motion ${motion.id} added to committee ${committeeId}`))
-  //     .catch((error) => console.error('Failed to add motion:', error));
+    //   // Call DB mutation with empty/default values
+    //   addCommitteeMotion(
+    //     committeeId,
+    //     motion.id,
+    //     motion.delegate,
+    //     motion.type,
+    //     motion.totalTime,
+    //     motion.speakingTime,
+    //     motion.topic,
+    //   )
+    //     .then(() => console.log(`Motion ${motion.id} added to committee ${committeeId}`))
+    //     .catch((error) => console.error('Failed to add motion:', error));
   };
 
   const updateMotion = (updatedMotion: MotionDoc) => {
-  setMotions((prevMotions) =>
-    prevMotions.map((motion) =>
-      motion.id === updatedMotion.id ? updatedMotion : motion,
-    ),
-  );
+    setMotions((prevMotions) =>
+      prevMotions.map((motion) =>
+        motion.id === updatedMotion.id ? updatedMotion : motion,
+      ),
+    );
     addCommitteeMotion(
       committeeId,
       updatedMotion.id,
@@ -92,14 +91,14 @@ export const Motions = (): ReactElement => {
   };
 
   const startMotion = (motion: MotionDoc) => {
-     // Check for required fields before saving
+    // Check for required fields before saving
     if (
       motion.delegate &&
       motion.topic &&
       (motion.totalTime || motion.type === 'round table') &&
       (motion.speakingTime || motion.type === 'unmoderated')
-    ) 
-    navigate(`/committee/${committeeId}/caucus/${motion.id}`);
+    )
+      navigate(`/committee/${committeeId}/caucus/${motion.id}`);
     console.log(`Starting motion ${motion.id} in committee ${committeeId}`);
   };
 

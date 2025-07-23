@@ -25,7 +25,7 @@ export const MakeDirective = (): ReactElement => {
   // assumes uid exists
   const { delegate } = useUserDelegate(auth.currentUser!.uid, committeeId || '');
   // const delegate = 'delegate'
-  console.log('delegate:', delegate)
+  console.log('delegate:', delegate);
   const { delegates } = useCommitteeDelegates(committeeId);
 
   const form = useForm({

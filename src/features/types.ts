@@ -90,7 +90,6 @@ export type MotionSpeakerLogDoc = {
   timestamp: EpochTimeStamp;
 };
 
-
 export type RollCallDoc = {
   id: string;
   timestamp: Timestamp;
