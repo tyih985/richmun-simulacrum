@@ -12,6 +12,8 @@ import {
   committeeRollCallPath,
   userCommitteePath,
   committeeRollCallDelegatePath,
+  motionSpeakerPath,
+  motionSpeakerLogPath,
 } from '@packages/firestorePaths';
 import {
   Role,
@@ -20,6 +22,7 @@ import {
   DirectiveStatus,
   MotionType,
   AttendanceStatus,
+  SpeakerLogEntry,
 } from 'src/features/types';
 import { Timestamp } from 'firebase/firestore';
 
@@ -208,6 +211,67 @@ export const committeeMutations = () => {
     return deleteFirestoreDocument(path);
   };
 
+    const addMotionSpeaker = (
+    committeeId: string,
+    motionId: string,
+    delegateId: string,
+    order: number,
+  ) => {
+    const path = motionSpeakerPath(
+      committeeId,
+      motionId,
+      delegateId
+    );
+    const data = { delegateId, order };
+    return createFirestoreDocument(path, data, true);
+  };
+
+  const removeMotionSpeaker = (
+    committeeId: string,
+    motionId: string,
+    delegateId: string
+  ) => {
+    const path = motionSpeakerPath(
+      committeeId,
+      motionId,
+      delegateId
+    );
+    return deleteFirestoreDocument(path);
+  };
+
+  const addMotionSpeakerLog = (
+    committeeId: string,
+    motionId: string,
+    delegateId: string,
+    logId: string,
+    type: SpeakerLogEntry,
+    timestamp: Timestamp,
+  ) => {
+    const path = motionSpeakerLogPath(
+      committeeId,
+      motionId,
+      delegateId,
+      logId
+    );
+    const data = { type, timestamp };
+    return createFirestoreDocument(path, data, true);
+  };
+
+  const removeMotionSpeakerLog = (
+    committeeId: string,
+    motionId: string,
+    speakerId: string,
+    logId: string
+  ) => {
+    const path = motionSpeakerLogPath(
+      committeeId,
+      motionId,
+      speakerId,
+      logId
+    );
+    return deleteFirestoreDocument(path);
+  };
+
   const updateUserCommitteeInvite = (
     uid: string,
     committeeId: string,
@@ -235,5 +299,9 @@ export const committeeMutations = () => {
     addRollCallDelegateToCommittee,
     removeRollCallDelegateFromCommittee,
     updateUserCommitteeInvite,
+    addMotionSpeaker,
+    removeMotionSpeaker,
+    addMotionSpeakerLog,
+    removeMotionSpeakerLog,
   };
 };
