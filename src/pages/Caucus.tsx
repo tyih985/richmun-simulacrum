@@ -1,25 +1,34 @@
-import { ReactElement, useState } from 'react';
+import { ReactElement, useEffect, useState } from 'react';
 import { Center, Group, Paper, Stack, Text, Title } from '@mantine/core';
 import { DelegateTimer } from '@features/chairing/components/DelegateTimer';
 import { useParams } from 'react-router-dom';
 import { useCommitteeDelegates, useMotion } from '@hooks/useNewStuff';
 import { SpeakerSelector } from '@features/chairing/components/SpeakerSelector';
-import { DelegateDoc } from '@features/types';
-import { useSpeakerLog } from '@hooks/useSpeakerLog';
+import type { DelegateDoc } from '@features/types';
+import { updateFirestoreDocument } from '@packages/firestoreAsQuery/firestoreRequests';
+import { committeeMotionPath } from '@packages/firestorePaths';
 
 export const Caucus = (): ReactElement => {
-  const { motionId } = useParams<{ motionId: string }>();
-  const { committeeId } = useParams<{ committeeId: string }>();
+  const { committeeId, motionId } = useParams<{
+    committeeId: string;
+    motionId: string;
+  }>();
   const [currentSpeaker, setCurrentSpeaker] = useState<DelegateDoc | null>(null);
-  const { delegates, loading: delLoading } = useCommitteeDelegates(committeeId);
-  const { motion, loading: loadingMotions } = useMotion(committeeId, motionId);
-  const { logs, loading } = useSpeakerLog(
-    committeeId!,
-    motionId!,
-    currentSpeaker?.id ?? '',
-  );
 
-  if (delLoading || loadingMotions) {
+  const { delegates, loading: delLoading } =
+    useCommitteeDelegates(committeeId!);
+  const { motion, loading: motionLoading } =
+    useMotion(committeeId!, motionId!);
+
+  useEffect(() => {
+    if (!currentSpeaker) return;
+    const path = committeeMotionPath(committeeId!, motionId!);
+    updateFirestoreDocument(path, {
+      currentSpeaker: currentSpeaker.id,
+    }).catch(console.error);
+  }, [currentSpeaker, committeeId, motionId]);
+
+  if (delLoading || motionLoading) {
     return (
       <Center>
         <Text>Loading...</Text>
@@ -27,28 +36,33 @@ export const Caucus = (): ReactElement => {
     );
   }
 
-  console.log('Caucus motion:', motion);
-  console.log('data:', logs);
-
   return (
     <Stack p="xl">
       <Title order={1}>Caucus</Title>
-      <Text size="md" c="dimmed">
+      <Text size="md" color="dimmed">
         Motion: {motion?.topic || 'No motion selected'}
       </Text>
 
       {currentSpeaker ? (
-        <DelegateTimer delegate={currentSpeaker} showNext={false} />
+        <DelegateTimer
+          cid={committeeId!}
+          mid={motionId!}
+          delegate={currentSpeaker}
+          showNext={false}
+        />
       ) : (
         <Paper p="xl" radius="md" withBorder>
-          <Stack p="xl" align="center" justify="center" m={'3px'}>
-            <Text c="dimmed">No current speaker.</Text>
+          <Stack align="center" justify="center">
+            <Text color="dimmed">No current speaker.</Text>
           </Stack>
         </Paper>
       )}
 
       <Group grow align="flex-start">
-        <SpeakerSelector delegates={delegates} onAddSpeaker={setCurrentSpeaker} />
+        <SpeakerSelector
+          delegates={delegates}
+          onAddSpeaker={setCurrentSpeaker}
+        />
       </Group>
     </Stack>
   );
