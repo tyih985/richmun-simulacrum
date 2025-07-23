@@ -11,7 +11,7 @@ export const DirectiveInbox = (): ReactElement => {
   const { directives } = useCommitteeDirectives(committeeId);
   // assumes user is not null lol
   const { userCommittees } = useUserCommittees(auth.currentUser!.uid);
-  // const 
+  // const
 
   const isStaff = true;
 
@@ -23,7 +23,7 @@ export const DirectiveInbox = (): ReactElement => {
     if (isStaff) {
       setVisibleDirectives(directives);
     } else {
-      setVisibleDirectives(directives.filter(d => !d.privateStatus));
+      setVisibleDirectives(directives.filter((d) => !d.privateStatus));
     }
   }, [directives, isStaff]);
 

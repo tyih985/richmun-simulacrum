@@ -59,10 +59,12 @@ export function TimerBar({ duration = 2, onStart, onComplete, showNext }: Props)
         value={progress}
         size="lg"
         radius="md"
-        color={progress >= 90 ? 'red': ''}
+        color={progress >= 90 ? 'red' : ''}
       />
       <Group mt="md" justify="center">
-        <Button onClick={handleStartPause}>{running ? 'Pause' : progress === 100 ? 'Restart' : 'Start'}</Button>
+        <Button onClick={handleStartPause}>
+          {running ? 'Pause' : progress === 100 ? 'Restart' : 'Start'}
+        </Button>
         {showNext && (
           <Button variant="outline" onClick={handleNext}>
             Next

@@ -5,7 +5,7 @@ import { committeeMutations } from '@mutations/committeeMutation';
 import type { RollCallDelegateDoc, AttendanceStatus } from '@features/types';
 import { Timestamp } from 'firebase/firestore';
 
-const { addRollCallDelegateToCommittee } = committeeMutations(); 
+const { addRollCallDelegateToCommittee } = committeeMutations();
 
 type Props = {
   delegate: RollCallDelegateDoc;
@@ -17,9 +17,7 @@ export const DelegateRow = ({ delegate }: Props): ReactElement => {
     rollCallId: string;
   }>();
 
-  const [status, setStatus] = useState<AttendanceStatus>(
-    delegate.attendanceStatus
-  );
+  const [status, setStatus] = useState<AttendanceStatus>(delegate.attendanceStatus);
   useEffect(() => {
     setStatus(delegate.attendanceStatus);
   }, [delegate.attendanceStatus]);
@@ -39,7 +37,7 @@ export const DelegateRow = ({ delegate }: Props): ReactElement => {
       delegate.id,
       Timestamp.now(),
       delegate.name,
-      newStatus
+      newStatus,
     );
   };
 

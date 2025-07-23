@@ -76,10 +76,10 @@ export type MotionDoc = {
   totalTime?: number;
   speakingTime?: number;
   topic: string;
+  currentSpeaker: string; // delegate ID
 };
 
 export type MotionSpeakerDoc = {
-  id: string;
   delegateId: string;
   order: number;
 };
@@ -89,7 +89,6 @@ export type MotionSpeakerLogDoc = {
   type: SpeakerLogEntry;
   timestamp: EpochTimeStamp;
 };
-
 
 export type RollCallDoc = {
   id: string;

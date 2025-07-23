@@ -92,10 +92,20 @@ export const committeeRollCallDelegatePath = (
 
 export const motionSpeakersPath = (committeeId: string, motionId: string) =>
   `committees/${committeeId}/motions/${motionId}/speakers`;
-export const motionSpeakerPath = (committeeId: string, motionId: string, delegateId: string) =>
-  `committees/${committeeId}/motions/${motionId}/speakers/${delegateId}`;
+export const motionSpeakerPath = (
+  committeeId: string,
+  motionId: string,
+  delegateId: string,
+) => `committees/${committeeId}/motions/${motionId}/speakers/${delegateId}`;
 
-export const motionSpeakerLogsPath = (committeeId: string, motionId: string, delegateId: string) =>
-  `committees/${committeeId}/motions/${motionId}/speakers/${delegateId}/logs`;
-export const motionSpeakerLogPath = (committeeId: string, motionId: string, delegateId: string, logId: string) =>
-  `committees/${committeeId}/motions/${motionId}/speakers/${delegateId}/logs/${logId}`;
+export const motionSpeakerLogsPath = (
+  committeeId: string,
+  motionId: string,
+  delegateId: string,
+) => `committees/${committeeId}/motions/${motionId}/speakers/${delegateId}/logs`;
+export const motionSpeakerLogPath = (
+  committeeId: string,
+  motionId: string,
+  delegateId: string,
+  logId: string,
+) => `committees/${committeeId}/motions/${motionId}/speakers/${delegateId}/logs/${logId}`;

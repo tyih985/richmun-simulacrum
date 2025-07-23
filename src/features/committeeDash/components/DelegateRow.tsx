@@ -15,7 +15,7 @@ interface DelegateRowProps {
 }
 
 export const DelegateRow = ({ form, index, isStaff }: DelegateRowProps) => {
-  const emailField   = `delegates.${index}.email`;
+  const emailField = `delegates.${index}.email`;
   const countryField = `delegates.${index}.name`;
 
   return (
@@ -33,10 +33,7 @@ export const DelegateRow = ({ form, index, isStaff }: DelegateRowProps) => {
 
       <Table.Td>
         {isStaff ? (
-          <TextInput
-            {...form.getInputProps(emailField)}
-            placeholder="Delegate email"
-          />
+          <TextInput {...form.getInputProps(emailField)} placeholder="Delegate email" />
         ) : (
           <Text>{form.values.delegates[index].email}</Text>
         )}
