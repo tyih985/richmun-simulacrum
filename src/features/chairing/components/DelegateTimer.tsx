@@ -1,5 +1,3 @@
-// src/components/DelegateTimer.tsx
-
 import { ReactElement, useEffect, useState } from 'react';
 import { Paper, Stack, Title, Text, Group, Button } from '@mantine/core';
 import { TimerBar } from '@components/Timer';
@@ -10,14 +8,13 @@ import type {
 } from '@features/types';
 import { useSpeakerLog } from '@hooks/useSpeakerLog';
 import { committeeMutations } from '@mutations/committeeMutation';
-import { Timestamp } from 'firebase/firestore';
 
 const { addMotionSpeakerLog } = committeeMutations();
 
 interface Props {
   cid: string;
   mid: string;
-  delegate: DelegateDoc;
+  delegate: DelegateDoc | null;
   showNext?: boolean;
 }
 
@@ -27,7 +24,7 @@ export const DelegateTimer = ({
   delegate,
   showNext = true,
 }: Props): ReactElement => {
-  const { logs, loading } = useSpeakerLog(cid, mid, delegate.id) as {
+  const { logs, loading } = useSpeakerLog(cid, mid, delegate ? delegate.id : '') as {
     logs: MotionSpeakerLogDoc[];
     loading: boolean;
   };
@@ -42,7 +39,7 @@ export const DelegateTimer = ({
     let since: number | null = null;
 
     logs.forEach(({ type, timestamp }) => {
-      const t = (timestamp as unknown as Timestamp).toMillis();
+      const t = (timestamp as EpochTimeStamp);
 
       if (type === 'start' || type === 'resume') {
         since = t;
@@ -69,12 +66,16 @@ export const DelegateTimer = ({
     return () => cancelAnimationFrame(raf);
   }, [runningSince]);
 
+  if (!delegate) {
+    return <Text>no delegate selected.</Text>
+  }
+ 
   const elapsedMs = accMs + (runningSince != null ? nowMs - runningSince : 0);
   const seconds = Math.floor(elapsedMs / 1000);
 
   const logAction = (type: SpeakerLogEntry) => {
     const logId = Date.now().toString();
-    addMotionSpeakerLog(cid, mid, delegate.id, logId, type, Timestamp.now()).catch(
+    addMotionSpeakerLog(cid, mid, delegate.id, logId, type, Date.now() as EpochTimeStamp).catch(
       console.error,
     );
   };
@@ -99,7 +100,8 @@ export const DelegateTimer = ({
 
       <Group p="center" mb="md">
         {runningSince == null ? (
-          <Button onClick={() => logAction('start')}>Start</Button>
+          <Button onClick={() => logAction('start')}>
+            Start</Button>
         ) : (
           <Button onClick={() => logAction('pause')}>Pause</Button>
         )}
@@ -110,7 +112,7 @@ export const DelegateTimer = ({
 
       <TimerBar
         onStart={() => logAction('start')}
-        onComplete={() => logAction('end')}
+        onComplete={() => logAction('end')}  // TODO: the end should only be when they move on to the next speaker i think. start/next button + pause/resume
         showNext={showNext}
       />
     </Paper>

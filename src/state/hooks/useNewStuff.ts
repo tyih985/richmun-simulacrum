@@ -92,6 +92,30 @@ export const useCommitteeDelegates = (committeeId?: string) => {
   return { delegates, loading };
 };
 
+export const useCommitteeDelegate = (committeeId?: string, delegateId?: string) => {
+  const [delegates, setDelegates] = useState<DelegateDoc | null>();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!committeeId || !delegateId) return;
+
+    const fetchDelegates = async () => {
+      try {
+        const data = await committeeQueries.getCommitteeDelegate(committeeId, delegateId);
+        setDelegates(data);
+      } catch (err) {
+        console.error('Error loading delegates:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDelegates();
+  }, [committeeId, delegateId]);
+
+  return { delegates, loading };
+};
+
 export const useCommitteeDirectives = (committeeId?: string) => {
   const [directives, setDirectives] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
