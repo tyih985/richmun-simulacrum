@@ -5,6 +5,7 @@ import { useParams } from 'react-router-dom';
 import { useCommitteeDelegates, useMotion } from '@hooks/useNewStuff';
 import { SpeakerSelector } from '@features/chairing/components/SpeakerSelector';
 import { DelegateDoc } from '@features/types';
+import { useSpeakerLog } from '@hooks/useSpeakerLog';
 
 export const Caucus = (): ReactElement => {
   const { motionId } = useParams<{ motionId: string }>();
@@ -12,6 +13,8 @@ export const Caucus = (): ReactElement => {
   const [currentSpeaker, setCurrentSpeaker] = useState<DelegateDoc | null>(null);
   const { delegates, loading } = useCommitteeDelegates(committeeId);
   const { motion, loading: loadingMotions } = useMotion(committeeId, motionId);
+  const { speakerLog } = useSpeakerLog(committeeId!, motionId!, currentSpeaker?.id)
+
 
   if (loading || loadingMotions) {
     return (
@@ -22,6 +25,7 @@ export const Caucus = (): ReactElement => {
   }
 
   console.log('Caucus motion:', motion);
+  console.log('data:', speakerLog);
 
   return (
     <Stack p="xl">
