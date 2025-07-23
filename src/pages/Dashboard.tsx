@@ -13,7 +13,7 @@ import {
 } from '@mantine/core';
 import { IconMail, IconPlus, IconUser } from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
-import { useUserCommittees } from '@hooks/useNewStuff';
+import { useLiveUserCommittees } from '@hooks/useNewStuff';
 import { CommitteeRow } from '@features/dashboard/components/CommitteeRow';
 import { InviteCard } from '@features/dashboard/components/InviteCard';
 import { auth } from '@packages/firebase/firebaseAuth';
@@ -22,8 +22,8 @@ export const Dashboard = (): ReactElement => {
   const uid = auth.currentUser!.uid;
   const navigate = useNavigate();
   const [opened, { open, close }] = useDisclosure(false);
-  const { userCommittees, userInvites, committeeDocs, loading, refresh } =
-    useUserCommittees(uid);
+  const { userCommittees, userInvites, committeeDocs, loading } =
+    useLiveUserCommittees(uid);
   if (loading) return <div>Loading...</div>;
 
   return (
@@ -36,7 +36,6 @@ export const Dashboard = (): ReactElement => {
               uid={uid}
               invite={invite}
               committee={committeeDocs[invite.id]}
-              onRespondSuccess={refresh}
             />
           ))
         ) : (

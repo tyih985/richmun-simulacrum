@@ -65,6 +65,9 @@ export const CommitteeDash = () => {
   const [staffValues, setStaffValues] = useState<string[]>([]);
   const [availableCountries, setAvailableCountries] = useState<Country[]>(un_countries);
 
+  const [deletedStaffIds, setDeletedStaffIds] = useState<string[]>([]);
+  const [deletedDelegateIds, setDeletedDelegateIds] = useState<string[]>([]);
+
   // assumes uid & cid exist
   const { isStaff } = useUserIsStaff(auth.currentUser!.uid, committeeId!);
   const navigate = useNavigate();
@@ -164,8 +167,9 @@ export const CommitteeDash = () => {
   }, [form.values.delegates]);
 
   const removeStaff = async (i: number) => {
-    await removeStaffFromCommittee(committeeId!, form.values.staff[i].id);
-    console.log('removing staff', form.values.staff[i].email);
+    const id = form.values.staff[i].id;
+    console.log('queued staff for deletion', id, form.values.staff[i].email);
+    setDeletedStaffIds((ids) => [...ids, id]);
     form.setFieldValue(
       'staff',
       form.values.staff.filter((_, idx) => idx !== i),
@@ -173,8 +177,9 @@ export const CommitteeDash = () => {
   };
 
   const removeDelegate = async (i: number) => {
-    await removeDelegateFromCommittee(committeeId!, form.values.delegates[i].id);
-    console.log('removing delegate', form.values.delegates[i].name);
+    const id = form.values.delegates[i].id;
+    console.log('queued delegate for deletion', id, form.values.delegates[i].name);
+    setDeletedDelegateIds((ids) => [...ids, id]);
     form.setFieldValue(
       'delegates',
       form.values.delegates.filter((_, idx) => idx !== i),
@@ -204,6 +209,17 @@ export const CommitteeDash = () => {
   const handleSaveChanges = async () => {
     if (!committeeId) return;
     if (!isFormValid) return;
+      for (const staffId of deletedStaffIds) {
+        await removeStaffFromCommittee(committeeId, staffId);
+        console.log(`Deleted staff ${staffId}`);
+      }
+      for (const delegateId of deletedDelegateIds) {
+        await removeDelegateFromCommittee(committeeId, delegateId);
+        console.log(`Deleted delegate ${delegateId}`);
+      }
+      setDeletedStaffIds([]);
+      setDeletedDelegateIds([]);
+      
     const { committeeLongName, committeeShortName, dateRange } = form.values;
 
     if (dateRange[0] && dateRange[1]) {

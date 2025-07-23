@@ -15,6 +15,7 @@ import { MakeDirective } from './MakeDirective';
 import { Motions } from './Motions';
 import { RollCall } from './RollCall';
 import { Speakers } from './Speakers.tsx';
+import { CommitteeAppShell } from '@components/AppShell';
 
 export const RootRoutes = () => {
   const { isChecking, isLoggedIn } = useSession();
@@ -50,26 +51,18 @@ export const RootRoutes = () => {
         <Route path="/*" element={<Navigate to="/c" />} />
         <Route path="/setup" element={<Setup />} />
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/committee/:committeeId/speakers" element={<Speakers />} />
-        <Route path="/committee/:committeeId/dashboard" element={<CommitteeDash />} />
-        <Route
-          path="/committee/:committeeId/directive/history"
-          element={<DirectiveHistory />}
-        />
-        <Route path="/committee/:committeeId/directives" element={<DirectiveInbox />} />
-        <Route
-          path="/committee/:committeeId/directive/make"
-          element={<MakeDirective />}
-        />
-        <Route path="/committee/:committeeId/motions" element={<Motions />} />
-        <Route path="/committee/:committeeId/caucus/:motionId" element={<Caucus />} />
-
-        <Route path="/committee/:committeeId/rollcall" element={<RollCall />} />
-
-        <Route
-          path="/committee/:committeeId/rollcall/:rollCallId"
-          element={<RollCall />}
-        />
+        <Route path="/committee/:committeeId" element={<CommitteeAppShell />}>
+          <Route index element={<CommitteeDash />} />
+          <Route path="dashboard" element={<CommitteeDash />} />
+          <Route path="speakers" element={<Speakers />} />
+          <Route path="directive/history" element={<DirectiveHistory />} />
+          <Route path="directives" element={<DirectiveInbox />} />
+          <Route path="directive/make" element={<MakeDirective />} />
+          <Route path="motions" element={<Motions />} />
+          <Route path="caucus/:motionId" element={<Caucus />} />
+          <Route path="rollcall" element={<RollCall />} />
+          <Route path="rollcall/:rollCallId" element={<RollCall />} />
+        </Route>
       </Routes>
     );
 

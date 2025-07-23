@@ -13,8 +13,11 @@ export const Caucus = (): ReactElement => {
   const [currentSpeaker, setCurrentSpeaker] = useState<DelegateDoc | null>(null);
   const { delegates, loading: delLoading } = useCommitteeDelegates(committeeId);
   const { motion, loading: loadingMotions } = useMotion(committeeId, motionId);
-  const { logs, loading } = useSpeakerLog(committeeId!, motionId!, currentSpeaker?.id ?? '')
-
+  const { logs, loading } = useSpeakerLog(
+    committeeId!,
+    motionId!,
+    currentSpeaker?.id ?? '',
+  );
 
   if (delLoading || loadingMotions) {
     return (
