@@ -87,7 +87,7 @@ export type MotionSpeakerDoc = {
 export type MotionSpeakerLogDoc = {
   id: string;
   type: SpeakerLogEntry;
-  timestamp: Timestamp;
+  timestamp: EpochTimeStamp;
 };
 
 
