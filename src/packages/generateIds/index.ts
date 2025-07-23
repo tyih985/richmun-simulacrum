@@ -23,6 +23,7 @@ export const generateDelegateId = (name: string) => {
 };
 
 export const generateStaffId = (): string => `staff-${nano(NUM_DIGITS)}`;
+export const generateLogId = (): string => `log-${nano(NUM_DIGITS)}`;
 
 export const generateDirectiveId = (delegateId: string) => {
   const parsedName = delegateId

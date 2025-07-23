@@ -1,5 +1,4 @@
 import { Timestamp } from 'firebase/firestore';
-import { SpeakingLogEntry } from './chairing/components/minuteLog/types';
 
 export type Country = {
   name: string;

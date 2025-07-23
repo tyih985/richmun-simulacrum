@@ -237,10 +237,11 @@ export const committeeMutations = () => {
     delegateId: string,
     logId: string,
     type: SpeakerLogEntry,
-    timestamp: Timestamp,
+    timestamp: EpochTimeStamp,
   ) => {
     const path = motionSpeakerLogPath(committeeId, motionId, delegateId, logId);
     const data = { type, timestamp };
+    console.log('adding motion speaker log:', data)
     return createFirestoreDocument(path, data, true);
   };
 

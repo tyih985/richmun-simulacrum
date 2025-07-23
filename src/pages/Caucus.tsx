@@ -6,6 +6,10 @@ import { useCommitteeDelegates, useMotion } from '@hooks/useNewStuff';
 import { SpeakerSelector } from '@features/chairing/components/SpeakerSelector';
 import { DelegateDoc } from '@features/types';
 import { useSpeakerLog } from '@hooks/useSpeakerLog';
+import { committeeMutations } from '@mutations/committeeMutation';
+import { generateLogId } from '@packages/generateIds';
+
+const { addMotionSpeakerLog } = committeeMutations();
 
 export const Caucus = (): ReactElement => {
   const { motionId } = useParams<{ motionId: string }>();
@@ -15,7 +19,6 @@ export const Caucus = (): ReactElement => {
   const { motion, loading: loadingMotions } = useMotion(committeeId, motionId);
   const { logs, loading } = useSpeakerLog(committeeId!, motionId!, currentSpeaker?.id ?? '')
 
-
   if (delLoading || loadingMotions) {
     return (
       <Center>
@@ -24,7 +27,14 @@ export const Caucus = (): ReactElement => {
     );
   }
 
-  console.log('Caucus motion:', motion);
+  if (!committeeId || !motionId ) {
+    return <Text>no committee no motion lol</Text>
+  }
+
+  // const addSpeakerLog = (): void => {
+
+  // }
+
   console.log('data:', logs);
 
   return (
@@ -35,7 +45,57 @@ export const Caucus = (): ReactElement => {
       </Text>
 
       {currentSpeaker ? (
-        <DelegateTimer delegate={currentSpeaker} showNext={false} />
+        <DelegateTimer 
+          delegate={currentSpeaker} 
+          showNext={false} 
+          onStart={() =>
+            {addMotionSpeakerLog(
+              committeeId,
+              motionId,
+              currentSpeaker.id,
+              generateLogId(),
+              'start',
+              Date.now()
+            )
+            console.log('start add msl')}
+          }
+          onPause={() => {
+            addMotionSpeakerLog(
+              committeeId,
+              motionId,
+              currentSpeaker.id,
+              generateLogId(),
+              'pause',
+              Date.now()
+            )
+            console.log('pause add msl')
+          }}
+
+          onResume={() => {
+            addMotionSpeakerLog(
+              committeeId,
+              motionId,
+              currentSpeaker.id,
+              generateLogId(),
+              'resume',
+              Date.now()
+            )
+            console.log('resume add msl')
+          }}
+          onComplete={() => {
+            addMotionSpeakerLog(
+              committeeId,
+              motionId,
+              currentSpeaker.id,
+              generateLogId(),
+              'end',
+              Date.now()
+            )
+            console.log('end add msl')
+          }}
+          logs={logs}
+          duration={60}
+        />
       ) : (
         <Paper p="xl" radius="md" withBorder>
           <Stack p="xl" align="center" justify="center" m={'3px'}>
