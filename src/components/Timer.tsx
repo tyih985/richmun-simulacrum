@@ -1,56 +1,79 @@
-import { useEffect, useState } from 'react';
+// src/components/Timer.tsx
+
+import { useEffect, useRef, useState } from 'react';
 import { Progress, Button, Group, Stack } from '@mantine/core';
 
 type Props = {
-  duration?: number; // in seconds
+  duration?: number; // seconds
   onStart?: () => void;
   onComplete?: () => void;
   showNext?: boolean;
 };
 
-export function TimerBar({ duration = 2, onStart, onComplete, showNext }: Props) {
-  const [progress, setProgress] = useState(0);
+export function TimerBar({
+  duration = 60,
+  onStart,
+  onComplete,
+  showNext,
+}: Props) {
+  const [progress, setProgress] = useState(0); // percent
   const [running, setRunning] = useState(false);
+  const [isComplete, setIsComplete] = useState(false);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const startTimeRef = useRef<number>(0);
 
+  // Timer effect
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    if (!running || duration <= 0) return;
 
-    if (running) {
-      const startTime = Date.now();
-
-      interval = setInterval(() => {
-        const elapsed = (Date.now() - startTime) / 1000;
-        const newProgress = Math.min(100, (elapsed / duration) * 100);
-
-        setProgress(newProgress);
-
-        if (newProgress >= 100) {
-          clearInterval(interval);
-          setRunning(false);
-          onComplete?.();
-        }
-      }, 100);
+    if (progress === 0) {
+      onStart?.();
+      startTimeRef.current = Date.now();
+    } else {
+      const elapsedMs = (progress / 100) * duration * 1000;
+      startTimeRef.current = Date.now() - elapsedMs;
     }
 
-    return () => clearInterval(interval);
-  }, [running, duration, onComplete]);
+    intervalRef.current = setInterval(() => {
+      const elapsed = (Date.now() - startTimeRef.current) / 1000;
+      const newProgress = Math.min(100, (elapsed / duration) * 100);
+
+      setProgress(newProgress);
+
+      if (newProgress >= 100) {
+        clearInterval(intervalRef.current!);
+        intervalRef.current = null;
+        setRunning(false);
+        setIsComplete(true);
+        onComplete?.();
+      }
+    }, 100);
+
+    return () => clearInterval(intervalRef.current!);
+  }, [running, duration]);
 
   const handleStartPause = () => {
-    if (!running && progress === 0) {
+    if (progress >= 100 || isComplete) {
+      reset();
       onStart?.();
+      setRunning(true);
+      return;
     }
-    setRunning((r) => !r);
+
+    setRunning((prev) => !prev);
   };
 
   const handleNext = () => {
-    setRunning(false);
-    setProgress(0);
+    reset();
     onComplete?.();
   };
 
-  const handleReset = () => {
+  const reset = () => {
+    clearInterval(intervalRef.current!);
+    intervalRef.current = null;
     setRunning(false);
     setProgress(0);
+    setIsComplete(false);
   };
 
   return (
@@ -59,18 +82,24 @@ export function TimerBar({ duration = 2, onStart, onComplete, showNext }: Props)
         value={progress}
         size="lg"
         radius="md"
-        color={progress >= 90 ? 'red' : ''}
+        color={progress >= 90 ? 'red' : 'blue'}
       />
       <Group mt="md" justify="center">
         <Button onClick={handleStartPause}>
-          {running ? 'Pause' : progress === 100 ? 'Restart' : 'Start'}
+          {progress >= 100 || isComplete
+            ? 'Restart'
+            : running
+            ? 'Pause'
+            : 'Start'}
         </Button>
+
         {showNext && (
           <Button variant="outline" onClick={handleNext}>
             Next
           </Button>
         )}
-        <Button variant="outline" color="red" onClick={handleReset}>
+
+        <Button variant="outline" color="red" onClick={reset}>
           Reset
         </Button>
       </Group>

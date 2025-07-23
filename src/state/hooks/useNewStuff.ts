@@ -10,9 +10,13 @@ import {
   StaffDoc,
   UserCommitteeDoc,
 } from '@features/types';
-import { collection, DocumentData, onSnapshot, orderBy, query } from 'firebase/firestore';
-import { committeeRollCallsDelegatesPath } from '@packages/firestorePaths';
-import { firestoreDb } from '@packages/firebase/firestoreDb';
+import { committeePath, userCommitteePath } from '@packages/firestorePaths';
+import {
+  committeeRollCallsDelegatesPath,
+  userCommitteesPath,
+} from '@packages/firestorePaths';
+import { useFirestoreCollectionQuery } from '@packages/firestoreAsQuery';
+import { getFirestoreDocument } from '@packages/firestoreAsQuery';
 
 const {
   getUserCommittees,
@@ -261,38 +265,23 @@ export const useRollCall = (committeeId?: string, rollCallId?: string) => {
   return { rollCall, loading };
 };
 
-export const useRollCallDelegates = (committeeId?: string, rollCallId?: string) => {
-  const [delegates, setDelegates] = useState<RollCallDelegateDoc[]>([]);
-  const [loading, setLoading] = useState(true);
+export function useRollCallDelegates(committeeId?: string, rollCallId?: string) {
+  const path =
+    committeeId && rollCallId
+      ? committeeRollCallsDelegatesPath(committeeId, rollCallId)
+      : '';
 
-  useEffect(() => {
-    if (!committeeId || !rollCallId) return;
+  const state = useFirestoreCollectionQuery<RollCallDelegateDoc>(path, {
+    enabled: !!path,
+    sortBy: 'name',
+  });
 
-    setLoading(true);
-    const path = committeeRollCallsDelegatesPath(committeeId, rollCallId);
-    const q = query(collection(firestoreDb, path), orderBy('name'));
-
-    const unsub = onSnapshot(
-      q,
-      (snapshot) => {
-        const docs = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...(doc.data() as DocumentData),
-        })) as RollCallDelegateDoc[];
-        setDelegates(docs);
-        setLoading(false);
-      },
-      (err) => {
-        console.error('Realtime listener error:', err);
-        setLoading(false);
-      },
-    );
-
-    return () => unsub();
-  }, [committeeId, rollCallId]);
-
-  return { delegates, loading };
-};
+  return {
+    delegates: state.data ?? [],
+    loading: state.isLoading,
+    error: state.error,
+  };
+}
 
 export const useRollCallDelegate = (
   committeeId?: string,
@@ -327,3 +316,41 @@ export const useRollCallDelegate = (
 
   return { delegate, loading };
 };
+
+export function useLiveUserCommittees(uid?: string) {
+  const state = useFirestoreCollectionQuery<UserCommitteeDoc>(
+    uid ? userCommitteesPath(uid) : '',
+    { enabled: !!uid, sortBy: false },
+  );
+
+  const invites = (state.data ?? []).filter((uc) => uc.inviteStatus === 'pending');
+  const accepted = (state.data ?? []).filter((uc) => uc.inviteStatus === 'accepted');
+
+  const [committeeDocs, setCommitteeDocs] = useState<Record<string, CommitteeDoc>>({});
+
+  useEffect(() => {
+    if (!state.data) return;
+    state.data.forEach((uc) => {
+      if (!committeeDocs[uc.id]) {
+        getFirestoreDocument<Omit<CommitteeDoc, 'id'>>(committeePath(uc.id)).then(
+          (doc) => {
+            if (doc) {
+              setCommitteeDocs((prev) => ({
+                ...prev,
+                [uc.id]: { id: uc.id, ...doc },
+              }));
+            }
+          },
+        );
+      }
+    });
+  }, [state.data, committeeDocs]);
+
+  return {
+    userCommittees: accepted,
+    userInvites: invites,
+    committeeDocs,
+    loading: state.isLoading,
+    error: state.error,
+  };
+}

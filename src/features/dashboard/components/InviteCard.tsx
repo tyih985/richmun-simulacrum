@@ -9,22 +9,15 @@ type Props = {
   uid: string;
   invite: UserCommitteeDoc;
   committee: CommitteeDoc;
-  onRespondSuccess: () => void;
 };
 
-export const InviteCard = ({
-  uid,
-  invite,
-  committee,
-  onRespondSuccess,
-}: Props): ReactElement => {
+export const InviteCard = ({ uid, invite, committee }: Props): ReactElement => {
   const [loading, setLoading] = useState(false);
 
   const onRespond = async (newStatus: 'accepted' | 'rejected') => {
     setLoading(true);
     try {
       await updateUserCommitteeInvite(uid, invite.id, newStatus);
-      onRespondSuccess();
     } catch (err) {
       console.error('Failed to update invite status', err);
     } finally {
