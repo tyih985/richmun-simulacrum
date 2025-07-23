@@ -14,7 +14,6 @@ import { useCommitteeDelegates } from '@hooks/useNewStuff';
 import { SpeakerSelector } from '@features/chairing/components/SpeakerSelector';
 import { SpeakerList } from '@features/chairing/components/SpeakerList';
 import { committeeMutations } from '@mutations/committeeMutation';
-import { TimerBar } from '@components/Timer';
 import { DelegateDoc } from '@features/types';
 
 const { addDelegateToCommittee } = committeeMutations();
@@ -40,6 +39,10 @@ export const Speakers = (): ReactElement => {
       console.log('adding delegate:', delegate.name)
     }
   };
+
+  // const removePrimarySpeaker = () => {
+    
+  // }
 
   const addSingleSpeaker = (delegate: DelegateDoc) => {
     setCurrentSpeaker(delegate);

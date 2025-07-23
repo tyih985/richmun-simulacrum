@@ -18,7 +18,7 @@ export const SpeakerSelector = ({
     <Card bg="gray.0" p="md">
       <Stack gap={0}>
         <Text>Add Speakers:</Text>
-        <Space p={'4px'}></Space>
+        <Space p={'xs'}></Space>
         {delegates.map((d) => (
           <Button
             variant="subtle"
