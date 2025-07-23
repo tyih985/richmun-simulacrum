@@ -89,3 +89,4 @@ export const committeeRollCallDelegatePath = (
   rollCallId: string,
   delegateId: string,
 ) => `committees/${committeeId}/rollcalls/${rollCallId}/delegates/${delegateId}`;
+

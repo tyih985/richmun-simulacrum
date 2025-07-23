@@ -1,5 +1,5 @@
 import { ReactElement, useState } from 'react';
-import { Button, CloseButton, Group, Paper, Select, TextInput } from '@mantine/core';
+import { Button, CloseButton, Group, NumberInput, Paper, Select, TextInput } from '@mantine/core';
 import { TimePicker } from '@mantine/dates';
 import { DelegateDoc, MotionDoc } from '@features/types';
 
@@ -8,7 +8,7 @@ type Props = {
   motion: MotionDoc;
   onChange: (motion: MotionDoc) => void;
   onRemove: (motionId: string) => void;
-  onStart: (motionId: string) => void;
+  onStart: (motion: MotionDoc) => void;
 };
 
 export const Motion = ({
@@ -55,36 +55,28 @@ export const Motion = ({
           />
           <Group grow align="center" flex={'auto'}>
             {type !== 'round table' && (
-              <TimePicker
-                label="Total Time"
-                clearable
-                withSeconds
-                withDropdown
-                hoursStep={1}
-                minutesStep={5}
-                secondsStep={10}
-                value={motion.totalTime?.toString()}
+              <NumberInput
+                label="Speaking Time (seconds)"
+                value={motion.totalTime}
                 onChange={(value) =>
-                  onChange({ ...motion, speakingTime: value ? Number(value) : undefined })
+                  onChange({ ...motion, totalTime: typeof value === 'number' ? value : undefined })
                 }
-                style={{ flex: 1 }}
+                min={0}
+                step={30}
+                placeholder="Enter seconds"
               />
             )}
 
             {type !== 'unmoderated' && (
-              <TimePicker
-                label="Speaking Time"
-                clearable
-                withSeconds
-                withDropdown
-                hoursStep={1}
-                minutesStep={5}
-                secondsStep={10}
-                value={motion.totalTime?.toString()}
+              <NumberInput
+                label="Total Time (seconds)"
+                value={motion.totalTime}
                 onChange={(value) =>
-                  onChange({ ...motion, speakingTime: value ? Number(value) : undefined })
+                  onChange({ ...motion, totalTime: typeof value === 'number' ? value : undefined })
                 }
-                style={{ flex: 1 }}
+                min={0}
+                step={30}
+                placeholder="Enter seconds"
               />
             )}
           </Group>
@@ -99,7 +91,7 @@ export const Motion = ({
               onChange({ ...motion, topic: event.currentTarget.value })
             }
           />
-          <Button onClick={() => onStart(motion.id)} variant="outline" size="md">
+          <Button onClick={() => onStart(motion)} variant="outline" size="md">
             Start
           </Button>
         </Group>

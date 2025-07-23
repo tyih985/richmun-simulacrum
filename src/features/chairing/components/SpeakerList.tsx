@@ -10,7 +10,7 @@ type Props = {
 export const SpeakerList = ({ speakers, onClear }: Props): ReactElement => {
   return (
     <Card bg="gray.0" p="md">
-      <Stack>
+      <Stack gap={'xs'}>
         <Group>
           <Text flex={1}>Current Speakers:</Text>
           {speakers.length > 0 && (
