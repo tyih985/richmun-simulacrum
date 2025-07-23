@@ -18,6 +18,10 @@ import {
   committeeRollCallsPath,
   committeeRollCallDelegatePath,
   committeeRollCallsDelegatesPath,
+  motionSpeakersPath,
+  motionSpeakerPath,
+  motionSpeakerLogsPath,
+  motionSpeakerLogPath,
 } from '@packages/firestorePaths';
 import {
   StaffRole,
@@ -29,6 +33,8 @@ import {
   MotionDoc,
   RollCallDoc,
   RollCallDelegateDoc,
+  MotionSpeakerDoc,
+  MotionSpeakerLogDoc,
 } from 'src/features/types';
 
 export const committeeQueries = {
@@ -159,6 +165,72 @@ export const committeeQueries = {
       id: doc.id,
       ...doc,
     })) as MotionDoc[];
+  },
+
+    getCommitteeMotionSpeakers: async (
+    committeeId: string,
+    motionId: string
+  ): Promise<MotionSpeakerDoc[]> => {
+    const path = motionSpeakersPath(committeeId, motionId);
+    const docs = await getFirestoreCollection<any>(path);
+    console.log(`Fetched speakers for motion ${motionId}:`, docs);
+    return docs.map((doc: any) => ({
+      id: doc.id,
+      ...doc,
+    })) as MotionSpeakerDoc[];
+  },
+
+  getCommitteeMotionSpeaker: async (
+    committeeId: string,
+    motionId: string,
+    speakerId: string
+  ): Promise<MotionSpeakerDoc | null> => {
+    const path = motionSpeakerPath(committeeId, motionId, speakerId);
+    const doc = await getFirestoreDocument<Omit<MotionSpeakerDoc, 'id'>>(path);
+    console.log(
+      `Fetched speaker ${speakerId} for motion ${motionId}:`,
+      doc
+    );
+    if (!doc) return null;
+    return { id: speakerId, ...doc };
+  },
+
+    getCommitteeMotionSpeakerLogs: async (
+    committeeId: string,
+    motionId: string,
+    speakerId: string
+  ): Promise<MotionSpeakerLogDoc[]> => {
+    const path = motionSpeakerLogsPath(committeeId, motionId, speakerId);
+    const docs = await getFirestoreCollection<any>(path);
+    console.log(
+      `Fetched logs for speaker ${speakerId} in motion ${motionId}:`,
+      docs
+    );
+    return docs.map((doc: any) => ({
+      id: doc.id,
+      ...doc,
+    })) as MotionSpeakerLogDoc[];
+  },
+
+  getCommitteeMotionSpeakerLog: async (
+    committeeId: string,
+    motionId: string,
+    speakerId: string,
+    logId: string
+  ): Promise<MotionSpeakerLogDoc | null> => {
+    const path = motionSpeakerLogPath(
+      committeeId,
+      motionId,
+      speakerId,
+      logId
+    );
+    const doc = await getFirestoreDocument<Omit<MotionSpeakerLogDoc, 'id'>>(path);
+    console.log(
+      `Fetched log ${logId} for speaker ${speakerId}, motion ${motionId}:`,
+      doc
+    );
+    if (!doc) return null;
+    return { id: logId, ...doc };
   },
 
   getCommitteeRollCall: async (

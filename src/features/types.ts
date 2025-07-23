@@ -2,7 +2,6 @@ import { Timestamp } from 'firebase/firestore';
 import { SpeakingLogEntry } from './chairing/components/minuteLog/types';
 
 export type Country = {
-  // value: string;
   name: string;
   longName?: string;
   flag?: string;
@@ -21,6 +20,7 @@ export type StaffRole = 'assistant director' | 'director' | 'flex staff';
 export type InviteStatus = 'accepted' | 'rejected' | 'pending';
 export type AttendanceStatus = 'present' | 'absent' | 'excused';
 export type DirectiveStatus = 'passed' | 'failed' | 'pending';
+export type SpeakerLogEntry = 'start' | 'end' | 'pause' | 'resume';
 export type MotionType = 'unmoderated' | 'moderated' | 'round table';
 export type UserCommitteeDoc = {
   id: string;
@@ -53,7 +53,6 @@ export type DelegateDoc = {
   email: string;
   inviteStatus: InviteStatus;
   totalSpeakingDuration: number;
-  // speakingLog: SpeakingLogEntry[];
   positionPaperSent: boolean;
   spoke: boolean;
 };
@@ -77,8 +76,20 @@ export type MotionDoc = {
   totalTime?: number;
   speakingTime?: number;
   topic: string;
-  status?: 'pending' | 'in-progress' | 'completed'; // idk if we need completed lol
 };
+
+export type MotionSpeakerDoc = {
+  id: string;
+  delegateId: string;
+  order: number;
+};
+
+export type MotionSpeakerLogDoc = {
+  id: string;
+  type: SpeakerLogEntry;
+  timestamp: Timestamp;
+};
+
 
 export type RollCallDoc = {
   id: string;

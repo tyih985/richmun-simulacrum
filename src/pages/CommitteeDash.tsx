@@ -496,7 +496,6 @@ return (
           variant="outline"
           mt="md"
           onClick={handleNewRollCall}
-          disabled={form.values.delegates.length === 0}
         >
           New Roll Call
         </Button>
