@@ -80,7 +80,7 @@ export type MotionDoc = {
 };
 
 export type MotionSpeakerDoc = {
-  delegateId: string;
+  id: string;
   order: number;
 };
 

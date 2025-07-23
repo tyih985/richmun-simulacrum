@@ -187,7 +187,6 @@ export const committeeQueries = {
   ): Promise<MotionSpeakerDoc | null> => {
     const path = motionSpeakerPath(committeeId, motionId, speakerId);
     const doc = await getFirestoreDocument<Omit<MotionSpeakerDoc, 'id'>>(path);
-    console.log(`Fetched speaker ${speakerId} for motion ${motionId}:`, doc);
     if (!doc) return null;
     return { id: speakerId, ...doc };
   },
