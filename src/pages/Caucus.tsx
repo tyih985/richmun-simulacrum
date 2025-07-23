@@ -11,12 +11,12 @@ export const Caucus = (): ReactElement => {
   const { motionId } = useParams<{ motionId: string }>();
   const { committeeId } = useParams<{ committeeId: string }>();
   const [currentSpeaker, setCurrentSpeaker] = useState<DelegateDoc | null>(null);
-  const { delegates, loading } = useCommitteeDelegates(committeeId);
+  const { delegates, loading: delLoading } = useCommitteeDelegates(committeeId);
   const { motion, loading: loadingMotions } = useMotion(committeeId, motionId);
-  const { speakerLog } = useSpeakerLog(committeeId!, motionId!, currentSpeaker?.id)
+  const { logs, loading } = useSpeakerLog(committeeId!, motionId!, currentSpeaker?.id ?? '')
 
 
-  if (loading || loadingMotions) {
+  if (delLoading || loadingMotions) {
     return (
       <Center>
         <Text>Loading...</Text>
@@ -25,7 +25,7 @@ export const Caucus = (): ReactElement => {
   }
 
   console.log('Caucus motion:', motion);
-  console.log('data:', speakerLog);
+  console.log('data:', logs);
 
   return (
     <Stack p="xl">

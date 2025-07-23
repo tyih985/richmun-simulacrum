@@ -10,7 +10,7 @@ export const useSpeakerLog = (
 ): { logs: MotionSpeakerLogDoc[]; loading: boolean } => {
 
     const path = motionSpeakerLogsPath(cid, mid, did);
-    const { data, isLoading, isError } = useFirestoreCollectionQuery(path, {
+    const { data, isLoading, isError } = useFirestoreCollectionQuery<MotionSpeakerLogDoc>(path, {
     enabled: !!did, // only enable if did is defined
     sortBy: "timestamp",
     });
@@ -21,5 +21,5 @@ export const useSpeakerLog = (
     
     console.log(data);
 
-   return { speakerLog: data, isLoading, isError};
+   return { logs: data ?? [], loading: isLoading};
 }

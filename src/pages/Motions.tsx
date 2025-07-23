@@ -37,6 +37,7 @@ export const Motions = (): ReactElement => {
       totalTime: undefined,
       speakingTime: undefined,
       topic: '',
+      currentSpeaker: '',
     };
     setMotions((prev) => [...prev, motion]);
 
