@@ -1,5 +1,5 @@
 import { ReactElement, useEffect, useRef, useState } from 'react';
-import { Paper, Stack, Title, Text, Group, Button } from '@mantine/core';
+import { Paper, Stack, Title, Text, Group, Button, Progress } from '@mantine/core';
 import { TimerBar } from '@components/Timer';
 import type {
   DelegateDoc,
@@ -37,6 +37,7 @@ const calculateAccumulatedTime = (logs: MotionSpeakerLogDoc[]) => {
   return { acc, since };
 };
 
+const duration = 10;
 
 export const DelegateTimer = ({
   cid,
@@ -158,6 +159,8 @@ export const DelegateTimer = ({
     );
   };
 
+  const progress = ((elapsedMs / 1000) / duration) * 100
+
   if (loading) {
     return (
       <Paper p="md" radius="md" withBorder>
@@ -176,10 +179,16 @@ export const DelegateTimer = ({
         <Text size="xl">{seconds}s</Text>
       </Stack>
       
-      <TimerBar
-        onStart={() => logAction('start')}
-        // onComplete={() => logAction('end')}
+      {/* <TimerBar
+        progress
         showNext={showNext}
+      /> */}
+
+      <Progress
+        value={progress}
+        size="lg"
+        radius="md"
+        color={progress >= 90 ? 'red' : 'blue'}
       />
 
       <Group justify="center" mt="sm" p="md">
