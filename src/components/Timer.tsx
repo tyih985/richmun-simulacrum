@@ -84,7 +84,7 @@ export function TimerBar({
         radius="md"
         color={progress >= 90 ? 'red' : 'blue'}
       />
-      <Group mt="md" justify="center">
+      {/* <Group mt="md" justify="center">
         <Button onClick={handleStartPause}>
           {progress >= 100 || isComplete
             ? 'Restart'
@@ -102,7 +102,7 @@ export function TimerBar({
         <Button variant="outline" color="red" onClick={reset}>
           Reset
         </Button>
-      </Group>
+      </Group> */}
     </Stack>
   );
 }

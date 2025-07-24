@@ -8,6 +8,9 @@ import type { DelegateDoc } from '@features/types';
 import { updateFirestoreDocument } from '@packages/firestoreAsQuery/firestoreRequests';
 import { committeeMotionPath } from '@packages/firestorePaths';
 import { useCurrentSpeaker } from '@hooks/useSpeakerLog';
+import { committeeMutations } from '@mutations/committeeMutation';
+
+const { addMotionSpeakerLog } = committeeMutations();
 
 export const Caucus = (): ReactElement => {
   const { committeeId, motionId } = useParams<{
@@ -23,7 +26,7 @@ export const Caucus = (): ReactElement => {
     useCurrentSpeaker(committeeId!, motionId!);
   console.log('fetched speaker:', speakerId);
 
-  const [currentSpeaker, setCurrentSpeaker] = useState<DelegateDoc | null>(delegates.find((d) => d.id == speakerId) ?? null);
+  const [currentSpeaker, setCurrentSpeaker] = useState<DelegateDoc | null>(null);
 
   // const { delegate, loading: delLoading } =
   //   useCommitteeDelegate(committeeId!, speakerId ?? '');
@@ -49,19 +52,26 @@ export const Caucus = (): ReactElement => {
     setCurrentSpeaker(found);
   }, [speakerId, delegates]);
 
-  const updateCurrentSpeaker = (delegate: DelegateDoc): void => {
+  const updateCurrentSpeaker = (delegate: DelegateDoc | null): void => {
+
+    if (currentSpeaker) {
+    addMotionSpeakerLog(committeeId!, motionId!, currentSpeaker.id, Date.now().toString(), 'end', Date.now() as EpochTimeStamp)
+      .catch(console.error);
+    }
+    
     const path = committeeMotionPath(committeeId!, motionId!);
     if (!delegate) {
       updateFirestoreDocument(path, {
       currentSpeaker: '',
     })
-    console.log('updated speaker:', currentSpeaker)
+
+    setCurrentSpeaker(delegate);
+    console.log('updated speaker:', delegate)
     } else {
       updateFirestoreDocument(path, {
         currentSpeaker: delegate.id,
       }).catch(console.error);
     }
-    setCurrentSpeaker(delegates.find((d) => d.id === speakerId) ?? null);
   }
   
   if (delsLoading || motionLoading || getSpeakerLoading) {
@@ -85,6 +95,7 @@ export const Caucus = (): ReactElement => {
           mid={motionId!}
           delegate={currentSpeaker}
           showNext={false}
+          // onNext={} this should actually only be in speaker list i think
         />
       ) : (
         <Paper p="xl" radius="md" withBorder>
