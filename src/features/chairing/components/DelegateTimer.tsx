@@ -1,6 +1,6 @@
 import { ReactElement, useEffect, useRef, useState } from 'react';
 import { Paper, Stack, Title, Text, Group, Button, Progress } from '@mantine/core';
-import { TimerBar } from '@components/Timer';
+// import { TimerBar } from '@components/Timer';
 import type {
   DelegateDoc,
   MotionSpeakerLogDoc,
@@ -19,6 +19,7 @@ interface Props {
   showNext?: boolean;
 }
 
+// calculates speaking time using list of logs
 const calculateAccumulatedTime = (logs: MotionSpeakerLogDoc[]) => {
   let acc = 0;
   let since: number | null = null;
@@ -37,6 +38,7 @@ const calculateAccumulatedTime = (logs: MotionSpeakerLogDoc[]) => {
   return { acc, since };
 };
 
+// TODO: make this a prop
 const duration = 10;
 
 export const DelegateTimer = ({
@@ -46,6 +48,7 @@ export const DelegateTimer = ({
   onNext,
   showNext = false,
 }: Props): ReactElement => {
+
   const { logs, loading } = useSpeakerLog(cid, mid, delegate ? delegate.id : '') as {
     logs: MotionSpeakerLogDoc[];
     loading: boolean;
@@ -80,7 +83,7 @@ export const DelegateTimer = ({
   useEffect(() => {
   let currentStart: number | null = null;
 
-  // Find the most recent 'start' or 'resume' going backwards
+  // Find the most recent 'start' going backwards
   for (let i = logs.length - 1; i >= 0; i--) {
     const { type, timestamp } = logs[i];
     if (type === 'start') {
@@ -184,12 +187,13 @@ export const DelegateTimer = ({
         showNext={showNext}
       /> */}
 
-      <Progress
+      {/* <Progress
         value={progress}
         size="lg"
         radius="md"
         color={progress >= 90 ? 'red' : 'blue'}
-      />
+        transitionDuration={0}
+      /> */}
 
       <Group justify="center" mt="sm" p="md">
         {(lastLog?.type === 'end' || lastLog == null) ? (

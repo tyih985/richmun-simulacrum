@@ -46,12 +46,14 @@ export const Caucus = (): ReactElement => {
   //     }).catch(console.error);
   //   }}, [currentSpeaker, committeeId, motionId]);
 
+  // sets current speaker when the speakerId in db changes
   useEffect(() => {
     const found = delegates.find((d) => d.id === speakerId) ?? null;
     console.log('current speaker:', found);
     setCurrentSpeaker(found);
   }, [speakerId, delegates]);
 
+  // sends the updated speakerId (from ui) to the db TODO: make cloud function for this also
   const updateCurrentSpeaker = (delegate: DelegateDoc | null): void => {
 
     if (currentSpeaker) {
