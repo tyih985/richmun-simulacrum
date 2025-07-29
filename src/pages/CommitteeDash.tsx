@@ -31,8 +31,7 @@ import { committeeQueries } from '@mutations/committeeQueries';
 import { countriesData, countriesHash } from '@lib/countriesData';
 import { committeeMutations } from '@mutations/committeeMutation';
 import { firestoreTimestampToDate } from '@features/utils';
-import { generateRollCallId, generateStaffId } from '@packages/generateIds';
-import { Timestamp } from 'firebase/firestore';
+import { generateStaffId } from '@packages/generateIds';
 import { useUserIsStaff } from '@hooks/useNewStuff';
 
 const un_countries = countriesData;
@@ -42,8 +41,6 @@ const {
   removeStaffFromCommittee,
   addDelegateToCommittee,
   removeDelegateFromCommittee,
-  addRollCallToCommittee,
-  addRollCallDelegateToCommittee,
 } = committeeMutations();
 
 export const CommitteeDash = () => {
@@ -254,35 +251,6 @@ export const CommitteeDash = () => {
         delegate.email,
       );
       console.log(`Added delegate: ${delegate.name}`);
-    }
-  };
-
-  const handleNewRollCall = async () => {
-    if (!committeeId) return;
-    try {
-      const rollCallId = generateRollCallId(committeeId);
-      const now = Timestamp.now();
-      await addRollCallToCommittee(committeeId, rollCallId, now);
-      const delegateDocs = await committeeQueries.getCommitteeDelegates(committeeId);
-      const placeholder = Timestamp.fromMillis(0);
-      await Promise.all(
-        delegateDocs.map((d) =>
-          addRollCallDelegateToCommittee(
-            committeeId,
-            rollCallId,
-            d.id,
-            placeholder,
-            d.name,
-            'absent',
-          ).then(() => {
-            console.log(`created attendance doc for delegate ${d.id}`);
-          }),
-        ),
-      );
-      console.log('all attendance documents created');
-      navigate(`/committee/${committeeId}/rollcall/${rollCallId}`, { replace: false });
-    } catch (err) {
-      console.error('error in handleNewRollCall:', err);
     }
   };
 
@@ -509,8 +477,9 @@ export const CommitteeDash = () => {
           <Button onClick={handleSaveChanges} disabled={!isFormValid}>
             Save Changes
           </Button>
-          <Button variant="outline" mt="md" onClick={handleNewRollCall}>
-            New Roll Call
+          <Button variant="outline" mt="md" onClick={() =>
++      navigate(`/committee/${committeeId}/rollcall/list`, { replace: false })}>
+            Roll Calls
           </Button>
         </>
       )}
