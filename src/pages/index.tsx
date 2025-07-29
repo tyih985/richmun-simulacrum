@@ -55,9 +55,9 @@ export const RootRoutes = () => {
           <Route index element={<CommitteeDash />} />
           <Route path="dashboard" element={<CommitteeDash />} />
           <Route path="speakers" element={<Speakers />} />
-          <Route path="directive/history" element={<DirectiveHistory />} />
+          <Route path="directives/history" element={<DirectiveHistory />} />
           <Route path="directives" element={<DirectiveInbox />} />
-          <Route path="directive/make" element={<MakeDirective />} />
+          <Route path="directives/new" element={<MakeDirective />} />
           <Route path="motions" element={<Motions />} />
           <Route path="caucus/:motionId" element={<Caucus />} />
           <Route path="rollcall" element={<RollCall />} />
