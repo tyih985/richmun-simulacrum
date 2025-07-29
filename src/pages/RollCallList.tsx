@@ -68,8 +68,6 @@ const handleNewRollCall = async () => {
   return (
     <Stack p="lg">
       <Title order={2}>Roll Calls</Title>
-      <Button onClick={handleNewRollCall}>New Roll Call</Button>
-
       {rollCalls.length === 0 ? (
         <Paper p="md">No roll calls yet.</Paper>
       ) : (
@@ -83,6 +81,7 @@ const handleNewRollCall = async () => {
           />
         ))
       )}
+      <Button onClick={handleNewRollCall}>New Roll Call</Button>
     </Stack>
   );
 };

@@ -53,7 +53,6 @@ export type DelegateDoc = {
   inviteStatus: InviteStatus;
   totalSpeakingDuration: number;
   positionPaperSent: boolean;
-  spoke: boolean;
 };
 
 export type DirectiveDoc = {
@@ -81,6 +80,7 @@ export type MotionDoc = {
 export type MotionSpeakerDoc = {
   id: string;
   order: number;
+  spoke: boolean;
 };
 
 export type MotionSpeakerLogDoc = {

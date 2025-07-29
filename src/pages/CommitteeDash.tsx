@@ -146,7 +146,6 @@ export const CommitteeDash = () => {
           inviteStatus: d.inviteStatus,
           totalSpeakingDuration: d.totalSpeakingDuration,
           positionPaperSent: d.positionPaperSent,
-          spoke: d.spoke,
         })),
         dateRange: [
           new Date(firestoreTimestampToDate(c.startDate)),

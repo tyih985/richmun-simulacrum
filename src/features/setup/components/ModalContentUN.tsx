@@ -20,7 +20,6 @@ function CountryToDelegate(countries: Country[]): DelegateDoc[] {
     minutes: 0,
     positionPaperSent: false,
     attendanceStatus: 'absent',
-    spoke: false,
   }));
 }
 

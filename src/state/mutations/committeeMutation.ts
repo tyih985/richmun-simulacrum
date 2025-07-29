@@ -90,7 +90,6 @@ export const committeeMutations = () => {
     inviteStatus: InviteStatus = 'pending',
     minutes: number = 0,
     positionPaperSent = false,
-    spoke: boolean = false,
   ) => {
     const path = committeeDelegatePath(committeeId, delegateId);
     const data = {
@@ -99,7 +98,6 @@ export const committeeMutations = () => {
       inviteStatus,
       minutes,
       positionPaperSent,
-      spoke,
     };
     console.log('Adding delegate to committee at:', path, 'with data:', data);
     return createFirestoreDocument(path, data, true);
@@ -216,6 +214,7 @@ export const committeeMutations = () => {
     motionId: string,
     delegateId: string,
     order: number,
+    spoke: boolean = false,
   ) => {
     const path = motionSpeakerPath(committeeId, motionId, delegateId);
     const data = { delegateId, order };
