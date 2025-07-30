@@ -8,7 +8,6 @@ import {
   Select,
   TextInput,
 } from '@mantine/core';
-import { TimePicker } from '@mantine/dates';
 import { DelegateDoc, MotionDoc } from '@features/types';
 
 type Props = {

@@ -14,6 +14,7 @@ import { DirectiveInbox } from './DirectiveInbox';
 import { MakeDirective } from './MakeDirective';
 import { Motions } from './Motions';
 import { RollCall } from './RollCall';
+import { RollCallList } from './RollCallList';
 import { Speakers } from './Speakers.tsx';
 import { CommitteeAppShell } from '@components/AppShell';
 
@@ -61,6 +62,7 @@ export const RootRoutes = () => {
           <Route path="motions" element={<Motions />} />
           <Route path="caucus/:motionId" element={<Caucus />} />
           <Route path="rollcall" element={<RollCall />} />
+          <Route path="rollcall/list" element={<RollCallList />} />
           <Route path="rollcall/:rollCallId" element={<RollCall />} />
         </Route>
       </Routes>

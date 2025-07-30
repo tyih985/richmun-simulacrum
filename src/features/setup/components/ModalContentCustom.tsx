@@ -80,7 +80,6 @@ function InputToDelegate(countryname: string, countryalias: string): DelegateDoc
       inviteStatus: 'pending',
       totalSpeakingDuration: 0,
       positionPaperSent: false,
-      spoke: false,
     },
   ];
 }

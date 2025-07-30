@@ -33,7 +33,6 @@ export const CustomModalContent = ({
       inviteStatus: 'pending',
       totalSpeakingDuration: 0,
       positionPaperSent: false,
-      spoke: false,
     };
 
     addRows([newDelegate]);

@@ -69,7 +69,6 @@ export const Speakers = (): ReactElement => {
         currentDelegate.inviteStatus,
         currentDelegate.totalSpeakingDuration,
         currentDelegate.positionPaperSent,
-        true, // Mark as spoke
       );
       console.log(`Delegate ${currentDelegate.name} has started speaking.`);
     }
