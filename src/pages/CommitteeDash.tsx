@@ -46,6 +46,15 @@ const {
   addRollCallDelegateToCommittee,
 } = committeeMutations();
 
+const checkForDuplicateEmails = (emails: { email: string }[]) => {
+  const emailList = emails.map((entry) => entry.email.toLowerCase()); // Convert all emails to lowercase
+  const uniqueEmails = new Set(emailList); // Create a set to filter out duplicates
+  if (uniqueEmails.size !== emailList.length) {
+    return 'Duplicate emails found'; // If there's a mismatch, we have duplicates
+  }
+  return null; // No duplicates
+};
+
 export const CommitteeDash = () => {
   const { committeeId } = useParams<{ committeeId: string }>();
   const [loading, setLoading] = useState(true);
@@ -81,14 +90,28 @@ export const CommitteeDash = () => {
       dateRange: [null, null],
     },
     validate: {
-      committeeLongName: (v) => (v.trim() ? null : 'Required'),
-      committeeShortName: (v) => (v.trim() ? null : 'Required'),
-      dateRange: (v) => (v[0] && v[1] ? null : 'Start and end dates required'),
-      staff: {
-        email: (value) => (value.trim() ? null : 'Email is required'),
+    committeeLongName: (v) => (v.trim() ? null : 'Required'),
+    committeeShortName: (v) => (v.trim() ? null : 'Required'),
+    dateRange: (v) => (v[0] && v[1] ? null : 'Start and end dates required'),
+    staff: {
+      email: (value, values) => {
+        const duplicateError = checkForDuplicateEmails(values.staff);
+          if (duplicateError) {
+            return 'Duplicate email in staff';
+          }
+          return value.trim() ? null : 'Email is required';
+    },
+  },
+    delegates: {
+      email: (value, values) => {
+        const duplicateError = checkForDuplicateEmails(values.delegates);
+        if (duplicateError) {
+          return 'Duplicate email in delegates';
+        }
       },
     },
-  });
+  },
+});
 
   const isFormValid =
     form.isValid() &&
@@ -207,6 +230,18 @@ export const CommitteeDash = () => {
   };
 
   const handleSaveChanges = async () => {
+   // Combine staff and delegates emails
+    const allEmails = [...form.values.staff, ...form.values.delegates];
+    
+    // Check for duplicate emails in the combined array
+    const duplicateError = checkForDuplicateEmails(allEmails);
+    if (duplicateError) {
+      // Handle the error (show notification, alert, etc.)
+      console.error(duplicateError);
+      return; // Stop form submission if there are duplicates
+    }
+
+
     if (!committeeId) return;
     if (!isFormValid) return;
       for (const staffId of deletedStaffIds) {
@@ -298,6 +333,12 @@ export const CommitteeDash = () => {
         <Title>Error: Committee not found</Title>
       </Container>
     );
+  if (!owner)
+  return (
+    <Container>
+      <Title>Error: Owner not found</Title>
+    </Container>
+  );
 
   return (
     <Stack p="lg">

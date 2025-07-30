@@ -29,7 +29,7 @@ export const StaffRow = ({ form, index, onRemove, owner }: StaffRowProps) => {
 
   return (
     <>
-      <Table.Td w={'50%'}>
+      <Table.Td w={'26%'}>
         {canEdit ? (
           <Select
             allowDeselect={false}
@@ -48,7 +48,7 @@ export const StaffRow = ({ form, index, onRemove, owner }: StaffRowProps) => {
         )}
       </Table.Td>
 
-      <Table.Td w={'50%'}>
+      <Table.Td w={'70%'}>
         {canEdit ? (
           <TextInput {...form.getInputProps(fieldName)} placeholder="Email" />
         ) : (

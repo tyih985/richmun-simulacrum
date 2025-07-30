@@ -20,18 +20,11 @@ export const DelegateRow = ({ form, index, isStaff }: DelegateRowProps) => {
 
   return (
     <>
-      <Table.Td>
-        {isStaff ? (
-          <TextInput
-            {...form.getInputProps(countryField)}
-            placeholder="Delegate country"
-          />
-        ) : (
-          <Text>{form.values.delegates[index].name}</Text>
-        )}
+      <Table.Td w={'26%'}>
+          <Text size='sm'>{form.values.delegates[index].name}</Text>
       </Table.Td>
 
-      <Table.Td>
+      <Table.Td w={'70%'}>
         {isStaff ? (
           <TextInput {...form.getInputProps(emailField)} placeholder="Delegate email" />
         ) : (
