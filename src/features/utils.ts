@@ -2,6 +2,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import { InviteStatus, UserCommitteeDoc } from '@features/types';
 import { committeeQueries } from '@mutations/committeeQueries';
 import { Timestamp } from 'firebase/firestore';
+import { time } from 'console';
 
 export const getCommitteeBy = async (
   uid: string,
@@ -25,14 +26,28 @@ export const getCommitteeBy = async (
   return committeeData.filter((c): c is NonNullable<typeof c> => c !== null);
 };
 
-export const dateToTimestamp = (date: Dayjs | Date): Timestamp => {
-  if (dayjs.isDayjs(date)) {
-    return Timestamp.fromDate(date.toDate());
+export const dateToTimestamp = (date: Date | string): Timestamp => {
+  console.log("typeof:", typeof date);
+
+  if (date instanceof Date) {
+    console.log('date!')
+    return Timestamp.fromDate(date);
   }
-  return Timestamp.fromDate(date);
+
+  else {
+    console.log('string!')
+    return Timestamp.fromDate(new Date(date));
+  }
+  
 };
 
-export const firestoreTimestampToDate = (timestamp: Timestamp | Date): Date => {
+export const normalizeToDate = (d: Date | Timestamp | null): Date | null =>
+  d instanceof Timestamp ? d.toDate() : d ?? null;
+
+export const firestoreTimestampToDate = (timestamp: Timestamp | Date | null): Date | null => {
+  if (!timestamp) {
+    return null;
+  }
   if (timestamp instanceof Timestamp) {
     return timestamp.toDate();
   } else {

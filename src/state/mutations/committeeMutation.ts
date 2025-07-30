@@ -31,8 +31,8 @@ export const committeeMutations = () => {
     committeeId: string,
     longName: string,
     shortName: string,
-    startDate: Date,
-    endDate: Date,
+    startDate: Timestamp,
+    endDate: Timestamp,
   ) => {
     const path = committeePath(committeeId);
     const data = { longName, shortName, startDate, endDate };

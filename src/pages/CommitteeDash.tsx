@@ -30,9 +30,10 @@ import { DelegateRow } from '@features/committeeDash/components/DelegateRow';
 import { committeeQueries } from '@mutations/committeeQueries';
 import { countriesData, countriesHash } from '@lib/countriesData';
 import { committeeMutations } from '@mutations/committeeMutation';
-import { firestoreTimestampToDate } from '@features/utils';
+import { dateToTimestamp, firestoreTimestampToDate } from '@features/utils';
 import { generateStaffId } from '@packages/generateIds';
 import { useUserIsStaff } from '@hooks/useNewStuff';
+import { Timestamp } from 'firebase/firestore';
 
 const un_countries = countriesData;
 const {
@@ -171,8 +172,8 @@ export const CommitteeDash = () => {
           positionPaperSent: d.positionPaperSent,
         })),
         dateRange: [
-          new Date(firestoreTimestampToDate(c.startDate)),
-          new Date(firestoreTimestampToDate(c.endDate)),
+          firestoreTimestampToDate(c.startDate),
+          firestoreTimestampToDate(c.endDate),
         ],
       });
 
@@ -259,8 +260,8 @@ export const CommitteeDash = () => {
         committeeId,
         committeeLongName,
         committeeShortName,
-        dateRange[0],
-        dateRange[1],
+        dateToTimestamp(dateRange[0]), // these are strings.. i think bc of the how the date input works
+        dateToTimestamp(dateRange[1]),
       );
       console.log('Committee updated:', committeeId, dateRange);
       // TODO: some sort of feedback notif thats like changes saved

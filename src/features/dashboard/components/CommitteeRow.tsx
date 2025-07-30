@@ -3,6 +3,7 @@ import { IconDoorExit } from '@tabler/icons-react';
 import { CommitteeDoc, UserCommitteeDoc } from '@features/types';
 import { ReactElement, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { firestoreTimestampToDate } from '@features/utils';
 
 type Props = {
   committee: CommitteeDoc;
@@ -14,6 +15,10 @@ export const CommitteeRow = ({ committee, userCommittee }: Props): ReactElement 
   const roleLabel =
     userCommittee.role === 'staff' ? `staff (${userCommittee.staffRole})` : 'delegate';
   const nav = useNavigate();
+
+  if (!committee) return <></>;
+
+  console.log("com:", committee.shortName, committee.startDate, committee.endDate);
 
   return (
     <Table.Tr
@@ -37,8 +42,8 @@ export const CommitteeRow = ({ committee, userCommittee }: Props): ReactElement 
       </Table.Td>
       <Table.Td>
         <Text>{committee?.startDate?.toString()}</Text>
-        {/* <Text>{committee?.startDate.isEqual(committee?.endDate) ? (`${committee?.startDate?.toString()} - ${committee?.endDate?.toString()}`) : (committee?.startDate?.toString())}</Text> 
-        highkey in tears idk why it says isEqual is not a function for startDate :,| */}
+        {/* <Text>{committee?.startDate.isEqual(committee?.endDate) ? (`${firestoreTimestampToDate(committee.startDate).toLocaleDateString()} - ${committee?.endDate?.toDate().toLocaleDateString()}`) : (firestoreTimestampToDate(committee.startDate).toLocaleDateString())}</Text>  */}
+        {/* highkey in tears idk why it says isEqual is not a function for startDate :,| */}
       </Table.Td>
       <Table.Td>
         <ActionIcon

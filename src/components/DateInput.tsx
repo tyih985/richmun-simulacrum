@@ -1,11 +1,16 @@
 import { DateFormatter, DateInput, DatePickerInput } from '@mantine/dates';
 import { IconCalendar } from '@tabler/icons-react';
 import dayjs from 'dayjs';
+import { useState } from 'react';
 
 const formatter: DateFormatter = ({ type, date, locale, format }) => {
   if (type === 'range' && Array.isArray(date)) {
-    if (date[0] === null || date[1] === null) {
+    if (date[0] === null && date[1] === null) {
       return '';
+    }
+
+    if (date[0] && date[1] === null) {
+      return `${dayjs(date[0]).locale(locale).format(format)} -`;
     }
 
     if (
@@ -34,6 +39,7 @@ type DateInputProps = {
 };
 
 export const DateInputComponent = (props: DateInputProps) => {
+
   return (
     <DatePickerInput
       type="range"
@@ -53,15 +59,17 @@ export const DateInputComponent = (props: DateInputProps) => {
 };
 
 export const DateInputComponentNonRequired = (props: DateInputProps) => {
+  const [value, setValue] = useState<[Date | null, Date | null] | undefined>(props.value);
+
   return (
     <DatePickerInput
       type="range"
       minDate={dayjs().toDate()}
       label="What date(s) will your event take place?"
       placeholder="Pick a date range"
-      value={props.value}
+      value={value}
       // valueFormat="date"
-      onChange={(value) => props.onChange?.(value as [Date | null, Date | null])}
+      onChange={(value) => setValue(value as [Date | null, Date | null])}
       leftSection={<IconCalendar size={20} />}
       valueFormatter={formatter}
       allowSingleDateInRange
