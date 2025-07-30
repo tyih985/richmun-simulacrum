@@ -98,9 +98,12 @@ export const Motions = (): ReactElement => {
       motion.topic &&
       (motion.totalTime || motion.type === 'round table') &&
       (motion.speakingTime || motion.type === 'unmoderated')
-    )
+    ) {
       navigate(`/committee/${committeeId}/caucus/${motion.id}`);
-    console.log(`Starting motion ${motion.id} in committee ${committeeId}`);
+      console.log(`Navigating to motion ${motion.id}`);
+    } else {
+      console.warn('Motion not valid for navigation:', motion);
+    }
   };
 
   return (

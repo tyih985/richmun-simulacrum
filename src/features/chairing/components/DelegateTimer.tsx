@@ -9,7 +9,7 @@ import type {
 import { useSpeakerLog } from '@hooks/useSpeakerLog';
 import { committeeMutations } from '@mutations/committeeMutation';
 
-const { addMotionSpeakerLog } = committeeMutations();
+const { addMotionSpeakerLog, removeMotionSpeakerLog } = committeeMutations();
 
 interface Props {
   cid: string;
@@ -164,6 +164,17 @@ export const DelegateTimer = ({
 
   const progress = ((elapsedMs / 1000) / duration) * 100
 
+  const reset = (start : number | null) => {
+    if (start == null) {
+      console.log('no start found so nothing to reset')
+      return;
+    }
+    const relevantLogs = logs.filter(log => (log.timestamp as number) >= start);
+    relevantLogs.forEach(({ timestamp }) => {
+      removeMotionSpeakerLog(cid, mid, delegate.id, timestamp.toString())
+    });
+  }
+
   if (loading) {
     return (
       <Paper p="md" radius="md" withBorder>
@@ -205,12 +216,13 @@ export const DelegateTimer = ({
         )}
         <Button variant="outline" 
         color="red" 
-        // onClick={() => {
-        //   setTurnStart(null);
-        //   setAccMs(0);
-        //   setRunningSince(null);
-        //   setNowMs(Date.now());
-        // }}
+        onClick={() => {
+          reset(turnStart);
+          setTurnStart(null);
+          setAccMs(0);
+          setRunningSince(null);
+          setNowMs(Date.now());
+        }}
         >
           Reset
         </Button>

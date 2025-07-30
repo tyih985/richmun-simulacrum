@@ -64,7 +64,7 @@ export const Motion = ({
           <Group grow align="center" flex={'auto'}>
             {type !== 'round table' && (
               <NumberInput
-                label="Speaking Time (seconds)"
+                label="Total Time (seconds)"
                 value={motion.totalTime}
                 onChange={(value) =>
                   onChange({
@@ -80,12 +80,12 @@ export const Motion = ({
 
             {type !== 'unmoderated' && (
               <NumberInput
-                label="Total Time (seconds)"
-                value={motion.totalTime}
+                label="Speaking Time (seconds)"
+                value={motion.speakingTime}
                 onChange={(value) =>
                   onChange({
                     ...motion,
-                    totalTime: typeof value === 'number' ? value : undefined,
+                    speakingTime: typeof value === 'number' ? value : undefined,
                   })
                 }
                 min={0}
