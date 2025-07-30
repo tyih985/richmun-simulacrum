@@ -31,11 +31,16 @@ export const committeeMutations = () => {
     committeeId: string,
     longName: string,
     shortName: string,
-    startDate: Timestamp,
-    endDate: Timestamp,
+    startDate: Date,
+    endDate: Date,
   ) => {
     const path = committeePath(committeeId);
-    const data = { longName, shortName, startDate, endDate };
+    const data = { 
+      longName, 
+      shortName, 
+      startDate: startDate ? Timestamp.fromDate(startDate) : null,
+      endDate: endDate ? Timestamp.fromDate(endDate) : null
+    };
     console.log('Creating committee at:', path, 'with data:', data);
     return createFirestoreDocument(path, data, true);
   };

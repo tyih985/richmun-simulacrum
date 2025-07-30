@@ -59,7 +59,6 @@ export const DateInputComponent = (props: DateInputProps) => {
 };
 
 export const DateInputComponentNonRequired = (props: DateInputProps) => {
-  const [value, setValue] = useState<[Date | null, Date | null] | undefined>(props.value);
 
   return (
     <DatePickerInput
@@ -67,9 +66,14 @@ export const DateInputComponentNonRequired = (props: DateInputProps) => {
       minDate={dayjs().toDate()}
       label="What date(s) will your event take place?"
       placeholder="Pick a date range"
-      value={value}
+      value={props.value}
       // valueFormat="date"
-      onChange={(value) => setValue(value as [Date | null, Date | null])}
+      onChange={(value) => props.onChange?.(
+          (value as [Date | null, Date | null])?.map((d) =>
+            typeof d === 'string' ? new Date(d) : d
+          ) as [Date | null, Date | null]
+        )
+      }
       leftSection={<IconCalendar size={20} />}
       valueFormatter={formatter}
       allowSingleDateInRange

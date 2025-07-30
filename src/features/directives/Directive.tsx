@@ -43,7 +43,7 @@ export const Directive = ({ directive , isStaff, cid}: Props): ReactElement => {
             <Button onClick={() => updateDirective(directive, 'passed' as DirectiveStatus, true)}>pass</Button>
             <Button onClick={() => updateDirective(directive, 'failed' as DirectiveStatus, true)}>fail</Button>
             {/* should the mark unread make it pending again ? idk */}
-            {directive.read && (<Button onClick={() => updateDirective(directive, undefined, false)}>mark unread</Button>)} 
+            {directive.read && (<Button onClick={() => updateDirective(directive, 'pending' as DirectiveStatus, false)}>mark unread</Button>)} 
           </Group>
         ) 
         : 

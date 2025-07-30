@@ -30,10 +30,11 @@ import { DelegateRow } from '@features/committeeDash/components/DelegateRow';
 import { committeeQueries } from '@mutations/committeeQueries';
 import { countriesData, countriesHash } from '@lib/countriesData';
 import { committeeMutations } from '@mutations/committeeMutation';
-import { dateToTimestamp, firestoreTimestampToDate } from '@features/utils';
 import { generateStaffId } from '@packages/generateIds';
 import { useUserIsStaff } from '@hooks/useNewStuff';
-import { Timestamp } from 'firebase/firestore';
+import { DatePickerInput } from '@mantine/dates';
+import dayjs from 'dayjs';
+import { IconCalendar } from '@tabler/icons-react';
 
 const un_countries = countriesData;
 const {
@@ -172,8 +173,8 @@ export const CommitteeDash = () => {
           positionPaperSent: d.positionPaperSent,
         })),
         dateRange: [
-          firestoreTimestampToDate(c.startDate),
-          firestoreTimestampToDate(c.endDate),
+          c.startDate,
+          c.endDate,
         ],
       });
 
@@ -238,10 +239,9 @@ export const CommitteeDash = () => {
       return; // Stop form submission if there are duplicates
     }
 
-
     if (!committeeId) return;
     if (!isFormValid) return;
-      for (const staffId of deletedStaffIds) {
+      for (const staffId of deletedStaffIds) { // TODO: so this should be changed to like... looking at the difference of 2 arrays ? idk 
         await removeStaffFromCommittee(committeeId, staffId);
         console.log(`Deleted staff ${staffId}`);
       }
@@ -260,8 +260,8 @@ export const CommitteeDash = () => {
         committeeId,
         committeeLongName,
         committeeShortName,
-        dateToTimestamp(dateRange[0]), // these are strings.. i think bc of the how the date input works
-        dateToTimestamp(dateRange[1]),
+        dateRange[0], // these are strings.. i think bc of the how the date input works
+        dateRange[1],
       );
       console.log('Committee updated:', committeeId, dateRange);
       // TODO: some sort of feedback notif thats like changes saved
@@ -274,6 +274,7 @@ export const CommitteeDash = () => {
         staff.owner,
         staff.staffRole,
         staff.email,
+        staff.inviteStatus,
       );
       console.log(`Added staff: ${staff.email}`);
     }
@@ -284,6 +285,7 @@ export const CommitteeDash = () => {
         delegate.id,
         delegate.name,
         delegate.email,
+        delegate.inviteStatus,
       );
       console.log(`Added delegate: ${delegate.name}`);
     }
@@ -417,9 +419,18 @@ export const CommitteeDash = () => {
             <Table.Td>Event Dates</Table.Td>
             <Table.Td>
               {isStaff ? (
-                <DateInputComponentNonRequired
+                <DatePickerInput
+                  type="range"
+                  minDate={dayjs().toDate()}
+                  label="What date(s) will your event take place?"
+                  placeholder="Pick a date range"
                   value={form.values.dateRange}
-                  onChange={(r) => form.setFieldValue('dateRange', r!)}
+                  onChange={(r) => form.setFieldValue('dateRange', [r[0] ? new Date(r[0]!) : null, r[1] ? new Date(r[1]!) : null])}
+                  radius="lg"
+                  leftSection={<IconCalendar size={20} />}
+                  required
+                  allowSingleDateInRange
+                  clearable
                 />
               ) : (
                 <Text>

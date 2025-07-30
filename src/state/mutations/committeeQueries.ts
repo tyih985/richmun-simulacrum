@@ -23,6 +23,7 @@ import {
   motionSpeakerLogsPath,
   motionSpeakerLogPath,
 } from '@packages/firestorePaths';
+import { Timestamp } from 'firebase/firestore';
 import {
   StaffRole,
   UserCommitteeDoc,
@@ -43,7 +44,16 @@ export const committeeQueries = {
     const doc = await getFirestoreDocument<Omit<CommitteeDoc, 'id'>>(path);
     console.log('Fetched committee doc:', doc);
     if (!doc) return null;
-    return { id: committeeId, ...doc };
+     // Convert Timestamp fields to Date
+    const startDate = doc.startDate instanceof Timestamp ? doc.startDate.toDate() : doc.startDate;
+    const endDate = doc.endDate instanceof Timestamp ? doc.endDate.toDate() : doc.endDate;
+
+    return {
+      id: committeeId,
+      ...doc,
+      startDate,
+      endDate
+    };
   },
 
   getUserCommittees: async (uid: string): Promise<UserCommitteeDoc[]> => {
