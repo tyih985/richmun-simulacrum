@@ -19,6 +19,7 @@ function CountryToDelegate(countries: Country[]): DelegateDoc[] {
     inviteStatus: 'pending',
     minutes: 0,
     positionPaperSent: false,
+    totalSpeakingDuration: 0,
   }));
 }
 

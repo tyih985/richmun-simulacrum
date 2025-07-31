@@ -11,6 +11,7 @@ import { StepTwo } from '@features/setup/components/StepTwo.tsx';
 import { StepThree } from '@features/setup/components/StepThree.tsx';
 import { DelegateDoc, RoleOption, StaffDoc } from '@features/types';
 import { useNavigate } from 'react-router-dom';
+import { toDate } from '@features/utils';
 
 const { createCommittee, addStaffToCommittee, addDelegateToCommittee, addUserCommittee } =
   committeeMutations();
@@ -49,8 +50,8 @@ export const Setup = (): ReactElement => {
         committeeId,
         form.values.committeeLongName,
         form.values.committeeShortName,
-        startDate!,
-        endDate!,
+        toDate(startDate)!,
+        toDate(endDate)!,
       );
 
       const ownerUid = auth.currentUser?.uid || '';

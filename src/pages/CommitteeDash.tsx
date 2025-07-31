@@ -13,7 +13,6 @@ import {
   Flex,
   Modal,
 } from '@mantine/core';
-import { DateInputComponentNonRequired } from '@components/DateInput';
 import { useForm } from '@mantine/form';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
@@ -34,7 +33,7 @@ import { generateStaffId } from '@packages/generateIds';
 import { useUserIsStaff } from '@hooks/useNewStuff';
 import { DatePickerInput } from '@mantine/dates';
 import dayjs from 'dayjs';
-import { IconCalendar } from '@tabler/icons-react';
+import { toDate } from '@features/utils';
 
 const un_countries = countriesData;
 const {
@@ -86,12 +85,12 @@ export const CommitteeDash = () => {
       committeeShortName: '',
       staff: [],
       delegates: [],
-      dateRange: [null, null],
+      dateRange: [null, null] as [Date | null, Date | null],
     },
     validate: {
     committeeLongName: (v) => (v.trim() ? null : 'Required'),
     committeeShortName: (v) => (v.trim() ? null : 'Required'),
-    dateRange: (v) => (v[0] && v[1] ? null : 'Start and end dates required'),
+    dateRange: (v) => (v[0] && v[1] ? null : 'Please select a valid date range'),
     staff: {
       email: (value, values) => {
         const duplicateError = checkForDuplicateEmails(values.staff);
@@ -173,8 +172,8 @@ export const CommitteeDash = () => {
           positionPaperSent: d.positionPaperSent,
         })),
         dateRange: [
-          c.startDate,
-          c.endDate,
+          toDate(c.startDate),
+          toDate(c.endDate),
         ],
       });
 
@@ -228,6 +227,9 @@ export const CommitteeDash = () => {
   };
 
   const handleSaveChanges = async () => {
+    console.log('YARRR:', committee);
+    console.log('YARRR:', committee?.startDate, typeof committee?.startDate);
+
    // Combine staff and delegates emails
     const allEmails = [...form.values.staff, ...form.values.delegates];
     
@@ -260,10 +262,10 @@ export const CommitteeDash = () => {
         committeeId,
         committeeLongName,
         committeeShortName,
-        dateRange[0], // these are strings.. i think bc of the how the date input works
-        dateRange[1],
+        toDate(dateRange[0])!, // these are strings.. i think bc of the how the date input works
+        toDate(dateRange[1])!,
       );
-      console.log('Committee updated:', committeeId, dateRange);
+      console.log('Committee updated:', committeeId, dateRange, typeof dateRange[0], toDate(dateRange[0])!, typeof toDate(dateRange[0])!);
       // TODO: some sort of feedback notif thats like changes saved
     }
 
@@ -421,16 +423,10 @@ export const CommitteeDash = () => {
               {isStaff ? (
                 <DatePickerInput
                   type="range"
-                  minDate={dayjs().toDate()}
-                  label="What date(s) will your event take place?"
-                  placeholder="Pick a date range"
-                  value={form.values.dateRange}
-                  onChange={(r) => form.setFieldValue('dateRange', [r[0] ? new Date(r[0]!) : null, r[1] ? new Date(r[1]!) : null])}
-                  radius="lg"
-                  leftSection={<IconCalendar size={20} />}
-                  required
+                  placeholder='Pick a date or date range'
+                  {...form.getInputProps('dateRange')}
                   allowSingleDateInRange
-                  clearable
+                  minDate={dayjs().toDate()}
                 />
               ) : (
                 <Text>

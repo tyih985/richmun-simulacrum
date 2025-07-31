@@ -1,8 +1,9 @@
 import { ReactElement } from 'react';
 import { Container, Flex, Title, Text, Space, TextInput } from '@mantine/core';
-import { DateInputComponent } from '@components/DateInput';
 import { UseFormReturnType } from '@mantine/form';
 import type { SetupFormValues } from '@features/types.ts';
+import { DatePickerInput } from '@mantine/dates';
+import dayjs from 'dayjs';
 
 interface StepOneProps {
   form: UseFormReturnType<SetupFormValues>;
@@ -41,12 +42,14 @@ export function StepOne({ form }: StepOneProps): ReactElement {
 
         <Space h="md" />
 
-        <DateInputComponent
+        <DatePickerInput
+          type='range'
           label="What date(s) will your event take place?"
           placeholder="Pick a date range"
-          value={form.values.dateRange}
-          onChange={(range) => form.setFieldValue('dateRange', range!)}
+          {...form.getInputProps('dateRange')}
           radius="lg"
+          allowSingleDateInRange={true}
+          minDate={dayjs().toDate()}
         />
 
         <Text size="sm" c="dimmed">

@@ -38,8 +38,8 @@ export const committeeMutations = () => {
     const data = { 
       longName, 
       shortName, 
-      startDate: startDate ? Timestamp.fromDate(startDate) : null,
-      endDate: endDate ? Timestamp.fromDate(endDate) : null
+      startDate: startDate,
+      endDate: endDate
     };
     console.log('Creating committee at:', path, 'with data:', data);
     return createFirestoreDocument(path, data, true);
@@ -92,7 +92,7 @@ export const committeeMutations = () => {
     delegateId: string,
     name: string,
     email: string,
-    inviteStatus: InviteStatus = 'pending',
+    inviteStatus: InviteStatus,
     minutes: number = 0,
     positionPaperSent = false,
   ) => {
