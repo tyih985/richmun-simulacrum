@@ -42,6 +42,7 @@ export const committeeMutations = () => {
       endDate: endDate ? Timestamp.fromDate(endDate) : null
     };
     console.log('Creating committee at:', path, 'with data:', data);
+    addCommitteeMotion(committeeId, "default-motion", "default-delegate", "round table", undefined, 60, "Speaker List");
     return createFirestoreDocument(path, data, true);
   };
 
@@ -218,12 +219,13 @@ export const committeeMutations = () => {
     committeeId: string,
     motionId: string,
     delegateId: string,
+    name: string,
     order: number,
     spoke: boolean = false,
   ) => {
     const path = motionSpeakerPath(committeeId, motionId, delegateId);
-    const data = { delegateId, order };
-    return createFirestoreDocument(path, data, true);
+    const data = { delegateId, name, order, spoke };
+    return createFirestoreDocument(path, data);
   };
 
   const removeMotionSpeaker = (

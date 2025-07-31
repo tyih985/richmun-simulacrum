@@ -61,7 +61,6 @@ export const RootRoutes = () => {
           <Route path="directives/new" element={<MakeDirective />} />
           <Route path="motions" element={<Motions />} />
           <Route path="caucus/:motionId" element={<Caucus />} />
-          <Route path="rollcall" element={<RollCall />} />
           <Route path="rollcall/list" element={<RollCallList />} />
           <Route path="rollcall/:rollCallId" element={<RollCall />} />
         </Route>

@@ -14,18 +14,23 @@ import { useCommitteeDelegates } from '@hooks/useNewStuff';
 import { SpeakerSelector } from '@features/chairing/components/SpeakerSelector';
 import { SpeakerList } from '@features/chairing/components/SpeakerList';
 import { committeeMutations } from '@mutations/committeeMutation';
-import { DelegateDoc } from '@features/types';
+import { DelegateDoc, MotionSpeakerDoc } from '@features/types';
+import { useSpeakers } from '@hooks/useSpeakerLog';
 
-const { addDelegateToCommittee } = committeeMutations();
+const { addDelegateToCommittee, addMotionSpeaker } = committeeMutations();
 
 export const Speakers = (): ReactElement => {
   const { committeeId } = useParams<{ committeeId: string }>();
   const [listType, setListType] = useState<'primary' | 'secondary' | 'single'>('primary');
-  const [speakers, setSpeakers] = useState<DelegateDoc[]>([]);
   const [currentSpeaker, setCurrentSpeaker] = useState<DelegateDoc | null>(null);
-  const { delegates, loading } = useCommitteeDelegates(committeeId);
+  const { delegates, loading: committeeLoading } = useCommitteeDelegates(committeeId);
 
-  if (loading) {
+  const { speakers, loading: speakerLoading } = useSpeakers(committeeId ?? '', 'default-motion') as {
+    speakers: MotionSpeakerDoc[];
+    loading: boolean;
+  };
+
+  if (committeeLoading || speakerLoading) {
     return (
       <Center>
         <Text>Loading delegates...</Text>
@@ -34,8 +39,9 @@ export const Speakers = (): ReactElement => {
   }
 
   const addPrimarySpeaker = (delegate: DelegateDoc) => {
-    if (!speakers.includes(delegate)) {
-      setSpeakers([...speakers, delegate]);
+    const speakersIds = speakers.map((s) => s.id);
+    if (!speakersIds.includes(delegate.id)) {
+      addMotionSpeaker(committeeId!, 'default-motion', delegate.id, delegate.name, speakers.length + 1);
       console.log('adding delegate:', delegate.name);
     }
   };
@@ -48,14 +54,17 @@ export const Speakers = (): ReactElement => {
     setCurrentSpeaker(delegate);
   };
 
-  const clearSpeakers = () => {
-    setSpeakers([]);
+  const clearSpeakers = () => { 
+     speakers.forEach(speaker => {
+      addMotionSpeaker(committeeId!, 'default-motion', speaker.id, speaker.name, -1); // Resetting the order to -1
+      console.log('clearing speaker:', speaker.id);
+    });
+    setCurrentSpeaker(null);
   };
 
-  const currentDelegate = delegates.find((d) => d === speakers[0]);
+  const currentDelegate = delegates.find((d) => d.id === speakers[0].id);
 
   const handleTimerComplete = () => {
-    setSpeakers((prev) => prev.slice(1)); // removes the first speaker
     console.log(`Delegate ${currentDelegate?.name} has completed speaking.`);
   };
 
@@ -93,10 +102,11 @@ export const Speakers = (): ReactElement => {
         <>
           {currentDelegate ? (
             <DelegateTimer
+              cid={committeeId!} // assuming committeeId is defined
+              mid={'default-motion'}
               delegate={currentDelegate}
               showNext={true}
-              onStart={handleTimerStart}
-              onComplete={handleTimerComplete}
+              // onNext ={}
             />
           ) : (
             <Paper p="xl" radius="md" withBorder>
@@ -112,7 +122,9 @@ export const Speakers = (): ReactElement => {
               onAddSpeaker={addPrimarySpeaker}
               currentSpeakers={speakers.map((d) => d.name)}
             />
-            <SpeakerList speakers={speakers.map((d) => d.name)} onClear={clearSpeakers} />
+
+            {/* vv filter for speakers with an order that exists */}
+            <SpeakerList speakers={speakers.map((d) => d.name)} onClear={clearSpeakers} /> 
           </Group>
         </>
       )}

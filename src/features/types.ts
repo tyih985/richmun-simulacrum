@@ -79,6 +79,7 @@ export type MotionDoc = {
 
 export type MotionSpeakerDoc = {
   id: string;
+  name: string;
   order: number;
   spoke: boolean;
 };

@@ -6,7 +6,7 @@ import type {
   MotionSpeakerLogDoc,
   SpeakerLogEntry,
 } from '@features/types';
-import { useSpeakerLog } from '@hooks/useSpeakerLog';
+import { useSpeakerLogs } from '@hooks/useSpeakerLog';
 import { committeeMutations } from '@mutations/committeeMutation';
 
 const { addMotionSpeakerLog, removeMotionSpeakerLog } = committeeMutations();
@@ -49,7 +49,7 @@ export const DelegateTimer = ({
   showNext = false,
 }: Props): ReactElement => {
 
-  const { logs, loading } = useSpeakerLog(cid, mid, delegate ? delegate.id : '') as {
+  const { logs, loading } = useSpeakerLogs(cid, mid, delegate ? delegate.id : '') as {
     logs: MotionSpeakerLogDoc[];
     loading: boolean;
   };

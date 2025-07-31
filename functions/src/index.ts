@@ -281,3 +281,48 @@ export const onusercommitteeinviteupdated = onDocumentUpdated(
     await admin.firestore().doc(docPath).update({ inviteStatus });
   },
 );
+
+export const onspeakerlogcreated = onDocumentCreated(
+  {
+    document: 'committees/{committeeId}/motions/{motionId}/speakers/{speakerId}/logs/{logId}',
+  },
+  async (event) => {
+    const { committeeId, motionId, speakerId, logId } = event.params;
+    const db = admin.firestore();
+
+    const logSnap = event.data;
+    if (!logSnap) {
+      console.warn(
+        `No log snapshot for committees/${committeeId}/motions/${motionId}/speakers/${speakerId}/logs/${logId}`
+      );
+      return;
+    }
+    const logData = logSnap.data() as any;
+    const isEndLog = logData.type === 'end';
+
+    const speakerRef = db.doc(
+      `committees/${committeeId}/motions/${motionId}/speakers/${speakerId}`
+    );
+    const speakerSnap = await speakerRef.get();
+    if (!speakerSnap.exists) {
+      return;
+    }
+    const speakerData = speakerSnap.data() as any;
+    const hasSpoken = speakerData.spoke === true;
+
+    const updatePayload: Partial<{ spoke: boolean; order: number }> = {};
+    if (!hasSpoken) {
+      updatePayload.spoke = true;
+    }
+    if (isEndLog) {
+      updatePayload.order = -1;
+    }
+    if (Object.keys(updatePayload).length > 0) {
+      await speakerRef.update(updatePayload);
+    } else {
+      console.log(
+        `No update needed.`
+      );
+    }
+  }
+);

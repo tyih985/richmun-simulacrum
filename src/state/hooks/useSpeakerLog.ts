@@ -2,10 +2,11 @@ import { useFirestoreCollectionQuery, useFirestoreDocQuery } from '@packages/fir
 import {
   committeeMotionPath,
   motionSpeakerLogsPath,
+  motionSpeakersPath,
 } from '@packages/firestorePaths';
-import type { MotionDoc, MotionSpeakerLogDoc } from '@features/types';
+import type { MotionDoc, MotionSpeakerDoc, MotionSpeakerLogDoc } from '@features/types';
 
-export const useSpeakerLog = (
+export const useSpeakerLogs = (
   cid: string,
   mid: string,
   did: string,
@@ -38,4 +39,22 @@ export function useCurrentSpeaker(
     loading: isLoading,
   };
 }
+
+export const useSpeakers = (
+  cid: string,
+  mid: string,
+): { speakers: MotionSpeakerDoc[]; loading: boolean } => {
+  const path = motionSpeakersPath(cid, mid);
+
+  const { data, isLoading, isError } =
+    useFirestoreCollectionQuery<MotionSpeakerDoc>(path, {
+      enabled: !!mid,
+      sortBy: 'order',
+    });
+
+  if (isError) console.error('useSpeakers error:', isError);
+
+  return { speakers: data ?? [], loading: isLoading };
+};
+
 
