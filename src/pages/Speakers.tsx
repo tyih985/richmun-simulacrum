@@ -1,4 +1,4 @@
-import { ReactElement, useState } from 'react';
+import { ReactElement, useEffect, useState } from 'react';
 import {
   Center,
   SegmentedControl,
@@ -15,22 +15,36 @@ import { SpeakerSelector } from '@features/chairing/components/SpeakerSelector';
 import { SpeakerList } from '@features/chairing/components/SpeakerList';
 import { committeeMutations } from '@mutations/committeeMutation';
 import { DelegateDoc, MotionSpeakerDoc } from '@features/types';
-import { useSpeakers } from '@hooks/useSpeakerLog';
+import { useCurrentSpeaker, useSpeakers } from '@hooks/useSpeakerLog';
 
-const { addDelegateToCommittee, addMotionSpeaker } = committeeMutations();
+const { addMotionSpeaker } = committeeMutations();
 
 export const Speakers = (): ReactElement => {
   const { committeeId } = useParams<{ committeeId: string }>();
   const [listType, setListType] = useState<'primary' | 'secondary' | 'single'>('primary');
-  const [currentSpeaker, setCurrentSpeaker] = useState<DelegateDoc | null>(null);
   const { delegates, loading: committeeLoading } = useCommitteeDelegates(committeeId);
+  console.log(delegates)
+  const { speakerId, loading: getSpeakerLoading } = 
+      useCurrentSpeaker(committeeId!, 'default-motion');
+    console.log('fetched speaker:', speakerId);
+  
+  const [currentSpeaker, setCurrentSpeaker] = useState<DelegateDoc | null>(null);
 
-  const { speakers, loading: speakerLoading } = useSpeakers(committeeId ?? '', 'default-motion') as {
+  // sets current speaker when the speakerId in db changes
+    useEffect(() => {
+      const found = delegates.find((d) => d.id === speakerId) ?? null;
+      console.log('current speaker:', found);
+      setCurrentSpeaker(found);
+    }, [speakerId, delegates]);
+
+  const { speakers, loading: speakersLoading } = useSpeakers(committeeId ?? '', 'default-motion') as {
     speakers: MotionSpeakerDoc[];
     loading: boolean;
   };
 
-  if (committeeLoading || speakerLoading) {
+  console.log(speakers)
+
+  if (committeeLoading || speakersLoading || getSpeakerLoading) {
     return (
       <Center>
         <Text>Loading delegates...</Text>
@@ -39,20 +53,17 @@ export const Speakers = (): ReactElement => {
   }
 
   const addPrimarySpeaker = (delegate: DelegateDoc) => {
-    const speakersIds = speakers.map((s) => s.id);
-    if (!speakersIds.includes(delegate.id)) {
       addMotionSpeaker(committeeId!, 'default-motion', delegate.id, delegate.name, speakers.length + 1);
       console.log('adding delegate:', delegate.name);
-    }
   };
 
   // const removePrimarySpeaker = () => {
 
   // }
 
-  const addSingleSpeaker = (delegate: DelegateDoc) => {
-    setCurrentSpeaker(delegate);
-  };
+  // const addSingleSpeaker = (delegate: DelegateDoc) => {
+  //   setCurrentSpeaker(delegate);
+  // };
 
   const clearSpeakers = () => { 
      speakers.forEach(speaker => {
@@ -62,26 +73,26 @@ export const Speakers = (): ReactElement => {
     setCurrentSpeaker(null);
   };
 
-  const currentDelegate = delegates.find((d) => d.id === speakers[0].id);
+  // const currentDelegate = speakers ? delegates.find((d) => d.id === speakers[0].id) : null;
 
   const handleTimerComplete = () => {
-    console.log(`Delegate ${currentDelegate?.name} has completed speaking.`);
+    console.log(`Delegate ${currentSpeaker?.name} has completed speaking.`);
   };
 
-  const handleTimerStart = () => {
-    if (committeeId && currentDelegate) {
-      addDelegateToCommittee(
-        committeeId,
-        currentDelegate.id,
-        currentDelegate.name,
-        currentDelegate.email,
-        currentDelegate.inviteStatus,
-        currentDelegate.totalSpeakingDuration,
-        currentDelegate.positionPaperSent,
-      );
-      console.log(`Delegate ${currentDelegate.name} has started speaking.`);
-    }
-  };
+  // const handleTimerStart = () => {
+  //   if (committeeId && currentDelegate) {
+  //     addDelegateToCommittee(
+  //       committeeId,
+  //       currentDelegate.id,
+  //       currentDelegate.name,
+  //       currentDelegate.email,
+  //       currentDelegate.inviteStatus,
+  //       currentDelegate.totalSpeakingDuration,
+  //       currentDelegate.positionPaperSent,
+  //     );
+  //     console.log(`Delegate ${currentDelegate.name} has started speaking.`);
+  //   }
+  // };
 
   return (
     <Stack p="xl">
@@ -100,13 +111,13 @@ export const Speakers = (): ReactElement => {
 
       {listType === 'primary' && (
         <>
-          {currentDelegate ? (
+          {currentSpeaker ? (
             <DelegateTimer
               cid={committeeId!} // assuming committeeId is defined
               mid={'default-motion'}
-              delegate={currentDelegate}
+              delegate={currentSpeaker}
               showNext={true}
-              // onNext ={}
+              onNext ={handleTimerComplete}
             />
           ) : (
             <Paper p="xl" radius="md" withBorder>
@@ -120,23 +131,23 @@ export const Speakers = (): ReactElement => {
             <SpeakerSelector
               delegates={delegates}
               onAddSpeaker={addPrimarySpeaker}
-              currentSpeakers={speakers.map((d) => d.name)}
+              currentSpeakers={speakers.filter((s) => (s.order > 0)).map((s)=>s.id)}
             />
 
-            {/* vv filter for speakers with an order that exists */}
-            <SpeakerList speakers={speakers.map((d) => d.name)} onClear={clearSpeakers} /> 
+            {/* vv filter for speakers with an order > 0 */}
+            <SpeakerList speakers={speakers.filter((s) => (s.order > 0)).map((d) => d.name)} onClear={clearSpeakers} /> 
           </Group>
         </>
       )}
 
-      {listType === 'secondary' && (
+      {/* {listType === 'secondary' && (
         <>
           {currentDelegate ? (
             <DelegateTimer
               delegate={currentDelegate}
               showNext={true}
-              onStart={handleTimerStart}
-              onComplete={handleTimerComplete}
+              // onStart={handleTimerStart}
+              // onComplete={handleTimerComplete}
             />
           ) : (
             <Paper p="xl" radius="md" withBorder>
@@ -163,7 +174,7 @@ export const Speakers = (): ReactElement => {
             <DelegateTimer
               delegate={currentSpeaker}
               showNext={true}
-              onStart={handleTimerStart}
+              // onStart={handleTimerStart}
               onComplete={handleTimerComplete}
             />
           ) : (
@@ -178,7 +189,7 @@ export const Speakers = (): ReactElement => {
             <SpeakerSelector delegates={delegates} onAddSpeaker={addSingleSpeaker} />
           </Group>
         </>
-      )}
+      )} */}
     </Stack>
   );
 };

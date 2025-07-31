@@ -24,7 +24,7 @@ export const SpeakerSelector = ({
             variant="subtle"
             size="compact-md"
             key={d.id}
-            disabled={currentSpeakers?.includes(d.name)}
+            disabled={currentSpeakers?.includes(d.id)}
             onClick={() => onAddSpeaker(d)}
             radius={0}
           >
