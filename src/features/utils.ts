@@ -26,35 +26,24 @@ export const getCommitteeBy = async (
   return committeeData.filter((c): c is NonNullable<typeof c> => c !== null);
 };
 
-export const dateToTimestamp = (date: Date | string): Timestamp => {
-  console.log("typeof:", typeof date);
-
-  if (date instanceof Date) {
-    console.log('date!')
-    return Timestamp.fromDate(date);
+export const toDate = (s: string | Date | Timestamp | null): Date | null => {
+  if (s && (s instanceof Date)) {
+    return new Date(s);
   }
 
-  else {
-    console.log('string!')
-    return Timestamp.fromDate(new Date(date));
+  if (s && (s instanceof Timestamp)) {
+    return s.toDate();
   }
-  
+
+  if (s) {
+    return parseLocalDate(s);
+  }
+
+  return null;
 };
 
-export const normalizeToDate = (d: Date | Timestamp | null): Date | null =>
-  d instanceof Timestamp ? d.toDate() : d ?? null;
-
-export const firestoreTimestampToDate = (timestamp: Timestamp | Date | null): Date | null => {
-  if (!timestamp) {
-    return null;
-  }
-  if (timestamp instanceof Timestamp) {
-    return timestamp.toDate();
-  } else {
-    return timestamp;
-  }
-};
-
-// export function normalizeDateToUTC(date: Date): Date {
-//   return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-// }
+function parseLocalDate(dateStr: string): Date {
+  const [year, month, day] = dateStr.split('-').map(Number);
+  // month is 0-indexed in JS Date constructor
+  return new Date(year, month - 1, day);
+}

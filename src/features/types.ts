@@ -33,8 +33,8 @@ export type CommitteeDoc = {
   id: string;
   longName: string;
   shortName: string;
-  startDate: Date;
-  endDate: Date;
+  startDate: Date | Timestamp;
+  endDate: Date | Timestamp;
 };
 
 export type StaffDoc = {

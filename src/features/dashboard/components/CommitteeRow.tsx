@@ -3,12 +3,21 @@ import { IconDoorExit } from '@tabler/icons-react';
 import { CommitteeDoc, UserCommitteeDoc } from '@features/types';
 import { ReactElement, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { firestoreTimestampToDate } from '@features/utils';
+import { Timestamp } from 'firebase/firestore';
 
 type Props = {
   committee: CommitteeDoc;
   userCommittee: UserCommitteeDoc;
 };
+
+const toString = (date?: Date | Timestamp) : string => {
+  if (!date) {
+    return 'no date';
+  }
+  const d = (date instanceof Timestamp ? date.toDate() :date);
+  console.log('DAWG:', d, typeof d)
+  return d.toISOString().slice(0, 10);
+}
 
 export const CommitteeRow = ({ committee, userCommittee }: Props): ReactElement => {
   const [hovered, setHovered] = useState(false);
@@ -16,9 +25,12 @@ export const CommitteeRow = ({ committee, userCommittee }: Props): ReactElement 
     userCommittee.role === 'staff' ? `staff (${userCommittee.staffRole})` : 'delegate';
   const nav = useNavigate();
 
+  const start = toString(committee?.startDate);
+   const end = toString(committee?.endDate);
+
   if (!committee) return <></>;
 
-  console.log("com:", committee.shortName, committee.startDate, committee.endDate);
+  console.log("com:", committee.shortName, (committee?.startDate instanceof Timestamp ? committee?.startDate.toDate() : committee?.startDate));
 
   return (
     <Table.Tr
@@ -41,9 +53,7 @@ export const CommitteeRow = ({ committee, userCommittee }: Props): ReactElement 
         <Text>{roleLabel}</Text>
       </Table.Td>
       <Table.Td>
-        <Text>{committee?.startDate?.toString()}</Text>
-        {/* <Text>{committee?.startDate.isEqual(committee?.endDate) ? (`${firestoreTimestampToDate(committee.startDate).toLocaleDateString()} - ${committee?.endDate?.toDate().toLocaleDateString()}`) : (firestoreTimestampToDate(committee.startDate).toLocaleDateString())}</Text>  */}
-        {/* highkey in tears idk why it says isEqual is not a function for startDate :,| */}
+        <Text>{start === end ? start : start + ' to ' + end}</Text>
       </Table.Td>
       <Table.Td>
         <ActionIcon
