@@ -3,6 +3,7 @@ import { Paper, Stack, Title, Text, Group, Button, Progress } from '@mantine/cor
 // import { TimerBar } from '@components/Timer';
 import type {
   DelegateDoc,
+  MotionSpeakerDoc,
   MotionSpeakerLogDoc,
   SpeakerLogEntry,
 } from '@features/types';
@@ -14,7 +15,7 @@ const { addMotionSpeakerLog, removeMotionSpeakerLog } = committeeMutations();
 interface Props {
   cid: string;
   mid: string;
-  delegate: DelegateDoc | null;
+  delegate: DelegateDoc | MotionSpeakerDoc | null;
   onNext?: () => void;
   showNext?: boolean;
 }
@@ -57,26 +58,6 @@ export const DelegateTimer = ({
   const prevLastLogType = useRef<string | null>(null); // for safety guard
   const lastLog = logs.length ? logs[logs.length - 1] : null;
 
-
-  // TODO: 
-  // - a speakers time should reset after they end
-  // - calculate total total accumulated speaking time separately somewhere else
-
-  // useEffect(() => {
-  //   if (lastLog?.type === 'end' 
-  //     // && prevLastLogType.current !== 'end' safety guard check idk if we need 
-  //   ) {
-  //     console.log('lastLog:', lastLog)
-  //     setAccMs(0);
-  //     console.log('accMs:', accMs)
-  //     setRunningSince(null);
-  //     console.log('running since:', runningSince)
-  //     setNowMs(Date.now());
-  //     console.log('nowMs:', nowMs)
-  //   }
-  //   prevLastLogType.current = lastLog?.type ?? null;
-  // }, [logs]);
-
   const resetted = useRef<boolean>(false);
   const paused = useRef<boolean>(false);
   const turnStartRef = useRef<number | null>(null);
@@ -114,8 +95,6 @@ export const DelegateTimer = ({
     }
 
     prevLastLogType.current = lastLog?.type ?? null;
-    // let acc = 0;
-    // let since: number | null = null;
 
     const relevantLogs = logs.filter(log => (log.timestamp as number) >= (turnStartRef.current ?? 0));
 
@@ -148,13 +127,6 @@ export const DelegateTimer = ({
   ? accMsRef.current + (nowMs - runningSinceRef.current)
   : accMsRef.current;
 
-
-  // const elapsedMsSinceLastStart = runningSince != null && turnStart != null
-  // ? nowMs - turnStart
-  // : 0;
-
-  
-  // const elapsedMs = accMs + (runningSince != null ? nowMs - runningSince : 0);
   const seconds = Math.floor(elapsedMs / 1000);
 
 
@@ -214,19 +186,18 @@ export const DelegateTimer = ({
           <Button w={'100px'} onClick={() => {
             resetted.current = false;
             paused.current = false;
-            console.log('start:', accMsRef.current)
             console.log('resetted:', resetted.current)
+            console.log('paused:', paused.current)
             logAction('start')
           }}>Start</Button>
         ) : (!paused.current || runningSinceRef.current != null) ? (
           <Button w={'100px'} onClick={() => {
-            console.log('pause:', accMsRef.current)
             paused.current = true;
+            console.log('paused:', paused.current)
             logAction('pause')
           }}>Pause</Button>
         ) : (
           <Button w={'100px'} onClick={() => {
-            console.log('resume:', accMsRef.current)
             logAction('resume')
           }}>Resume</Button>
         )}
@@ -236,9 +207,7 @@ export const DelegateTimer = ({
           color="red" 
           onClick={() => {
           resetted.current = true;
-          console.log(accMsRef.current);
           accMsRef.current = 0;
-          console.log(accMsRef.current);
           runningSinceRef.current = null;  
           reset(turnStartRef.current);
           turnStartRef.current = null;

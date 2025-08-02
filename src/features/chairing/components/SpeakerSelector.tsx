@@ -1,11 +1,11 @@
 // SpeakerSelector.tsx
-import { DelegateDoc } from '@features/types';
+import { DelegateDoc, MotionSpeakerDoc } from '@features/types';
 import { Button, Stack, Text, Card, Space } from '@mantine/core';
 import { ReactElement } from 'react';
 
 type Props = {
   delegates: DelegateDoc[];
-  onAddSpeaker: (delegate: DelegateDoc) => void;
+  onAddSpeaker: (delegate: DelegateDoc | MotionSpeakerDoc) => void;
   currentSpeakers?: string[];
 };
 

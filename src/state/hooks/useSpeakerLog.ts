@@ -5,6 +5,10 @@ import {
   motionSpeakersPath,
 } from '@packages/firestorePaths';
 import type { MotionDoc, MotionSpeakerDoc, MotionSpeakerLogDoc } from '@features/types';
+import { useEffect, useState } from 'react';
+import { committeeQueries } from '@mutations/committeeQueries';
+
+const { getCommitteeMotionSpeaker } = committeeQueries;
 
 export const useSpeakerLogs = (
   cid: string,
@@ -23,21 +27,40 @@ export const useSpeakerLogs = (
   return { logs: data ?? [], loading: isLoading };
 };
 
-export function useCurrentSpeaker(
+export function useCurrentSpeakerId(
   committeeId: string,
   motionId: string,
 ): { speakerId: string | null; loading: boolean } {
   const path = committeeMotionPath(committeeId, motionId);
 
-
   const { data, isLoading } = useFirestoreDocQuery<MotionDoc>(path, {
     enabled: !!path,
   });
+
 
   return {
     speakerId: data?.currentSpeaker ?? null,
     loading: isLoading,
   };
+}
+
+export function useCurrentSpeaker(
+  committeeId: string,
+  motionId: string,
+): { speaker: MotionSpeakerDoc | null; loading: boolean } {
+  const { speakerId, loading: idLoading } = useCurrentSpeakerId(committeeId, motionId);
+  const [speaker, setSpeaker] = useState<MotionSpeakerDoc | null>(null);
+
+  useEffect(() => {
+    if (!speakerId) {
+      setSpeaker(null);
+      return;
+    }
+
+    getCommitteeMotionSpeaker(committeeId, motionId, speakerId).then(setSpeaker);
+  }, [committeeId, motionId, speakerId]);
+
+  return { speaker, loading: idLoading && !speaker };
 }
 
 export const useSpeakers = (

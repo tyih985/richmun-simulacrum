@@ -15,7 +15,6 @@ const toString = (date?: Date | Timestamp) : string => {
     return 'no date';
   }
   const d = (date instanceof Timestamp ? date.toDate() :date);
-  console.log('DAWG:', d, typeof d)
   return d.toISOString().slice(0, 10);
 }
 
@@ -29,8 +28,6 @@ export const CommitteeRow = ({ committee, userCommittee }: Props): ReactElement 
    const end = toString(committee?.endDate);
 
   if (!committee) return <></>;
-
-  console.log("com:", committee.shortName, (committee?.startDate instanceof Timestamp ? committee?.startDate.toDate() : committee?.startDate));
 
   return (
     <Table.Tr

@@ -4,10 +4,10 @@ import { DelegateTimer } from '@features/chairing/components/DelegateTimer';
 import { useParams } from 'react-router-dom';
 import { useCommitteeDelegate, useCommitteeDelegates, useMotion } from '@hooks/useNewStuff';
 import { SpeakerSelector } from '@features/chairing/components/SpeakerSelector';
-import type { DelegateDoc } from '@features/types';
+import type { DelegateDoc, MotionSpeakerDoc } from '@features/types';
 import { updateFirestoreDocument } from '@packages/firestoreAsQuery/firestoreRequests';
 import { committeeMotionPath } from '@packages/firestorePaths';
-import { useCurrentSpeaker } from '@hooks/useSpeakerLog';
+import { useCurrentSpeakerId } from '@hooks/useSpeakerLog';
 import { committeeMutations } from '@mutations/committeeMutation';
 
 const { addMotionSpeakerLog } = committeeMutations();
@@ -23,28 +23,10 @@ export const Caucus = (): ReactElement => {
   const { motion, loading: motionLoading } =
     useMotion(committeeId!, motionId!);
   const { speakerId, loading: getSpeakerLoading } = 
-    useCurrentSpeaker(committeeId!, motionId!);
+    useCurrentSpeakerId(committeeId!, motionId!);
   console.log('fetched speaker:', speakerId);
 
   const [currentSpeaker, setCurrentSpeaker] = useState<DelegateDoc | null>(null);
-
-  // const { delegate, loading: delLoading } =
-  //   useCommitteeDelegate(committeeId!, speakerId ?? '');
-
-  // TODO: probably we will need something to keep track of active caucus / motion ?
-
-  // useEffect(() => {
-  //   const path = committeeMotionPath(committeeId!, motionId!);
-  //   if (!currentSpeaker) {
-  //     updateFirestoreDocument(path, {
-  //     currentSpeaker: '',
-  //   })
-  //   console.log('updated speaker:', currentSpeaker)
-  //   } else {
-  //     updateFirestoreDocument(path, {
-  //       currentSpeaker: currentSpeaker.id,
-  //     }).catch(console.error);
-  //   }}, [currentSpeaker, committeeId, motionId]);
 
   // sets current speaker when the speakerId in db changes
   useEffect(() => {
@@ -54,7 +36,7 @@ export const Caucus = (): ReactElement => {
   }, [speakerId, delegates]);
 
   // sends the updated speakerId (from ui) to the db TODO: make cloud function for this also
-  const updateCurrentSpeaker = (delegate: DelegateDoc | null): void => {
+  const updateCurrentSpeaker = (delegate: DelegateDoc | MotionSpeakerDoc | null): void => {
 
     if (currentSpeaker && currentSpeaker != delegate) {
     addMotionSpeakerLog(committeeId!, motionId!, currentSpeaker.id, Date.now().toString(), 'end', Date.now() as EpochTimeStamp)
