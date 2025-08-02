@@ -10,14 +10,14 @@ type Props = {
   userCommittee: UserCommitteeDoc;
 };
 
-const toString = (date?: Date | Timestamp) : string => {
+const toString = (date?: Date | Timestamp): string => {
   if (!date) {
     return 'no date';
   }
-  const d = (date instanceof Timestamp ? date.toDate() :date);
-  console.log('DAWG:', d, typeof d)
+  const d = date instanceof Timestamp ? date.toDate() : date;
+  console.log('DAWG:', d, typeof d);
   return d.toISOString().slice(0, 10);
-}
+};
 
 export const CommitteeRow = ({ committee, userCommittee }: Props): ReactElement => {
   const [hovered, setHovered] = useState(false);
@@ -26,11 +26,17 @@ export const CommitteeRow = ({ committee, userCommittee }: Props): ReactElement 
   const nav = useNavigate();
 
   const start = toString(committee?.startDate);
-   const end = toString(committee?.endDate);
+  const end = toString(committee?.endDate);
 
   if (!committee) return <></>;
 
-  console.log("com:", committee.shortName, (committee?.startDate instanceof Timestamp ? committee?.startDate.toDate() : committee?.startDate));
+  console.log(
+    'com:',
+    committee.shortName,
+    committee?.startDate instanceof Timestamp
+      ? committee?.startDate.toDate()
+      : committee?.startDate,
+  );
 
   return (
     <Table.Tr

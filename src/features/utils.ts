@@ -27,11 +27,11 @@ export const getCommitteeBy = async (
 };
 
 export const toDate = (s: string | Date | Timestamp | null): Date | null => {
-  if (s && (s instanceof Date)) {
+  if (s && s instanceof Date) {
     return new Date(s);
   }
 
-  if (s && (s instanceof Timestamp)) {
+  if (s && s instanceof Timestamp) {
     return s.toDate();
   }
 

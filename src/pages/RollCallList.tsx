@@ -22,44 +22,47 @@ export const RollCallList = () => {
     })();
   }, [committeeId]);
 
-const handleNewRollCall = async () => {
-  if (!committeeId) return;
+  const handleNewRollCall = async () => {
+    if (!committeeId) return;
 
-  try {
-    const rollCallId = generateRollCallId(committeeId);
-    const now = Timestamp.now();
-    await addRollCallToCommittee(committeeId, rollCallId, now);
-    console.log(`Created roll-call ${rollCallId} at`, now.toDate());
+    try {
+      const rollCallId = generateRollCallId(committeeId);
+      const now = Timestamp.now();
+      await addRollCallToCommittee(committeeId, rollCallId, now);
+      console.log(`Created roll-call ${rollCallId} at`, now.toDate());
 
-    const delegateDocs: DelegateDoc[] = await committeeQueries.getCommitteeDelegates(committeeId);
-    console.log('Fetched delegates for attendance:', delegateDocs);
+      const delegateDocs: DelegateDoc[] =
+        await committeeQueries.getCommitteeDelegates(committeeId);
+      console.log('Fetched delegates for attendance:', delegateDocs);
 
-    const placeholder = Timestamp.fromMillis(0);
-    await Promise.all(
-      delegateDocs.map(async (d) => {
-        try {
-          await addRollCallDelegateToCommittee(
-            committeeId,
-            rollCallId,
-            d.id,
-            placeholder,
-            d.name,
-            'absent',
-          );
-          console.log(`Attendance doc created for delegate ${d.id} (${d.name})`);
-        } catch (e) {
-          console.error(`Failed to create attendance for delegate ${d.id} (${d.name}):`, e);
-        }
-      })
-    );
+      const placeholder = Timestamp.fromMillis(0);
+      await Promise.all(
+        delegateDocs.map(async (d) => {
+          try {
+            await addRollCallDelegateToCommittee(
+              committeeId,
+              rollCallId,
+              d.id,
+              placeholder,
+              d.name,
+              'absent',
+            );
+            console.log(`Attendance doc created for delegate ${d.id} (${d.name})`);
+          } catch (e) {
+            console.error(
+              `Failed to create attendance for delegate ${d.id} (${d.name}):`,
+              e,
+            );
+          }
+        }),
+      );
 
-    console.log('All attendance documents processed');
-    navigate(`/committee/${committeeId}/rollcall/${rollCallId}`, { replace: false });
-
-  } catch (err) {
-    console.error('Error in handleNewRollCall:', err);
-  }
-};
+      console.log('All attendance documents processed');
+      navigate(`/committee/${committeeId}/rollcall/${rollCallId}`, { replace: false });
+    } catch (err) {
+      console.error('Error in handleNewRollCall:', err);
+    }
+  };
 
   if (rollCalls === null) {
     return <Loader />;
@@ -75,9 +78,7 @@ const handleNewRollCall = async () => {
           <RollCallRow
             key={rc.id}
             rollCall={rc}
-            onClick={() =>
-              navigate(`/committee/${committeeId}/rollcall/${rc.id}`)
-            }
+            onClick={() => navigate(`/committee/${committeeId}/rollcall/${rc.id}`)}
           />
         ))
       )}

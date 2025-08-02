@@ -1,4 +1,7 @@
-import { useFirestoreCollectionQuery, useFirestoreDocQuery } from '@packages/firestoreAsQuery';
+import {
+  useFirestoreCollectionQuery,
+  useFirestoreDocQuery,
+} from '@packages/firestoreAsQuery';
 import {
   committeeMotionPath,
   motionSpeakerLogsPath,
@@ -12,11 +15,13 @@ export const useSpeakerLogs = (
   did: string,
 ): { logs: MotionSpeakerLogDoc[]; loading: boolean } => {
   const path = motionSpeakerLogsPath(cid, mid, did);
-  const { data, isLoading, isError } =
-    useFirestoreCollectionQuery<MotionSpeakerLogDoc>(path, {
+  const { data, isLoading, isError } = useFirestoreCollectionQuery<MotionSpeakerLogDoc>(
+    path,
+    {
       enabled: !!did,
       sortBy: 'timestamp',
-    });
+    },
+  );
 
   if (isError) console.error('useSpeakerLog error:', isError);
 
@@ -28,7 +33,6 @@ export function useCurrentSpeaker(
   motionId: string,
 ): { speakerId: string | null; loading: boolean } {
   const path = committeeMotionPath(committeeId, motionId);
-
 
   const { data, isLoading } = useFirestoreDocQuery<MotionDoc>(path, {
     enabled: !!path,
@@ -46,15 +50,25 @@ export const useSpeakers = (
 ): { speakers: MotionSpeakerDoc[]; loading: boolean } => {
   const path = motionSpeakersPath(cid, mid);
 
-  const { data, isLoading, isError } =
-    useFirestoreCollectionQuery<MotionSpeakerDoc>(path, {
+  const { data, isLoading, isError } = useFirestoreCollectionQuery<MotionSpeakerDoc>(
+    path,
+    {
       enabled: !!mid,
       sortBy: 'order',
-    });
+    },
+  );
 
   if (isError) console.error('useSpeakers error:', isError);
 
-  return { speakers: data ?? [], loading: isLoading };
+  const sortedData = (data ?? [])
+    .filter((s) => s.order > 0)
+    .slice()
+    .sort((a, b) => {
+      if (a.spoke === b.spoke) {
+        return a.order - b.order;
+      }
+      return (a.spoke ? 1 : 0) - (b.spoke ? 1 : 0);
+    });
+
+  return { speakers: sortedData, loading: isLoading };
 };
-
-

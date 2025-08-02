@@ -25,50 +25,61 @@ export const Speakers = (): ReactElement => {
   const { committeeId } = useParams<{ committeeId: string }>();
   const [listType, setListType] = useState<'primary' | 'secondary' | 'single'>('primary');
   const { delegates, loading: committeeLoading } = useCommitteeDelegates(committeeId);
-  console.log(delegates)
-  const { speakerId, loading: getSpeakerLoading } = 
-      useCurrentSpeaker(committeeId!, 'default-motion');
-    console.log('fetched speaker:', speakerId);
-  
+  console.log(delegates);
+  const { speakerId, loading: getSpeakerLoading } = useCurrentSpeaker(
+    committeeId!,
+    'default-motion',
+  );
+  console.log('fetched speaker:', speakerId);
+
   const [currentSpeaker, setCurrentSpeaker] = useState<DelegateDoc | null>(null);
 
   // sets current speaker when the speakerId in db changes
-    useEffect(() => {
-      const found = delegates.find((d) => d.id === speakerId) ?? null;
-      console.log('current speaker:', found);
-      setCurrentSpeaker(found);
-    }, [speakerId, delegates]);
-  
-    // sends the updated speakerId (from ui) to the db TODO: make cloud function for this also
-    const updateCurrentSpeaker = (delegate: DelegateDoc | null): void => {
-      console.log('update current speaker')
-      if (currentSpeaker) {
-      addMotionSpeakerLog(committeeId!, 'default-motion', currentSpeaker.id, Date.now().toString(), 'end', Date.now() as EpochTimeStamp)
-        .catch(console.error);
-        console.log('there is current speaker')
-      }
-      
-      const path = committeeMotionPath(committeeId!, 'default-motion');
-      if (!delegate) {
-        updateFirestoreDocument(path, {
-        currentSpeaker: '',
-      })
-  
-      setCurrentSpeaker(delegate);
-      console.log('updated speaker:', delegate)
-      } else {
-        updateFirestoreDocument(path, {
-          currentSpeaker: delegate.id,
-        }).catch(console.error);
-      }
+  useEffect(() => {
+    const found = delegates.find((d) => d.id === speakerId) ?? null;
+    console.log('current speaker:', found);
+    setCurrentSpeaker(found);
+  }, [speakerId, delegates]);
+
+  // sends the updated speakerId (from ui) to the db TODO: make cloud function for this also
+  const updateCurrentSpeaker = (delegate: DelegateDoc | null): void => {
+    console.log('update current speaker');
+    if (currentSpeaker) {
+      addMotionSpeakerLog(
+        committeeId!,
+        'default-motion',
+        currentSpeaker.id,
+        Date.now().toString(),
+        'end',
+        Date.now() as EpochTimeStamp,
+      ).catch(console.error);
+      console.log('there is current speaker');
     }
 
-  const { speakers, loading: speakersLoading } = useSpeakers(committeeId ?? '', 'default-motion') as {
+    const path = committeeMotionPath(committeeId!, 'default-motion');
+    if (!delegate) {
+      updateFirestoreDocument(path, {
+        currentSpeaker: '',
+      });
+
+      setCurrentSpeaker(delegate);
+      console.log('updated speaker:', delegate);
+    } else {
+      updateFirestoreDocument(path, {
+        currentSpeaker: delegate.id,
+      }).catch(console.error);
+    }
+  };
+
+  const { speakers, loading: speakersLoading } = useSpeakers(
+    committeeId ?? '',
+    'default-motion',
+  ) as {
     speakers: MotionSpeakerDoc[];
     loading: boolean;
   };
 
-  console.log(speakers)
+  console.log(speakers);
 
   if (committeeLoading || speakersLoading || getSpeakerLoading) {
     return (
@@ -80,19 +91,24 @@ export const Speakers = (): ReactElement => {
 
   const addPrimarySpeaker = (delegate: DelegateDoc) => {
     if (speakers.length == 0) {
-      updateCurrentSpeaker(delegate)
+      updateCurrentSpeaker(delegate);
     }
-      addMotionSpeaker(committeeId!, 'default-motion', delegate.id, delegate.name, speakers.length + 1);
-      console.log('adding delegate:', delegate.name);
+    addMotionSpeaker(
+      committeeId!,
+      'default-motion',
+      delegate.id,
+      delegate.name,
+      speakers.length + 1,
+    );
+    console.log('adding delegate:', delegate.name);
   };
 
   // const removePrimarySpeaker = () => {
 
   // }
 
-
-  const clearSpeakers = () => { 
-     speakers.forEach(speaker => {
+  const clearSpeakers = () => {
+    speakers.forEach((speaker) => {
       addMotionSpeaker(committeeId!, 'default-motion', speaker.id, speaker.name, -1); // Resetting the order to -1
       console.log('clearing speaker:', speaker.id);
     });
@@ -143,7 +159,7 @@ export const Speakers = (): ReactElement => {
               mid={'default-motion'}
               delegate={currentSpeaker}
               showNext={true}
-              onNext ={handleTimerComplete}
+              onNext={handleTimerComplete}
             />
           ) : (
             <Paper p="xl" radius="md" withBorder>
@@ -157,11 +173,11 @@ export const Speakers = (): ReactElement => {
             <SpeakerSelector
               delegates={delegates}
               onAddSpeaker={addPrimarySpeaker}
-              currentSpeakers={speakers.filter((s) => (s.order > 0)).map((s)=>s.id)}
+              currentSpeakers={speakers.map((s) => s.id)}
             />
 
             {/* vv filter for speakers with an order > 0 */}
-            <SpeakerList speakers={speakers.filter((s) => (s.order > 0)).map((d) => d.name)} onClear={clearSpeakers} /> 
+            <SpeakerList speakers={speakers.map((d) => d.name)} onClear={clearSpeakers} />
           </Group>
         </>
       )}

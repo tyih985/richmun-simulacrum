@@ -2,7 +2,11 @@ import { ReactElement, useEffect, useState } from 'react';
 import { Center, Group, Paper, Stack, Text, Title } from '@mantine/core';
 import { DelegateTimer } from '@features/chairing/components/DelegateTimer';
 import { useParams } from 'react-router-dom';
-import { useCommitteeDelegate, useCommitteeDelegates, useMotion } from '@hooks/useNewStuff';
+import {
+  useCommitteeDelegate,
+  useCommitteeDelegates,
+  useMotion,
+} from '@hooks/useNewStuff';
 import { SpeakerSelector } from '@features/chairing/components/SpeakerSelector';
 import type { DelegateDoc } from '@features/types';
 import { updateFirestoreDocument } from '@packages/firestoreAsQuery/firestoreRequests';
@@ -18,12 +22,12 @@ export const Caucus = (): ReactElement => {
     motionId: string;
   }>();
 
-  const { delegates, loading: delsLoading } =
-    useCommitteeDelegates(committeeId!);
-  const { motion, loading: motionLoading } =
-    useMotion(committeeId!, motionId!);
-  const { speakerId, loading: getSpeakerLoading } = 
-    useCurrentSpeaker(committeeId!, motionId!);
+  const { delegates, loading: delsLoading } = useCommitteeDelegates(committeeId!);
+  const { motion, loading: motionLoading } = useMotion(committeeId!, motionId!);
+  const { speakerId, loading: getSpeakerLoading } = useCurrentSpeaker(
+    committeeId!,
+    motionId!,
+  );
   console.log('fetched speaker:', speakerId);
 
   const [currentSpeaker, setCurrentSpeaker] = useState<DelegateDoc | null>(null);
@@ -55,34 +59,39 @@ export const Caucus = (): ReactElement => {
 
   // sends the updated speakerId (from ui) to the db TODO: make cloud function for this also
   const updateCurrentSpeaker = (delegate: DelegateDoc | null): void => {
-
     if (currentSpeaker && currentSpeaker != delegate) {
-    addMotionSpeakerLog(committeeId!, motionId!, currentSpeaker.id, Date.now().toString(), 'end', Date.now() as EpochTimeStamp)
-      .catch(console.error);
+      addMotionSpeakerLog(
+        committeeId!,
+        motionId!,
+        currentSpeaker.id,
+        Date.now().toString(),
+        'end',
+        Date.now() as EpochTimeStamp,
+      ).catch(console.error);
     }
-    
+
     const path = committeeMotionPath(committeeId!, motionId!);
     if (!delegate) {
       updateFirestoreDocument(path, {
-      currentSpeaker: '',
-    })
+        currentSpeaker: '',
+      });
 
-    setCurrentSpeaker(delegate);
-    console.log('updated speaker:', delegate)
+      setCurrentSpeaker(delegate);
+      console.log('updated speaker:', delegate);
     } else {
       updateFirestoreDocument(path, {
         currentSpeaker: delegate.id,
       }).catch(console.error);
     }
-  }
-  
+  };
+
   if (delsLoading || motionLoading || getSpeakerLoading) {
-      return (
-        <Center>
-          <Text>Loading...</Text>
-        </Center>
-      );
-    }
+    return (
+      <Center>
+        <Text>Loading...</Text>
+      </Center>
+    );
+  }
 
   return (
     <Stack p="xl">
@@ -108,10 +117,7 @@ export const Caucus = (): ReactElement => {
       )}
 
       <Group grow align="flex-start">
-        <SpeakerSelector
-          delegates={delegates}
-          onAddSpeaker={updateCurrentSpeaker}
-        />
+        <SpeakerSelector delegates={delegates} onAddSpeaker={updateCurrentSpeaker} />
       </Group>
     </Stack>
   );
