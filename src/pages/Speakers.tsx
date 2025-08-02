@@ -16,8 +16,10 @@ import { SpeakerList } from '@features/chairing/components/SpeakerList';
 import { committeeMutations } from '@mutations/committeeMutation';
 import { DelegateDoc, MotionSpeakerDoc } from '@features/types';
 import { useCurrentSpeaker, useSpeakers } from '@hooks/useSpeakerLog';
+import { committeeMotionPath } from '@packages/firestorePaths';
+import { updateFirestoreDocument } from '@packages/firestoreAsQuery';
 
-const { addMotionSpeaker } = committeeMutations();
+const { addMotionSpeaker, addMotionSpeakerLog } = committeeMutations();
 
 export const Speakers = (): ReactElement => {
   const { committeeId } = useParams<{ committeeId: string }>();
@@ -36,6 +38,30 @@ export const Speakers = (): ReactElement => {
       console.log('current speaker:', found);
       setCurrentSpeaker(found);
     }, [speakerId, delegates]);
+  
+    // sends the updated speakerId (from ui) to the db TODO: make cloud function for this also
+    const updateCurrentSpeaker = (delegate: DelegateDoc | null): void => {
+      console.log('update current speaker')
+      if (currentSpeaker) {
+      addMotionSpeakerLog(committeeId!, 'default-motion', currentSpeaker.id, Date.now().toString(), 'end', Date.now() as EpochTimeStamp)
+        .catch(console.error);
+        console.log('there is current speaker')
+      }
+      
+      const path = committeeMotionPath(committeeId!, 'default-motion');
+      if (!delegate) {
+        updateFirestoreDocument(path, {
+        currentSpeaker: '',
+      })
+  
+      setCurrentSpeaker(delegate);
+      console.log('updated speaker:', delegate)
+      } else {
+        updateFirestoreDocument(path, {
+          currentSpeaker: delegate.id,
+        }).catch(console.error);
+      }
+    }
 
   const { speakers, loading: speakersLoading } = useSpeakers(committeeId ?? '', 'default-motion') as {
     speakers: MotionSpeakerDoc[];
@@ -53,6 +79,9 @@ export const Speakers = (): ReactElement => {
   }
 
   const addPrimarySpeaker = (delegate: DelegateDoc) => {
+    if (speakers.length == 0) {
+      updateCurrentSpeaker(delegate)
+    }
       addMotionSpeaker(committeeId!, 'default-motion', delegate.id, delegate.name, speakers.length + 1);
       console.log('adding delegate:', delegate.name);
   };
@@ -61,9 +90,6 @@ export const Speakers = (): ReactElement => {
 
   // }
 
-  // const addSingleSpeaker = (delegate: DelegateDoc) => {
-  //   setCurrentSpeaker(delegate);
-  // };
 
   const clearSpeakers = () => { 
      speakers.forEach(speaker => {
@@ -79,20 +105,20 @@ export const Speakers = (): ReactElement => {
     console.log(`Delegate ${currentSpeaker?.name} has completed speaking.`);
   };
 
-  // const handleTimerStart = () => {
-  //   if (committeeId && currentDelegate) {
-  //     addDelegateToCommittee(
-  //       committeeId,
-  //       currentDelegate.id,
-  //       currentDelegate.name,
-  //       currentDelegate.email,
-  //       currentDelegate.inviteStatus,
-  //       currentDelegate.totalSpeakingDuration,
-  //       currentDelegate.positionPaperSent,
-  //     );
-  //     console.log(`Delegate ${currentDelegate.name} has started speaking.`);
-  //   }
-  // };
+  const handleTimerStart = () => {
+    if (committeeId && currentSpeaker) {
+      // addDelegateToCommittee(
+      //   committeeId,
+      //   currentDelegate.id,
+      //   currentDelegate.name,
+      //   currentDelegate.email,
+      //   currentDelegate.inviteStatus,
+      //   currentDelegate.totalSpeakingDuration,
+      //   currentDelegate.positionPaperSent,
+      // );
+      console.log(`Delegate ${currentSpeaker.name} has started speaking.`);
+    }
+  };
 
   return (
     <Stack p="xl">
@@ -186,7 +212,7 @@ export const Speakers = (): ReactElement => {
           )}
 
           <Group grow align="flex-start">
-            <SpeakerSelector delegates={delegates} onAddSpeaker={addSingleSpeaker} />
+            <SpeakerSelector delegates={delegates} onAddSpeaker={updateCurrentSpeaker} />
           </Group>
         </>
       )} */}

@@ -56,7 +56,7 @@ export const Caucus = (): ReactElement => {
   // sends the updated speakerId (from ui) to the db TODO: make cloud function for this also
   const updateCurrentSpeaker = (delegate: DelegateDoc | null): void => {
 
-    if (currentSpeaker) {
+    if (currentSpeaker && currentSpeaker != delegate) {
     addMotionSpeakerLog(committeeId!, motionId!, currentSpeaker.id, Date.now().toString(), 'end', Date.now() as EpochTimeStamp)
       .catch(console.error);
     }

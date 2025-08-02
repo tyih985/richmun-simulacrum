@@ -77,36 +77,38 @@ export const DelegateTimer = ({
   //   prevLastLogType.current = lastLog?.type ?? null;
   // }, [logs]);
 
-
-  const [turnStart, setTurnStart] = useState<number | null>(null);
+  const resetted = useRef<boolean>(false);
+  const paused = useRef<boolean>(false);
+  const turnStartRef = useRef<number | null>(null);
 
   useEffect(() => {
-  let currentStart: number | null = null;
+    let currentStart: number | null = null;
 
-  // Find the most recent 'start' going backwards
-  for (let i = logs.length - 1; i >= 0; i--) {
-    const { type, timestamp } = logs[i];
-    if (type === 'start') {
-      currentStart = timestamp as number;
-      break;
+    for (let i = logs.length - 1; i >= 0; i--) {
+      const { type, timestamp } = logs[i];
+      if (type === 'start') {
+        currentStart = timestamp as number;
+        break;
+      }
     }
-  }
 
-  setTurnStart(currentStart);
-}, [logs]);
+    turnStartRef.current = currentStart;
+  }, [logs]);
 
-
-  const [accMs, setAccMs] = useState(0);
-  const [runningSince, setRunningSince] = useState<number | null>(null);
+  const accMsRef = useRef(0);
+  const runningSinceRef = useRef<number | null>(null);
   const [nowMs, setNowMs] = useState(Date.now());
+  
+  useEffect(() => {
+}, [delegate?.id]);
 
   // Calculate accumulated speaking time from last start
   useEffect(() => {
     if (lastLog?.type === 'end' 
       // && prevLastLogType.current !== 'end' safety guard check idk if we need 
     ) {
-      setAccMs(0);
-      setRunningSince(null);
+      accMsRef.current = 0;
+      runningSinceRef.current = null;
       setNowMs(Date.now());
       return;
     }
@@ -115,35 +117,36 @@ export const DelegateTimer = ({
     // let acc = 0;
     // let since: number | null = null;
 
-    const relevantLogs = turnStart != null
-    ? logs.filter(log => (log.timestamp as number) >= turnStart)
-    : logs;
+    const relevantLogs = logs.filter(log => (log.timestamp as number) >= (turnStartRef.current ?? 0));
+
 
     const { acc, since } = calculateAccumulatedTime(relevantLogs);
-    setAccMs(acc);
-    setRunningSince(since);
+    accMsRef.current = acc;
+    runningSinceRef.current = since;  
   }, [logs]);
 
   // Real-time timer updates if currently speaking
   useEffect(() => {
-    if (runningSince == null) return;
+  let raf: number;
+  const tick = () => {
+    const current = Date.now();
+    setNowMs(current);
 
-    let raf: number;
-    const tick = () => {
-      setNowMs(Date.now());
-      raf = requestAnimationFrame(tick);
-    };
     raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [runningSince]);
+  };
+
+  raf = requestAnimationFrame(tick);
+  return () => cancelAnimationFrame(raf);
+}, []);
 
   if (!delegate) {
     return <Text>no delegate selected.</Text>
   }
  
-  const elapsedMs = runningSince != null
-  ? accMs + (nowMs - runningSince)
-  : accMs;
+
+  const elapsedMs = runningSinceRef.current != null
+  ? accMsRef.current + (nowMs - runningSinceRef.current)
+  : accMsRef.current;
 
 
   // const elapsedMsSinceLastStart = runningSince != null && turnStart != null
@@ -207,20 +210,38 @@ export const DelegateTimer = ({
       /> */}
 
       <Group justify="center" mt="sm" p="md">
-        {(lastLog?.type === 'end' || lastLog == null) ? (
-          <Button onClick={() => logAction('start')}>Start</Button>
-        ) : runningSince != null ? (
-          <Button onClick={() => logAction('pause')}>Pause</Button>
+        {(lastLog == null || lastLog?.type === 'end' || resetted.current) ? (
+          <Button w={'100px'} onClick={() => {
+            resetted.current = false;
+            paused.current = false;
+            console.log('start:', accMsRef.current)
+            console.log('resetted:', resetted.current)
+            logAction('start')
+          }}>Start</Button>
+        ) : (!paused.current || runningSinceRef.current != null) ? (
+          <Button w={'100px'} onClick={() => {
+            console.log('pause:', accMsRef.current)
+            paused.current = true;
+            logAction('pause')
+          }}>Pause</Button>
         ) : (
-          <Button onClick={() => logAction('resume')}>Resume</Button>
+          <Button w={'100px'} onClick={() => {
+            console.log('resume:', accMsRef.current)
+            logAction('resume')
+          }}>Resume</Button>
         )}
-        <Button variant="outline" 
-        color="red" 
-        onClick={() => {
-          reset(turnStart);
-          setTurnStart(null);
-          setAccMs(0);
-          setRunningSince(null);
+        <Button 
+          variant="outline" 
+          disabled = {lastLog?.type === 'end' || lastLog == null}
+          color="red" 
+          onClick={() => {
+          resetted.current = true;
+          console.log(accMsRef.current);
+          accMsRef.current = 0;
+          console.log(accMsRef.current);
+          runningSinceRef.current = null;  
+          reset(turnStartRef.current);
+          turnStartRef.current = null;
           setNowMs(Date.now());
         }}
         >
