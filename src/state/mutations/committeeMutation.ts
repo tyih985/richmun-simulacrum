@@ -80,7 +80,7 @@ export const committeeMutations = () => {
   const addStaffToCommittee = (
     committeeId: string,
     staffId: string,
-    owner: boolean = false,
+    owner: boolean,
     staffRole: StaffRole,
     email: string,
     inviteStatus: InviteStatus = 'pending',
