@@ -1,5 +1,5 @@
 import { Table, Text, Stack, ActionIcon } from '@mantine/core';
-import { IconDoorExit } from '@tabler/icons-react';
+import { IconDoorExit, IconTrash } from '@tabler/icons-react';
 import { CommitteeDoc, UserCommitteeDoc } from '@features/types';
 import { ReactElement, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -91,7 +91,7 @@ export const CommitteeRow = ({ committee, userCommittee }: Props): ReactElement 
           aria-label={userCommittee.owner ? 'Delete Committee' : 'Leave Committee'}
           color={userCommittee.owner ? 'red' : undefined}
         >
-          <IconDoorExit size={24} />
+          {userCommittee.owner ? <IconTrash size={24} /> : <IconDoorExit size={24} />}
         </ActionIcon>
       </Table.Td>
     </Table.Tr>
