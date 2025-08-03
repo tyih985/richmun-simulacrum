@@ -10,13 +10,13 @@ type Props = {
   userCommittee: UserCommitteeDoc;
 };
 
-const toString = (date?: Date | Timestamp) : string => {
+const toString = (date?: Date | Timestamp): string => {
   if (!date) {
     return 'no date';
   }
   const d = (date instanceof Timestamp ? date.toDate() :date);
   return d.toISOString().slice(0, 10);
-}
+};
 
 export const CommitteeRow = ({ committee, userCommittee }: Props): ReactElement => {
   const [hovered, setHovered] = useState(false);
@@ -25,7 +25,7 @@ export const CommitteeRow = ({ committee, userCommittee }: Props): ReactElement 
   const nav = useNavigate();
 
   const start = toString(committee?.startDate);
-   const end = toString(committee?.endDate);
+  const end = toString(committee?.endDate);
 
   if (!committee) return <></>;
 

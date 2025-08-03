@@ -284,7 +284,8 @@ export const onusercommitteeinviteupdated = onDocumentUpdated(
 
 export const onspeakerlogcreated = onDocumentCreated(
   {
-    document: 'committees/{committeeId}/motions/{motionId}/speakers/{speakerId}/logs/{logId}',
+    document:
+      'committees/{committeeId}/motions/{motionId}/speakers/{speakerId}/logs/{logId}',
   },
   async (event) => {
     const { committeeId, motionId, speakerId, logId } = event.params;
@@ -293,7 +294,7 @@ export const onspeakerlogcreated = onDocumentCreated(
     const logSnap = event.data;
     if (!logSnap) {
       console.warn(
-        `No log snapshot for committees/${committeeId}/motions/${motionId}/speakers/${speakerId}/logs/${logId}`
+        `No log snapshot for committees/${committeeId}/motions/${motionId}/speakers/${speakerId}/logs/${logId}`,
       );
       return;
     }
@@ -301,7 +302,7 @@ export const onspeakerlogcreated = onDocumentCreated(
     const isEndLog = logData.type === 'end';
 
     const speakerRef = db.doc(
-      `committees/${committeeId}/motions/${motionId}/speakers/${speakerId}`
+      `committees/${committeeId}/motions/${motionId}/speakers/${speakerId}`,
     );
     const speakerSnap = await speakerRef.get();
     if (!speakerSnap.exists) {
@@ -320,9 +321,7 @@ export const onspeakerlogcreated = onDocumentCreated(
     if (Object.keys(updatePayload).length > 0) {
       await speakerRef.update(updatePayload);
     } else {
-      console.log(
-        `No update needed.`
-      );
+      console.log(`No update needed.`);
     }
-  }
+  },
 );

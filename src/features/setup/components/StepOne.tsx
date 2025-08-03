@@ -43,7 +43,7 @@ export function StepOne({ form }: StepOneProps): ReactElement {
         <Space h="md" />
 
         <DatePickerInput
-          type='range'
+          type="range"
           label="What date(s) will your event take place?"
           placeholder="Pick a date range"
           {...form.getInputProps('dateRange')}

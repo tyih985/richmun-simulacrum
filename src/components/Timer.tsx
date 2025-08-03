@@ -10,12 +10,7 @@ type Props = {
   showNext?: boolean;
 };
 
-export function TimerBar({
-  duration = 60,
-  onStart,
-  onComplete,
-  showNext,
-}: Props) {
+export function TimerBar({ duration = 60, onStart, onComplete, showNext }: Props) {
   const [progress, setProgress] = useState(0); // percent
   const [running, setRunning] = useState(false);
   const [isComplete, setIsComplete] = useState(false);

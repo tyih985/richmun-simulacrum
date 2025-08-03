@@ -88,28 +88,28 @@ export const CommitteeDash = () => {
       dateRange: [null, null] as [Date | null, Date | null],
     },
     validate: {
-    committeeLongName: (v) => (v.trim() ? null : 'Required'),
-    committeeShortName: (v) => (v.trim() ? null : 'Required'),
-    dateRange: (v) => (v[0] && v[1] ? null : 'Please select a valid date range'),
-    staff: {
-      email: (value, values) => {
-        const duplicateError = checkForDuplicateEmails(values.staff);
+      committeeLongName: (v) => (v.trim() ? null : 'Required'),
+      committeeShortName: (v) => (v.trim() ? null : 'Required'),
+      dateRange: (v) => (v[0] && v[1] ? null : 'Please select a valid date range'),
+      staff: {
+        email: (value, values) => {
+          const duplicateError = checkForDuplicateEmails(values.staff);
           if (duplicateError) {
             return 'Duplicate email in staff';
           }
           return value.trim() ? null : 'Email is required';
-    },
-  },
-    delegates: {
-      email: (value, values) => {
-        const duplicateError = checkForDuplicateEmails(values.delegates);
-        if (duplicateError) {
-          return 'Duplicate email in delegates';
-        }
+        },
+      },
+      delegates: {
+        email: (value, values) => {
+          const duplicateError = checkForDuplicateEmails(values.delegates);
+          if (duplicateError) {
+            return 'Duplicate email in delegates';
+          }
+        },
       },
     },
-  },
-});
+  });
 
   const isFormValid =
     form.isValid() &&
@@ -171,10 +171,7 @@ export const CommitteeDash = () => {
           totalSpeakingDuration: d.totalSpeakingDuration,
           positionPaperSent: d.positionPaperSent,
         })),
-        dateRange: [
-          toDate(c.startDate),
-          toDate(c.endDate),
-        ],
+        dateRange: [toDate(c.startDate), toDate(c.endDate)],
       });
 
       setLoading(false);
@@ -230,9 +227,9 @@ export const CommitteeDash = () => {
     console.log('YARRR:', committee);
     console.log('YARRR:', committee?.startDate, typeof committee?.startDate);
 
-   // Combine staff and delegates emails
+    // Combine staff and delegates emails
     const allEmails = [...form.values.staff, ...form.values.delegates];
-    
+
     // Check for duplicate emails in the combined array
     const duplicateError = checkForDuplicateEmails(allEmails);
     if (duplicateError) {
@@ -243,17 +240,18 @@ export const CommitteeDash = () => {
 
     if (!committeeId) return;
     if (!isFormValid) return;
-      for (const staffId of deletedStaffIds) { // TODO: so this should be changed to like... looking at the difference of 2 arrays ? idk 
-        await removeStaffFromCommittee(committeeId, staffId);
-        console.log(`Deleted staff ${staffId}`);
-      }
-      for (const delegateId of deletedDelegateIds) {
-        await removeDelegateFromCommittee(committeeId, delegateId);
-        console.log(`Deleted delegate ${delegateId}`);
-      }
-      setDeletedStaffIds([]);
-      setDeletedDelegateIds([]);
-      
+    for (const staffId of deletedStaffIds) {
+      // TODO: so this should be changed to like... looking at the difference of 2 arrays ? idk
+      await removeStaffFromCommittee(committeeId, staffId);
+      console.log(`Deleted staff ${staffId}`);
+    }
+    for (const delegateId of deletedDelegateIds) {
+      await removeDelegateFromCommittee(committeeId, delegateId);
+      console.log(`Deleted delegate ${delegateId}`);
+    }
+    setDeletedStaffIds([]);
+    setDeletedDelegateIds([]);
+
     const { committeeLongName, committeeShortName, dateRange } = form.values;
 
     if (dateRange[0] && dateRange[1]) {
@@ -265,7 +263,14 @@ export const CommitteeDash = () => {
         toDate(dateRange[0])!, // these are strings.. i think bc of the how the date input works
         toDate(dateRange[1])!,
       );
-      console.log('Committee updated:', committeeId, dateRange, typeof dateRange[0], toDate(dateRange[0])!, typeof toDate(dateRange[0])!);
+      console.log(
+        'Committee updated:',
+        committeeId,
+        dateRange,
+        typeof dateRange[0],
+        toDate(dateRange[0])!,
+        typeof toDate(dateRange[0])!,
+      );
       // TODO: some sort of feedback notif thats like changes saved
     }
 
@@ -306,11 +311,11 @@ export const CommitteeDash = () => {
       </Container>
     );
   if (!owner)
-  return (
-    <Container>
-      <Title>Error: Owner not found</Title>
-    </Container>
-  );
+    return (
+      <Container>
+        <Title>Error: Owner not found</Title>
+      </Container>
+    );
 
   return (
     <Stack p="lg">
@@ -423,7 +428,7 @@ export const CommitteeDash = () => {
               {isStaff ? (
                 <DatePickerInput
                   type="range"
-                  placeholder='Pick a date or date range'
+                  placeholder="Pick a date or date range"
                   {...form.getInputProps('dateRange')}
                   allowSingleDateInRange
                   minDate={dayjs().toDate()}
@@ -525,8 +530,13 @@ export const CommitteeDash = () => {
           <Button onClick={handleSaveChanges} disabled={!isFormValid}>
             Save Changes
           </Button>
-          <Button variant="outline" mt="md" onClick={() =>
-+      navigate(`/committee/${committeeId}/rollcall/list`, { replace: false })}>
+          <Button
+            variant="outline"
+            mt="md"
+            onClick={() =>
+              +navigate(`/committee/${committeeId}/rollcall/list`, { replace: false })
+            }
+          >
             Roll Calls
           </Button>
         </>

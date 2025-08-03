@@ -74,17 +74,6 @@ export const Speakers = (): ReactElement => {
     }
   }
 
-//   // when localSpeakers changes update the current speaker
-//   useEffect(() => {
-//   if (localSpeakers.length > 0) {
-//     setLocalCurrentSpeaker(localSpeakers[0]);
-//     updateDBCurrentSpeaker(localSpeakers[0]);
-//   } else {
-//     setLocalCurrentSpeaker(null)
-//     updateDBCurrentSpeaker(null);
-//   }
-// }, [localSpeakers]);
-
   if (committeeLoading || speakersLoading || getCurrentSpeakerLoading) {
     return (
       <Center>
@@ -204,7 +193,7 @@ export const Speakers = (): ReactElement => {
               mid={'default-motion'}
               delegate={localCurrentSpeaker}
               showNext={true}
-              onNext ={handleTimerComplete}
+              onNext={handleTimerComplete}
             />
           ) : (
             <Paper p="xl" radius="md" withBorder>
@@ -218,11 +207,11 @@ export const Speakers = (): ReactElement => {
             <SpeakerSelector
               delegates={delegates}
               onAddSpeaker={addPrimarySpeaker}
-              currentSpeakers={localSpeakers.map((s)=>s.id)}
+              currentSpeakers={speakers.map((s) => s.id)}
             />
 
             {/* vv filter for speakers with an order > 0 */}
-            <SpeakerList speakers={localSpeakers.map((s)=>s.name)} onClear={clearSpeakers}/> 
+            <SpeakerList speakers={speakers.map((d) => d.name)} onClear={clearSpeakers} />
           </Group>
         </>
       )}

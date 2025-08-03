@@ -8,7 +8,13 @@ type Props = {
   onComplete: () => void;
 };
 
-export const TimerControls = ({ logs, onStart, onPause, onResume, onComplete }: Props) => {
+export const TimerControls = ({
+  logs,
+  onStart,
+  onPause,
+  onResume,
+  onComplete,
+}: Props) => {
   const lastLogType = logs.length > 0 ? logs[logs.length - 1].type : null;
 
   // Determine states
@@ -27,7 +33,7 @@ export const TimerControls = ({ logs, onStart, onPause, onResume, onComplete }: 
           else if (isRunning || isPaused) onComplete();
         }}
       >
-        {isNotStarted ? 'Start' : (isRunning || isPaused) ? 'End' : 'Start'}
+        {isNotStarted ? 'Start' : isRunning || isPaused ? 'End' : 'Start'}
       </button>
 
       {/* Pause / Resume Button */}

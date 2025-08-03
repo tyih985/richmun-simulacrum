@@ -1,11 +1,4 @@
-import {
-  AppShell,
-  Burger,
-  Group,
-  NavLink,
-  ScrollArea,
-  Title,
-} from '@mantine/core';
+import { AppShell, Burger, Group, NavLink, ScrollArea, Title } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { useNavigate, useParams, Outlet, useLocation } from 'react-router-dom';
 
@@ -24,7 +17,6 @@ export const CommitteeAppShell = () => {
     { label: 'Motions', to: `/committee/${committeeId}/motions` },
     { label: 'Roll Call', to: `/committee/${committeeId}/rollcall` },
   ];
-
 
   return (
     <AppShell

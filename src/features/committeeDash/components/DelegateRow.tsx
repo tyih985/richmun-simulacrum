@@ -21,7 +21,7 @@ export const DelegateRow = ({ form, index, isStaff }: DelegateRowProps) => {
   return (
     <>
       <Table.Td w={'26%'}>
-          <Text size='sm'>{form.values.delegates[index].name}</Text>
+        <Text size="sm">{form.values.delegates[index].name}</Text>
       </Table.Td>
 
       <Table.Td w={'70%'}>
