@@ -326,7 +326,7 @@ export const onspeakerlogcreated = onDocumentCreated(
   },
 );
 
-export const onSpeakerCreated = onDocumentCreated(
+export const onspeakercreated = onDocumentCreated(
   {
     document:
       'committees/{committeeId}/motions/{motionId}/speakers/{speakerId}',
