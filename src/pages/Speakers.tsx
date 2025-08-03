@@ -19,6 +19,7 @@ import { DelegateDoc, MotionSpeakerDoc } from '@features/types';
 import { useCurrentSpeaker, useSpeakers } from '@hooks/useSpeakerLog';
 import { committeeMotionPath } from '@packages/firestorePaths';
 import { batchUpdateDocuments, updateFirestoreDocument } from '@packages/firestoreAsQuery';
+import { log } from 'console';
 
 const { addMotionSpeaker, addMotionSpeakerLog } = committeeMutations();
 
@@ -106,7 +107,6 @@ export const Speakers = (): ReactElement => {
 
   const removePrimarySpeaker = (speakerToRemove: MotionSpeakerDoc) => {
     // TODO: possibly update so that it takes in id not the whole doc
-    const updatedSpeakers = speakers.filter(s => s.id !== speakerToRemove.id);
 
     // Update Firestore to remove this speaker (set order to -1)
     addMotionSpeaker(
@@ -116,19 +116,13 @@ export const Speakers = (): ReactElement => {
       speakerToRemove.name,
       -1
     );
-
-    // setLocalSpeakers(updatedSpeakers);
-
-    // If removed speaker is the current speaker, update to next or null
-    if (currentSpeaker?.id === speakerToRemove.id) {
-      const nextSpeaker = updatedSpeakers[0] ?? null;
-      // updateDBCurrentSpeaker(nextSpeaker);
-    }
   };
-
 
   const clearSpeakers = async () => {
     if (!committeeId) return;
+
+    const logId = Date.now().toString();
+    addMotionSpeakerLog(committeeId, MOTION_ID, currentSpeaker?.id ?? '', logId, 'end', Date.now())
 
     const requests = speakers.map((speaker) => ({
       path: `${committeeMotionPath(committeeId, MOTION_ID)}/speakers/${speaker.id}`,
@@ -148,6 +142,9 @@ export const Speakers = (): ReactElement => {
   const handleTimerComplete = () => {
     // i dont think this should ever happen but yeah
     if (!currentSpeaker || speakers.length === 0) return; 
+
+    const logId = Date.now().toString();
+    addMotionSpeakerLog(committeeId ?? '', MOTION_ID, currentSpeaker?.id ?? '', logId, 'end', Date.now())
 
     const currentIndex = speakers.findIndex(s => s.id === currentSpeaker.id);
     const nextSpeaker = speakers[currentIndex + 1];
