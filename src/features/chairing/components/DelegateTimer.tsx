@@ -154,20 +154,12 @@ export const DelegateTimer = ({
     });
   };
 
-  if (loading) {
-    return (
-      <Paper p="md" radius="md" withBorder>
-        <Stack align="center" mb="md">
-          <Title order={2}>{delegate.name}</Title>
-          <Text>Loading timer…</Text>
-        </Stack>
-      </Paper>
-    );
-  }
-
   return (
     <Paper p="md" radius="md" withBorder>
       <Stack align="center" mb="md">
+        { loading &&
+          <Title order={2}>{''}</Title> // TODO: make it better maybe
+        }
         <Title order={2}>{delegate.name}</Title>
         <Text size="xl">{seconds}s</Text>
       </Stack>

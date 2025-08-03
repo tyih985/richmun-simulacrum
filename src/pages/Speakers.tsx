@@ -33,35 +33,11 @@ export const Speakers = (): ReactElement => {
     loading: boolean;
   };
   
-  const [localSpeakers, setLocalSpeakers] = useState<MotionSpeakerDoc[]>([]);
-  const [localCurrentSpeaker, setLocalCurrentSpeaker] = useState<MotionSpeakerDoc | null>(null);
-
-  // // set localSpeakers to the speakers for display in speakerList
-  // useEffect(() => {
-  //   if (speakers.length > 0) {
-  //     setLocalSpeakers(speakers.filter((s) => s.order > 0).sort((a, b) => a.order - b.order));
-  //   }
-  // }, [speakers]);
-
-  // sets local current speaker when the currentSpeaker in db changes
-    useEffect(() => {
-      if (currentSpeaker?.id !== localCurrentSpeaker?.id) {
-        setLocalCurrentSpeaker(currentSpeaker); // sync local to DB
-      }
-    }, [currentSpeaker]);
-
-  
   // sends the updated localCurrentSpeaker to the db -> TODO: make cloud function for this also
   const updateDBCurrentSpeaker = (speaker: MotionSpeakerDoc | null): void => {
     console.log('update current speaker')
-    if (speaker?.id === localCurrentSpeaker?.id) return;
+    if (speaker?.id === currentSpeaker?.id) return;
 
-    // if (localCurrentSpeaker) {
-    // addMotionSpeakerLog(committeeId!, 'default-motion', localCurrentSpeaker.id, Date.now().toString(), 'end', Date.now() as EpochTimeStamp)
-    //   .catch(console.error);
-    //   console.log('there is current speaker; added end log for them')
-    // }
-    
     const path = committeeMotionPath(committeeId!, 'default-motion');
 
     if (!speaker) {
@@ -90,7 +66,7 @@ export const Speakers = (): ReactElement => {
     const realSpeaker = speaker as MotionSpeakerDoc
     if (speakers.length == 0) {
       updateDBCurrentSpeaker(realSpeaker);
-      console.log('woowaha:', localCurrentSpeaker)
+      console.log('woowaha:', currentSpeaker)
     }
 
     // setLocalSpeakers(prev => [...prev, realSpeaker as MotionSpeakerDoc]);
@@ -122,7 +98,7 @@ export const Speakers = (): ReactElement => {
     // setLocalSpeakers(updatedSpeakers);
 
     // If removed speaker is the current speaker, update to next or null
-    if (localCurrentSpeaker?.id === speakerToRemove.id) {
+    if (currentSpeaker?.id === speakerToRemove.id) {
       const nextSpeaker = updatedSpeakers[0] ?? null;
       updateDBCurrentSpeaker(nextSpeaker);
     }
@@ -185,11 +161,11 @@ export const Speakers = (): ReactElement => {
 
       {listType === 'primary' && (
         <>
-          {localCurrentSpeaker ? (
+          {currentSpeaker ? (
             <DelegateTimer
               cid={committeeId!} // assuming committeeId is defined
               mid={'default-motion'}
-              delegate={localCurrentSpeaker}
+              delegate={currentSpeaker}
               showNext={true}
               onNext={handleTimerComplete}
             />

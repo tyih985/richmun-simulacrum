@@ -45,12 +45,17 @@ const {
 } = committeeMutations();
 
 const checkForDuplicateEmails = (emails: { email: string }[]) => {
-  const emailList = emails.map((entry) => entry.email.toLowerCase()); // Convert all emails to lowercase
-  const uniqueEmails = new Set(emailList); // Create a set to filter out duplicates
+  const emailList = emails
+    .map(entry => entry.email.trim().toLowerCase())
+    .filter(email => email !== ''); // Remove empty strings
+
+  const uniqueEmails = new Set(emailList);
+  
   if (uniqueEmails.size !== emailList.length) {
-    return 'Duplicate emails found'; // If there's a mismatch, we have duplicates
+    return 'Duplicate emails found';
   }
-  return null; // No duplicates
+
+  return null;
 };
 
 export const CommitteeDash = () => {
@@ -119,7 +124,6 @@ export const CommitteeDash = () => {
     form.values.dateRange[0] &&
     form.values.dateRange[1];
 
-  // TODO: seems scuffed
   // sets the initial values of the form based on the committee data
   useEffect(() => {
     (async () => {
