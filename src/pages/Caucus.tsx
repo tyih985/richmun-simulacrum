@@ -24,7 +24,7 @@ export const Caucus = (): ReactElement => {
 
   const { delegates, loading: delsLoading } = useCommitteeDelegates(committeeId!);
   const { motion, loading: motionLoading } = useMotion(committeeId!, motionId!);
-  const { speakerId, loading: getSpeakerLoading } = useCurrentSpeaker(
+  const { speakerId, loading: getSpeakerLoading } = useCurrentSpeakerId(
     committeeId!,
     motionId!,
   );

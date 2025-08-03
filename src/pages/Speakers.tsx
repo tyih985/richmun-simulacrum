@@ -36,22 +36,25 @@ export const Speakers = (): ReactElement => {
   const [localSpeakers, setLocalSpeakers] = useState<MotionSpeakerDoc[]>([]);
   const [localCurrentSpeaker, setLocalCurrentSpeaker] = useState<MotionSpeakerDoc | null>(null);
 
-  // set localSpeakers to the speakers for display in speakerList
-  useEffect(() => {
-    if (speakers.length > 0) {
-      setLocalSpeakers(speakers.filter((s) => s.order > 0).sort((a, b) => a.order - b.order));
-    }
-  }, [speakers]);
+  // // set localSpeakers to the speakers for display in speakerList
+  // useEffect(() => {
+  //   if (speakers.length > 0) {
+  //     setLocalSpeakers(speakers.filter((s) => s.order > 0).sort((a, b) => a.order - b.order));
+  //   }
+  // }, [speakers]);
 
   // sets local current speaker when the currentSpeaker in db changes
     useEffect(() => {
-      setLocalCurrentSpeaker(currentSpeaker);
+      if (currentSpeaker?.id !== localCurrentSpeaker?.id) {
+        setLocalCurrentSpeaker(currentSpeaker); // sync local to DB
+      }
     }, [currentSpeaker]);
+
   
   // sends the updated localCurrentSpeaker to the db -> TODO: make cloud function for this also
   const updateDBCurrentSpeaker = (speaker: MotionSpeakerDoc | null): void => {
     console.log('update current speaker')
-    if (speaker === localCurrentSpeaker) return;
+    if (speaker?.id === localCurrentSpeaker?.id) return;
 
     // if (localCurrentSpeaker) {
     // addMotionSpeakerLog(committeeId!, 'default-motion', localCurrentSpeaker.id, Date.now().toString(), 'end', Date.now() as EpochTimeStamp)
@@ -64,8 +67,7 @@ export const Speakers = (): ReactElement => {
     if (!speaker) {
       updateFirestoreDocument(path, {
         currentSpeaker: '',
-      })
-      setLocalCurrentSpeaker(speaker);
+      });
       console.log('updated speaker:', speaker)
     } else {
       updateFirestoreDocument(path, {
@@ -86,20 +88,19 @@ export const Speakers = (): ReactElement => {
     // TODO: update this. purely bc i am too lazy to completely redo the stuff in caucus rn
 
     const realSpeaker = speaker as MotionSpeakerDoc
-    if (localSpeakers.length == 0) {
-      setLocalCurrentSpeaker(realSpeaker);
+    if (speakers.length == 0) {
       updateDBCurrentSpeaker(realSpeaker);
       console.log('woowaha:', localCurrentSpeaker)
     }
 
-    setLocalSpeakers(prev => [...prev, realSpeaker as MotionSpeakerDoc]);
+    // setLocalSpeakers(prev => [...prev, realSpeaker as MotionSpeakerDoc]);
     
     addMotionSpeaker(
       committeeId!, 
       'default-motion', 
       speaker.id, 
       speaker.name, 
-      localSpeakers.length + 1
+      speakers.length + 1
     );
 
     console.log('adding delegate:', speaker.name);
@@ -107,7 +108,7 @@ export const Speakers = (): ReactElement => {
 
   const removePrimarySpeaker = (speakerToRemove: MotionSpeakerDoc) => {
     // TODO: possibly update so that it takes in id not the whole doc
-    const updatedSpeakers = localSpeakers.filter(s => s.id !== speakerToRemove.id);
+    const updatedSpeakers = speakers.filter(s => s.id !== speakerToRemove.id);
 
     // Update Firestore to remove this speaker (set order to -1)
     addMotionSpeaker(
@@ -118,39 +119,36 @@ export const Speakers = (): ReactElement => {
       -1
     );
 
-    setLocalSpeakers(updatedSpeakers);
+    // setLocalSpeakers(updatedSpeakers);
 
     // If removed speaker is the current speaker, update to next or null
     if (localCurrentSpeaker?.id === speakerToRemove.id) {
       const nextSpeaker = updatedSpeakers[0] ?? null;
-      setLocalCurrentSpeaker(nextSpeaker);
       updateDBCurrentSpeaker(nextSpeaker);
     }
   };
 
 
   const clearSpeakers = () => { 
-     localSpeakers.forEach(speaker => {
+     speakers.forEach(speaker => {
       addMotionSpeaker(committeeId!, 'default-motion', speaker.id, speaker.name, -1); // Resetting the order to -1
       console.log('clearing speaker:', speaker.id);
     });
-    setLocalCurrentSpeaker(null);
     updateDBCurrentSpeaker(null);
   };
 
   const handleTimerComplete = () => {
     // i dont think this should ever happen but yeah
-    if (!localCurrentSpeaker || localSpeakers.length === 0) return; 
+    if (!currentSpeaker || speakers.length === 0) return; 
 
-    const currentIndex = localSpeakers.findIndex(s => s.id === localCurrentSpeaker.id);
-    const nextSpeaker = localSpeakers[currentIndex + 1];
-    removePrimarySpeaker(localCurrentSpeaker);
+    const currentIndex = speakers.findIndex(s => s.id === currentSpeaker.id);
+    const nextSpeaker = speakers[currentIndex + 1];
+    removePrimarySpeaker(currentSpeaker);
 
     if (nextSpeaker) {
       updateDBCurrentSpeaker(nextSpeaker);
     } else {
-      // No more speakers left — clear current speaker
-      setLocalCurrentSpeaker(null);
+      // No more speakers left: clear current speaker
       updateDBCurrentSpeaker(null);
     }
   };
