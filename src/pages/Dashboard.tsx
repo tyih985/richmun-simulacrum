@@ -49,7 +49,7 @@ export const Dashboard = (): ReactElement => {
             <IconUser style={{ width: '70%', height: '70%' }} stroke={2} />
           </ActionIcon>
           <Title order={1} flex={1}>
-            Welcome Back! {auth.currentUser?.displayName}
+            Welcome Back, {auth.currentUser?.displayName}!
           </Title>
           <Button
             size="sm"
