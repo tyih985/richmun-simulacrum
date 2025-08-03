@@ -35,25 +35,44 @@ export const Speakers = (): ReactElement => {
     speakers: MotionSpeakerDoc[];
     loading: boolean;
   };
-  
-  // sends the updated localCurrentSpeaker to the db -> TODO: make cloud function for this also
-  const updateDBCurrentSpeaker = (speaker: MotionSpeakerDoc | null): void => {
-    console.log('update current speaker')
-    if (speaker?.id === currentSpeaker?.id) return;
 
-    const path = committeeMotionPath(committeeId!, MOTION_ID);
+  useEffect(() => {
+  const firstSpeaker = speakers[0];
+  const currentId = currentSpeaker?.id ?? '';
+  const firstId = firstSpeaker?.id ?? '';
 
-    if (!speaker) {
-      updateFirestoreDocument(path, {
-        currentSpeaker: '',
-      });
-      console.log('updated speaker:', speaker)
-    } else {
-      updateFirestoreDocument(path, {
-        currentSpeaker: speaker.id,
-      }).catch(console.error);
-    }
+  if (firstId && currentId !== firstId) {
+    updateFirestoreDocument(committeeMotionPath(committeeId!, 'default-motion'), {
+      currentSpeaker: firstId,
+    }).catch(console.error);
   }
+
+  if (!firstId && currentId) {
+    updateFirestoreDocument(committeeMotionPath(committeeId!, 'default-motion'), {
+      currentSpeaker: '',
+    }).catch(console.error);
+  }
+}, [speakers]);
+
+  
+  // // sends the updated localCurrentSpeaker to the db -> TODO: make cloud function for this also
+  // const updateDBCurrentSpeaker = (speaker: MotionSpeakerDoc | null): void => {
+  //   console.log('update current speaker')
+  //   if (speaker?.id === currentSpeaker?.id) return;
+
+  //   const path = committeeMotionPath(committeeId!, MOTION_ID);
+
+  //   if (!speaker) {
+  //     updateFirestoreDocument(path, {
+  //       currentSpeaker: '',
+  //     });
+  //     console.log('updated speaker:', speaker)
+  //   } else {
+  //     updateFirestoreDocument(path, {
+  //       currentSpeaker: speaker.id,
+  //     }).catch(console.error);
+  //   }
+  // }
 
   if (committeeLoading || speakersLoading || getCurrentSpeakerLoading) {
     return (
@@ -68,7 +87,7 @@ export const Speakers = (): ReactElement => {
 
     const realSpeaker = speaker as MotionSpeakerDoc
     if (speakers.length == 0) {
-      updateDBCurrentSpeaker(realSpeaker);
+      // updateDBCurrentSpeaker(realSpeaker);
       console.log('woowaha:', currentSpeaker)
     }
 
@@ -103,7 +122,7 @@ export const Speakers = (): ReactElement => {
     // If removed speaker is the current speaker, update to next or null
     if (currentSpeaker?.id === speakerToRemove.id) {
       const nextSpeaker = updatedSpeakers[0] ?? null;
-      updateDBCurrentSpeaker(nextSpeaker);
+      // updateDBCurrentSpeaker(nextSpeaker);
     }
   };
 
@@ -118,7 +137,7 @@ export const Speakers = (): ReactElement => {
     }));
 
     try {
-      await updateDBCurrentSpeaker(null);
+      // await updateDBCurrentSpeaker(null);
       await batchUpdateDocuments(requests);
       console.log('Cleared all speakers and reset current speaker.');
     } catch (err) {
@@ -135,10 +154,10 @@ export const Speakers = (): ReactElement => {
     removePrimarySpeaker(currentSpeaker);
 
     if (nextSpeaker) {
-      updateDBCurrentSpeaker(nextSpeaker);
+      // updateDBCurrentSpeaker(nextSpeaker);
     } else {
       // No more speakers left: clear current speaker
-      updateDBCurrentSpeaker(null);
+      // updateDBCurrentSpeaker(null);
     }
   };
 
