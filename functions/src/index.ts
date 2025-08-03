@@ -308,14 +308,10 @@ export const onspeakerlogcreated = onDocumentCreated(
     if (!speakerSnap.exists) {
       return;
     }
-    const speakerData = speakerSnap.data() as any;
-    const hasSpoken = speakerData.spoke === true;
 
     const updatePayload: Partial<{ spoke: boolean; order: number }> = {};
-    if (!hasSpoken) {
-      updatePayload.spoke = true;
-    }
     if (isEndLog) {
+      updatePayload.spoke = true;
       updatePayload.order = -1;
     }
     if (Object.keys(updatePayload).length > 0) {
