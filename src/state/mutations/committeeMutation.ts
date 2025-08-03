@@ -229,12 +229,14 @@ export const committeeMutations = () => {
     delegateId: string,
     name: string,
     order: number,
-    spoke: boolean = false,
+    spoke?: boolean,
   ) => {
     const path = motionSpeakerPath(committeeId, motionId, delegateId);
-    const data = { delegateId, name, order, spoke };
+    const data: any = { delegateId, name, order };
+    if (spoke !== undefined) data.spoke = spoke;
     return createFirestoreDocument(path, data);
   };
+
 
   const removeMotionSpeaker = (
     committeeId: string,
