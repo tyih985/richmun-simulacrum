@@ -67,7 +67,7 @@ export const RootRoutes = () => {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/committee/:committeeId" element={<CommitteeAppShell />}>
           <Route index element={<CommitteeDash />} />
-          <Route path="dashboard" element={<CommitteeDash />} />
+          {/* <Route path="dashboard" element={<CommitteeDash />} /> */}
           <Route path="speakers" element={<Speakers />} />
           <Route path="directives/history" element={<DirectiveHistory />} />
           <Route path="directives" element={<DirectiveInbox />} />

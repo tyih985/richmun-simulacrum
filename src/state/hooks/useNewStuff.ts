@@ -10,7 +10,7 @@ import {
   StaffDoc,
   UserCommitteeDoc,
 } from '@features/types';
-import { committeePath, userCommitteePath } from '@packages/firestorePaths';
+import { committeePath } from '@packages/firestorePaths';
 import {
   committeeRollCallsDelegatesPath,
   userCommitteesPath,
@@ -25,7 +25,6 @@ const {
   getCommitteeRollCall,
   getCommitteeRollCalls,
   getCommitteeRollCallDelegate,
-  getCommitteeRollCallDelegates,
 } = committeeQueries;
 
 export const useUserCommittees = (uid?: string) => {
@@ -66,6 +65,30 @@ export const useUserCommittees = (uid?: string) => {
   }, [uid]);
 
   return { userCommittees, userInvites, committeeDocs, loading, refresh: fetchData };
+};
+
+export const useCommittee = (committeeId?: string) => {
+  const [committee, setCommittee] = useState<CommitteeDoc | null>();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!committeeId) return;
+
+    const fetchUserCommittee = async () => {
+      try {
+        const data = await committeeQueries.getCommittee(committeeId);
+        setCommittee(data);
+      } catch (err) {
+        console.error('Error loading committee:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserCommittee();
+  }, [committeeId]);
+
+  return { committee, loading };
 };
 
 export const useCommitteeDelegates = (committeeId?: string) => {

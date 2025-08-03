@@ -57,7 +57,7 @@ export const CommitteeRow = ({ committee, userCommittee }: Props): ReactElement 
 
   return (
     <Table.Tr
-      onClick={() => nav(`/committee/${committee.id}/dashboard`)}
+      onClick={() => nav(`/committee/${committee.id}`)}
       style={{ cursor: 'pointer' }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}

@@ -534,7 +534,7 @@ export const CommitteeDash = () => {
           <Button onClick={handleSaveChanges} disabled={!isFormValid}>
             Save Changes
           </Button>
-          <Button
+          {/* <Button
             variant="outline"
             mt="md"
             onClick={() =>
@@ -542,7 +542,7 @@ export const CommitteeDash = () => {
             }
           >
             Roll Calls
-          </Button>
+          </Button> */}
         </>
       )}
     </Stack>
