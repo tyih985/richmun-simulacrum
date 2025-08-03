@@ -21,7 +21,7 @@ export const CommitteeAppShell = () => {
     ...(isStaff ? [{ label: 'Speakers', to: `/committee/${committeeId}/speakers`, icon: <IconUsersGroup/> }] : []),
     // ...(isStaff ? [{ label: 'Directive History', to: `/committee/${committeeId}/directives/history` }] : []),
     { label: 'Inbox', to: `/committee/${committeeId}/directives`, icon:  <IconInbox/> },
-    ...(!isStaff ? [{ label: 'Make Directive', to: `/committee/${committeeId}/directives/new`, icon: <IconWriting/> }] : []),
+    ...(!isStaff ? [{ label: 'Directive', to: `/committee/${committeeId}/directives/new`, icon: <IconWriting/> }] : []),
     ...(isStaff ? [{ label: 'Motions', to: `/committee/${committeeId}/motions`, icon: <IconPencil/> }] : []), // idk what icon to use here lmao
     ...(isStaff ? [{ label: 'Roll Call', to: `/committee/${committeeId}/rollcall/list`, icon: <IconChecklist/> }] : []),
   ];
