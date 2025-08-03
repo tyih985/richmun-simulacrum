@@ -7,6 +7,7 @@ import {
   Title,
   Group,
   Paper,
+  Container,
 } from '@mantine/core';
 import { DelegateTimer } from '@features/chairing/components/DelegateTimer';
 import { useParams } from 'react-router-dom';
@@ -17,18 +18,20 @@ import { committeeMutations } from '@mutations/committeeMutation';
 import { DelegateDoc, MotionSpeakerDoc } from '@features/types';
 import { useCurrentSpeaker, useSpeakers } from '@hooks/useSpeakerLog';
 import { committeeMotionPath } from '@packages/firestorePaths';
-import { updateFirestoreDocument } from '@packages/firestoreAsQuery';
+import { batchUpdateDocuments, updateFirestoreDocument } from '@packages/firestoreAsQuery';
 
 const { addMotionSpeaker, addMotionSpeakerLog } = committeeMutations();
+
+const MOTION_ID = 'default-motion';
 
 export const Speakers = (): ReactElement => {
   const { committeeId } = useParams<{ committeeId: string }>();
   const [listType, setListType] = useState<'primary' | 'secondary' | 'single'>('primary');
   
   const { delegates, loading: committeeLoading } = useCommitteeDelegates(committeeId);
-  const { speaker: currentSpeaker, loading: getCurrentSpeakerLoading } = useCurrentSpeaker(committeeId!, 'default-motion');
+  const { speaker: currentSpeaker, loading: getCurrentSpeakerLoading } = useCurrentSpeaker(committeeId!, MOTION_ID);
   // speakers is all the people who have spoken or will speak
-  const { speakers, loading: speakersLoading } = useSpeakers(committeeId ?? '', 'default-motion') as {
+  const { speakers, loading: speakersLoading } = useSpeakers(committeeId ?? '', MOTION_ID) as {
     speakers: MotionSpeakerDoc[];
     loading: boolean;
   };
@@ -38,7 +41,7 @@ export const Speakers = (): ReactElement => {
     console.log('update current speaker')
     if (speaker?.id === currentSpeaker?.id) return;
 
-    const path = committeeMotionPath(committeeId!, 'default-motion');
+    const path = committeeMotionPath(committeeId!, MOTION_ID);
 
     if (!speaker) {
       updateFirestoreDocument(path, {
@@ -73,7 +76,7 @@ export const Speakers = (): ReactElement => {
     
     addMotionSpeaker(
       committeeId!, 
-      'default-motion', 
+      MOTION_ID, 
       speaker.id, 
       speaker.name, 
       speakers.length + 1
@@ -89,7 +92,7 @@ export const Speakers = (): ReactElement => {
     // Update Firestore to remove this speaker (set order to -1)
     addMotionSpeaker(
       committeeId!,
-      'default-motion',
+      MOTION_ID,
       speakerToRemove.id,
       speakerToRemove.name,
       -1
@@ -105,12 +108,22 @@ export const Speakers = (): ReactElement => {
   };
 
 
-  const clearSpeakers = () => { 
-     speakers.forEach(speaker => {
-      addMotionSpeaker(committeeId!, 'default-motion', speaker.id, speaker.name, -1); // Resetting the order to -1
-      console.log('clearing speaker:', speaker.id);
-    });
-    updateDBCurrentSpeaker(null);
+  const clearSpeakers = async () => {
+    if (!committeeId) return;
+
+    const requests = speakers.map((speaker) => ({
+      path: `${committeeMotionPath(committeeId, MOTION_ID)}/speakers/${speaker.id}`,
+      data: { order: -1 },
+      op: 'update' as const,
+    }));
+
+    try {
+      await updateDBCurrentSpeaker(null);
+      await batchUpdateDocuments(requests);
+      console.log('Cleared all speakers and reset current speaker.');
+    } catch (err) {
+      console.error('Failed to clear speakers:', err);
+    }
   };
 
   const handleTimerComplete = () => {
@@ -161,10 +174,11 @@ export const Speakers = (): ReactElement => {
 
       {listType === 'primary' && (
         <>
+        <Container w={'100%'} h={'30vh'}>
           {currentSpeaker ? (
             <DelegateTimer
               cid={committeeId!} // assuming committeeId is defined
-              mid={'default-motion'}
+              mid={MOTION_ID}
               delegate={currentSpeaker}
               showNext={true}
               onNext={handleTimerComplete}
@@ -176,6 +190,7 @@ export const Speakers = (): ReactElement => {
               </Stack>
             </Paper>
           )}
+        </Container>
 
           <Group grow align="flex-start">
             <SpeakerSelector
