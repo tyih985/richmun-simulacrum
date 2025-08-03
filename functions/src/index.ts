@@ -312,10 +312,8 @@ export const onspeakerlogcreated = onDocumentCreated(
     const hasSpoken = speakerData.spoke === true;
 
     const updatePayload: Partial<{ spoke: boolean; order: number }> = {};
-    if (!hasSpoken) {
-      updatePayload.spoke = true;
-    }
     if (isEndLog) {
+      updatePayload.spoke = true;
       updatePayload.order = -1;
     }
     if (Object.keys(updatePayload).length > 0) {
