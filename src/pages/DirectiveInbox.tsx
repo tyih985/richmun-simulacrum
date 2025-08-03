@@ -1,5 +1,5 @@
 import { ReactElement, useEffect, useState } from 'react';
-import { Group, Text } from '@mantine/core';
+import { Flex, Group, Text } from '@mantine/core';
 import { Directive } from '@features/directives/Directive';
 import {
   useCommitteeDirectives,
@@ -15,7 +15,7 @@ export const DirectiveInbox = (): ReactElement => {
   const { directives } = useCommitteeDirectives(committeeId);
 
   // assumes user is not null lol
-  const { userCommittees } = useUserCommittees(auth.currentUser!.uid);
+  // const { userCommittees } = useUserCommittees(auth.currentUser!.uid);
   const { isStaff } = useUserIsStaff(auth.currentUser!.uid, committeeId!);
 
   const [visibleDirectives, setVisibleDirectives] = useState<DirectiveDoc[]>([]);
@@ -25,16 +25,21 @@ export const DirectiveInbox = (): ReactElement => {
 
     if (isStaff) {
       setVisibleDirectives(directives);
+      console.log(visibleDirectives);
     } else {
       setVisibleDirectives(directives.filter((d) => !d.privateStatus));
     }
   }, [directives, isStaff]);
 
   return (
-    <Group p="lg">
+    <Flex>
+      <Group p="lg" flex={1} align='center'>
+      {(visibleDirectives.length == 0) && <Text>no directives.</Text>}
       {visibleDirectives.map((directive) => (
-        <Directive directive={directive} isStaff={isStaff} cid={committeeId}></Directive>
+        <Directive directive={directive} isStaff={isStaff} cid={committeeId!}></Directive>
       ))}
-    </Group>
+      </Group>
+    </Flex>
+    
   );
 };

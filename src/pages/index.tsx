@@ -17,6 +17,19 @@ import { RollCall } from './RollCall';
 import { RollCallList } from './RollCallList';
 import { Speakers } from './Speakers.tsx';
 import { CommitteeAppShell } from '@components/AppShell';
+import { JSX } from 'react';
+
+const ProtectedRoute = ({
+  allowedRoles,
+  userRole,
+  element,
+}: {
+  allowedRoles: string[];
+  userRole: string;
+  element: JSX.Element;
+}) => {
+  return allowedRoles.includes(userRole) ? element : <Navigate to="/unauthorized" />;
+};
 
 export const RootRoutes = () => {
   const { isChecking, isLoggedIn } = useSession();
@@ -52,9 +65,7 @@ export const RootRoutes = () => {
         <Route path="/*" element={<Navigate to="/c" />} />
         <Route path="/setup" element={<Setup />} />
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/committee/:committeeId">
-          {' '}
-          {/* element={<CommitteeAppShell />} */}
+        <Route path="/committee/:committeeId" element={<CommitteeAppShell />}>
           <Route index element={<CommitteeDash />} />
           <Route path="dashboard" element={<CommitteeDash />} />
           <Route path="speakers" element={<Speakers />} />

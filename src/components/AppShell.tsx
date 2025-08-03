@@ -1,5 +1,7 @@
+import { useUserIsStaff } from '@hooks/useNewStuff';
 import { AppShell, Burger, Group, NavLink, ScrollArea, Title } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
+import { auth } from '@packages/firebase/firebaseAuth';
 import { useNavigate, useParams, Outlet, useLocation } from 'react-router-dom';
 
 export const CommitteeAppShell = () => {
@@ -7,16 +9,21 @@ export const CommitteeAppShell = () => {
   const navigate = useNavigate();
   const { committeeId } = useParams();
   const location = useLocation();
+  const { isStaff, loading } = useUserIsStaff(auth.currentUser!.uid, committeeId!)
 
-  const links = [
+  type NavLinkItem = { label: string; to: string };
+
+  const links: NavLinkItem[] = [
     { label: 'Dashboard', to: `/committee/${committeeId}` },
-    { label: 'Speakers', to: `/committee/${committeeId}/speakers` },
-    { label: 'Directive History', to: `/committee/${committeeId}/directive/history` },
+    ...(isStaff ? [{ label: 'Speakers', to: `/committee/${committeeId}/speakers` }] : []),
+    // ...(isStaff ? [{ label: 'Directive History', to: `/committee/${committeeId}/directives/history` }] : []),
     { label: 'Directive Inbox', to: `/committee/${committeeId}/directives` },
-    { label: 'Make Directive', to: `/committee/${committeeId}/directive/make` },
-    { label: 'Motions', to: `/committee/${committeeId}/motions` },
-    { label: 'Roll Call', to: `/committee/${committeeId}/rollcall` },
+    ...(!isStaff ? [{ label: 'Make Directive', to: `/committee/${committeeId}/directives/new` }] : []),
+    ...(isStaff ? [{ label: 'Motions', to: `/committee/${committeeId}/motions` }] : []),
+    ...(isStaff ? [{ label: 'Roll Call', to: `/committee/${committeeId}/rollcall/list` }] : []),
   ];
+
+  if (loading) return null; // or show a loader
 
   return (
     <AppShell
