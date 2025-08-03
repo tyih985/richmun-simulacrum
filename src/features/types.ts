@@ -27,6 +27,7 @@ export type UserCommitteeDoc = {
   roleId: string;
   inviteStatus: InviteStatus;
   staffRole?: StaffRole;
+  owner?: boolean;
 };
 
 export type CommitteeDoc = {

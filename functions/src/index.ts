@@ -350,3 +350,59 @@ export const onspeakercreated = onDocumentCreated(
     }
   }
 );
+
+
+// PERPLEXITY CLOUD FUNCTION TO DELETE ALL SUBCOLLECTIONS WHEN DELETING A COMMITTEE
+const firestore = admin.firestore();
+
+async function deleteCollectionDocuments(
+  collectionPath: string,
+  batchSize = 100
+): Promise<void> {
+  const collectionRef = firestore.collection(collectionPath);
+  const snapshot = await collectionRef.limit(batchSize).get();
+
+  if (snapshot.empty) {
+    return;
+  }
+
+  const batch = firestore.batch();
+  snapshot.docs.forEach((doc) => {
+    batch.delete(doc.ref);
+  });
+
+  await batch.commit();
+
+  // Recursively delete next batch
+  if (snapshot.size === batchSize) {
+    await deleteCollectionDocuments(collectionPath, batchSize);
+  }
+}
+
+export const oncommitteedeleted = onDocumentDeleted(
+  { document: 'committees/{committeeId}' },
+  async (event) => {
+    const { committeeId } = event.params;
+    console.log(`Committee ${committeeId} deleted. Cleaning up subcollections...`);
+    const subcollections = [
+      'staff',
+      'delegates',
+      'directives',
+      'motions',
+      'rollcalls'
+      // Add more subcollections here if needed
+    ];
+
+    try {
+      for (const subcol of subcollections) {
+        const subcolPath = `committees/${committeeId}/${subcol}`;
+        console.log(`Deleting documents in subcollection: ${subcolPath}`);
+        await deleteCollectionDocuments(subcolPath);
+      }
+      console.log(`Finished cleaning subcollections for committee ${committeeId}`);
+    } catch (error) {
+      console.error(`Error cleaning subcollections for committee ${committeeId}:`, error);
+      throw error;
+    }
+  }
+);
