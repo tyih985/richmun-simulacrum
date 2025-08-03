@@ -27,7 +27,6 @@ const MOTION_ID = 'default-motion';
 
 export const Speakers = (): ReactElement => {
   const { committeeId } = useParams<{ committeeId: string }>();
-  const [listType, setListType] = useState<'primary' | 'secondary' | 'single'>('primary');
   
   const { delegates, loading: committeeLoading } = useCommitteeDelegates(committeeId);
   const { speaker: currentSpeaker, loading: getCurrentSpeakerLoading } = useCurrentSpeaker(committeeId!, MOTION_ID);
@@ -177,19 +176,7 @@ export const Speakers = (): ReactElement => {
     <Stack p="xl">
       <Stack align="flex-start">
         <Title order={1}>Speakers</Title>
-        <SegmentedControl
-          data={['primary', 'secondary', 'single']}
-          value={listType}
-          onChange={(value) => {
-            setListType(value as 'primary' | 'secondary' | 'single');
-            // clearSpeakers();
-          }}
-        />
-        <Text c="dimmed">{listType} speakers</Text>
       </Stack>
-
-      {listType === 'primary' && (
-        <>
         <Container w={'100%'} h={'30vh'}>
           {currentSpeaker ? (
             <DelegateTimer
@@ -218,8 +205,6 @@ export const Speakers = (): ReactElement => {
             {/* vv filter for speakers with an order > 0 */}
             <SpeakerList speakers={speakers.map((d) => d.name)} onClear={clearSpeakers} />
           </Group>
-        </>
-      )}
 
       {/* {listType === 'secondary' && (
         <>
