@@ -1,4 +1,4 @@
-import { ReactElement, useEffect, useState } from 'react';
+import { ReactElement, useEffect, useRef, useState } from 'react';
 import {
   Center,
   SegmentedControl,
@@ -19,7 +19,7 @@ import { DelegateDoc, MotionSpeakerDoc } from '@features/types';
 import { useCurrentSpeaker, useSpeakers } from '@hooks/useSpeakerLog';
 import { committeeMotionPath } from '@packages/firestorePaths';
 import { batchUpdateDocuments, updateFirestoreDocument } from '@packages/firestoreAsQuery';
-import { log } from 'console';
+import { useSpeakerLogs } from '@hooks/useSpeakerLog';
 
 const { addMotionSpeaker, addMotionSpeakerLog } = committeeMutations();
 
@@ -31,6 +31,27 @@ export const Speakers = (): ReactElement => {
   
   const { delegates, loading: committeeLoading } = useCommitteeDelegates(committeeId);
   const { speaker: currentSpeaker, loading: getCurrentSpeakerLoading } = useCurrentSpeaker(committeeId!, MOTION_ID);
+  const { logs, loading: SpeakerLogsLoading } = useSpeakerLogs(committeeId!, MOTION_ID, currentSpeaker ? currentSpeaker.id : '' )
+ 
+  const logEndIfNeeded = (currentSpeakerId?: string | null) => {
+    if (!committeeId || !currentSpeakerId || !logs) {
+      return;
+    }
+    if (logs.length > 0) {
+      const logId = Date.now().toString();
+
+      addMotionSpeakerLog(
+        committeeId,
+        MOTION_ID,
+        currentSpeakerId,
+        logId,
+        'end',
+        Date.now()
+      );
+    }
+  };
+
+
   // speakers is all the people who have spoken or will speak
   const { speakers, loading: speakersLoading } = useSpeakers(committeeId ?? '', MOTION_ID) as {
     speakers: MotionSpeakerDoc[];
@@ -38,22 +59,22 @@ export const Speakers = (): ReactElement => {
   };
 
   useEffect(() => {
-  const firstSpeaker = speakers[0];
-  const currentId = currentSpeaker?.id ?? '';
-  const firstId = firstSpeaker?.id ?? '';
+    const firstSpeaker = speakers[0];
+    const currentId = currentSpeaker?.id ?? '';
+    const firstId = firstSpeaker?.id ?? '';
 
-  if (firstId && currentId !== firstId) {
-    updateFirestoreDocument(committeeMotionPath(committeeId!, 'default-motion'), {
-      currentSpeaker: firstId,
-    }).catch(console.error);
-  }
+    if (firstId && currentId !== firstId) {
+      updateFirestoreDocument(committeeMotionPath(committeeId!, 'default-motion'), {
+        currentSpeaker: firstId,
+      }).catch(console.error);
+    }
 
-  if (!firstId && currentId) {
-    updateFirestoreDocument(committeeMotionPath(committeeId!, 'default-motion'), {
-      currentSpeaker: '',
-    }).catch(console.error);
-  }
-}, [speakers]);
+    if (!firstId && currentId) {
+      updateFirestoreDocument(committeeMotionPath(committeeId!, 'default-motion'), {
+        currentSpeaker: '',
+      }).catch(console.error);
+    }
+  }, [speakers]);
 
   
   // // sends the updated localCurrentSpeaker to the db -> TODO: make cloud function for this also
@@ -85,15 +106,6 @@ export const Speakers = (): ReactElement => {
 
   const addPrimarySpeaker = (speaker: DelegateDoc | MotionSpeakerDoc) => {
     // TODO: update this. purely bc i am too lazy to completely redo the stuff in caucus rn
-
-    const realSpeaker = speaker as MotionSpeakerDoc
-    if (speakers.length == 0) {
-      // updateDBCurrentSpeaker(realSpeaker);
-      console.log('woowaha:', currentSpeaker)
-    }
-
-    // setLocalSpeakers(prev => [...prev, realSpeaker as MotionSpeakerDoc]);
-    
     addMotionSpeaker(
       committeeId!, 
       MOTION_ID, 
@@ -121,9 +133,6 @@ export const Speakers = (): ReactElement => {
   const clearSpeakers = async () => {
     if (!committeeId) return;
 
-    const logId = Date.now().toString();
-    addMotionSpeakerLog(committeeId, MOTION_ID, currentSpeaker?.id ?? '', logId, 'end', Date.now())
-
     const requests = speakers.map((speaker) => ({
       path: `${committeeMotionPath(committeeId, MOTION_ID)}/speakers/${speaker.id}`,
       data: { order: -1 },
@@ -131,7 +140,7 @@ export const Speakers = (): ReactElement => {
     }));
 
     try {
-      // await updateDBCurrentSpeaker(null);
+      logEndIfNeeded(currentSpeaker ? currentSpeaker.id : '');
       await batchUpdateDocuments(requests);
       console.log('Cleared all speakers and reset current speaker.');
     } catch (err) {
@@ -143,19 +152,8 @@ export const Speakers = (): ReactElement => {
     // i dont think this should ever happen but yeah
     if (!currentSpeaker || speakers.length === 0) return; 
 
-    const logId = Date.now().toString();
-    addMotionSpeakerLog(committeeId ?? '', MOTION_ID, currentSpeaker?.id ?? '', logId, 'end', Date.now())
-
-    const currentIndex = speakers.findIndex(s => s.id === currentSpeaker.id);
-    const nextSpeaker = speakers[currentIndex + 1];
     removePrimarySpeaker(currentSpeaker);
-
-    if (nextSpeaker) {
-      // updateDBCurrentSpeaker(nextSpeaker);
-    } else {
-      // No more speakers left: clear current speaker
-      // updateDBCurrentSpeaker(null);
-    }
+    logEndIfNeeded(currentSpeaker.id);
   };
 
   // const handleTimerStart = () => {

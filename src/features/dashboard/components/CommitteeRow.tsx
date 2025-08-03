@@ -21,7 +21,7 @@ const toString = (date?: Date | Timestamp): string => {
 export const CommitteeRow = ({ committee, userCommittee }: Props): ReactElement => {
   const [hovered, setHovered] = useState(false);
   const roleLabel =
-    userCommittee.role === 'staff' ? `staff (${userCommittee.staffRole})` : 'delegate';
+    userCommittee.role === 'staff' ? `staff (${userCommittee.staffRole ?? ''})` : 'delegate';
   const nav = useNavigate();
 
   const start = toString(committee?.startDate);
