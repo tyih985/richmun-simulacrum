@@ -325,3 +325,26 @@ export const onspeakerlogcreated = onDocumentCreated(
     }
   },
 );
+
+export const onspeakercreated = onDocumentCreated(
+  {
+    document:
+      'committees/{committeeId}/motions/{motionId}/speakers/{speakerId}',
+  },
+  async (event) => {
+    if (!event.data) {
+      console.warn('onSpeakerCreated invoked without snapshot');
+      return;
+    }
+    const speakerSnap = event.data;
+    const speakerRef = speakerSnap.ref;
+    try {
+      await speakerRef.set({ spoke: false }, { merge: true });
+    } catch (err) {
+      console.error(
+        `Failed to initialize 'spoke' on ${speakerRef.path}:`,
+        err
+      );
+    }
+  }
+);
