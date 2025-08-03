@@ -20,7 +20,7 @@ const toString = (date?: Date | { toDate(): Date }): string => {
 export const CommitteeRow = ({ committee, userCommittee }: Props): ReactElement => {
   const [hovered, setHovered] = useState(false);
   const roleLabel =
-    userCommittee.role === 'staff' ? `staff (${userCommittee.staffRole})` : 'delegate';
+    userCommittee.role === 'staff' ? `staff (${userCommittee.staffRole ?? ''})` : 'delegate';
   const nav = useNavigate();
 
   const { removeUserCommittee, deleteCommittee } = committeeMutations();
