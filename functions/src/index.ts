@@ -41,6 +41,7 @@ const handleCommitteeWrite = async (
   roleId: string,
   staffRole?: string,
   inviteStatus: 'accepted' | 'rejected' | 'pending' = 'pending',
+  owner?: boolean,
 ) => {
   console.log('handleCommitteeWrite called with:', email);
   if (!email) return;
@@ -51,6 +52,9 @@ const handleCommitteeWrite = async (
 
   if (role === 'staff' && staffRole) {
     payload.staffRole = staffRole;
+    if (owner !== undefined) {
+      payload.owner = owner;
+    }
   }
 
   await admin
@@ -131,6 +135,7 @@ export const onstaffcreated = onDocumentCreated(
     const staffRole = (data.staffRole || '').trim().toLowerCase();
     const inviteStatus =
       (data.inviteStatus as 'accepted' | 'pending' | 'rejected') || 'pending';
+    const owner = data.owner === true;
     await handleCommitteeWrite(
       email,
       event.params.committeeId,
@@ -138,6 +143,7 @@ export const onstaffcreated = onDocumentCreated(
       event.params.staffId,
       staffRole,
       inviteStatus,
+      owner
     );
   },
 );
