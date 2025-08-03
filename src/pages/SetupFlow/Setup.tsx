@@ -11,7 +11,7 @@ import { StepTwo } from '@features/setup/components/StepTwo.tsx';
 import { StepThree } from '@features/setup/components/StepThree.tsx';
 import { DelegateDoc, RoleOption, StaffDoc } from '@features/types';
 import { useNavigate } from 'react-router-dom';
-import { toDate } from '@features/utils';
+import { checkForDuplicateEmails, toDate } from '@features/utils';
 
 const { createCommittee, addStaffToCommittee, addDelegateToCommittee, addUserCommittee } =
   committeeMutations();
@@ -31,6 +31,24 @@ export const Setup = (): ReactElement => {
     validate: {
       committeeLongName: (v) => (v.trim() ? null : 'Required'),
       committeeShortName: (v) => (v.trim() ? null : 'Required'),
+      dateRange: (v) => (v[0] && v[1] ? null : 'Please select a valid date range'),
+      staff: {
+        email: (value, values) => {
+          const duplicateError = checkForDuplicateEmails(values.staff);
+          if (duplicateError) {
+            return 'Duplicate email in staff';
+          }
+          return value.trim() ? null : 'Email is required';
+        },
+      },
+      delegates: {
+        email: (value, values) => {
+          const duplicateError = checkForDuplicateEmails(values.delegates);
+          if (duplicateError) {
+            return 'Duplicate email in delegates';
+          }
+        },
+      },
     },
   });
 
