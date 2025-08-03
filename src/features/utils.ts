@@ -47,3 +47,17 @@ function parseLocalDate(dateStr: string): Date {
   // month is 0-indexed in JS Date constructor
   return new Date(year, month - 1, day);
 }
+
+export const checkForDuplicateEmails = (emails: { email: string }[]) => {
+  const emailList = emails
+    .map(entry => entry.email.trim().toLowerCase())
+    .filter(email => email !== ''); // Remove empty strings
+
+  const uniqueEmails = new Set(emailList);
+  
+  if (uniqueEmails.size !== emailList.length) {
+    return 'Duplicate emails found';
+  }
+
+  return null;
+};

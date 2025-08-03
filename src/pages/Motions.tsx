@@ -19,7 +19,7 @@ export const Motions = (): ReactElement => {
     if (committeeId) {
       committeeQueries
         .getCommitteeMotions(committeeId)
-        .then(setMotions)
+        .then((data) => setMotions(data.filter((motion) => motion.id !== 'default-motion')))
         .catch((err) => console.error('Failed to fetch motions:', err));
     }
   }, [committeeId]);
