@@ -30,8 +30,7 @@ export const MakeDirective = (): ReactElement => {
 
   const form = useForm({
     initialValues: {
-      id: generateDirectiveId(delegate?.id || ''),
-      // id: generateDirectiveId(delegate),
+      id: '',
       title: '',
       description: '',
       privateStatus: false,
@@ -62,7 +61,7 @@ export const MakeDirective = (): ReactElement => {
     try {
       await addDirectiveToCommittee(
         committeeId,
-        form.values.id,
+        generateDirectiveId(delegate?.id || 'delegate'),
         form.values.title,
         form.values.description,
         form.values.privateStatus,
