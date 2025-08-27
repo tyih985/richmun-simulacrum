@@ -95,7 +95,14 @@ export function CountryMultiSelect(props: CountryMultiSelectProps) {
     ));
 
   return (
-    <Combobox store={combobox} onOptionSubmit={handleValueSelect} withinPortal={true}>
+    <Combobox 
+    store={combobox} 
+    onOptionSubmit={(name) => {
+      handleValueSelect(name);
+      setSearch('');
+    }} 
+    withinPortal={true}
+    >
       <Combobox.DropdownTarget>
         <PillsInput pointer onClick={() => combobox.toggleDropdown()}>
           <Group justify="stretch">
@@ -104,7 +111,9 @@ export function CountryMultiSelect(props: CountryMultiSelectProps) {
 
               <Combobox.EventsTarget>
                 <PillsInput.Field
-                  onBlur={() => combobox.closeDropdown()}
+                  onBlur={() => {
+                    combobox.closeDropdown();
+                  }}
                   value={search}
                   placeholder="Start typing to search..."
                   onChange={(event) => {

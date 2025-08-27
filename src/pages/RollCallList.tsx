@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Stack, Title, Button, Loader, Paper } from '@mantine/core';
+
 import { committeeMutations } from '@mutations/committeeMutation';
 import { committeeQueries } from '@mutations/committeeQueries';
 import { Timestamp } from 'firebase/firestore';
