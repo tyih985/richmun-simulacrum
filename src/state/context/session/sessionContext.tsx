@@ -7,7 +7,7 @@ export type SessionType = {
   isEulaSigned?: boolean;
   sessionUser?: User | null;
   sessionLocalPersistence: boolean;
-  
+
   logout: () => Promise<void>;
   refreshUser: () => void;
   toggleSessionLocalPersistence: () => void;

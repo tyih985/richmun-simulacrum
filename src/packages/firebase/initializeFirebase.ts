@@ -5,6 +5,7 @@ import { getDatabaseInstance } from './firestoreDb';
 let firebaseApp: FirebaseApp = null as unknown as FirebaseApp;
 
 const initializeFirebase = (): void => {
+  console.log('initializeFirebase');
   try {
     const config = getConfig();
     if (!config?.firebase) {

@@ -38,14 +38,14 @@ const filterNodesByFactions = (nodes: Node[], userFactions: string[]): Node[] =>
     }
 
     const visibilityFactions = node.data?.visibilityFactions;
-    
+
     // If no visibilityFactions field, assume 'staff-only'
     if (!visibilityFactions || !Array.isArray(visibilityFactions)) {
       return userFactions.includes('staff-only');
     }
-    
+
     // Check if user has any matching faction
-    return visibilityFactions.some(faction => userFactions.includes(faction));
+    return visibilityFactions.some((faction) => userFactions.includes(faction));
   });
 };
 

@@ -1,11 +1,6 @@
 import { useCommitteeAccess } from '@hooks/useCommitteeAccess';
 import { Routes, Route, useNavigate } from 'react-router-dom';
-import {
-  Stack,
-  Button,
-  Center,
-  Title,
-} from '@mantine/core';
+import { Stack, Button, Center, Title } from '@mantine/core';
 import { COMMITTEE_DATA_MAP } from '@lib/mapPrototypeKeys';
 import { IconArrowRight } from '@tabler/icons-react';
 

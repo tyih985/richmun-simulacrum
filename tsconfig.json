@@ -12,7 +12,7 @@
     // updating path aliases must also be done on  vite.config
     "baseUrl": "./",
     "paths": {
-      "@features": ["src/features"],
+      "@features/*": ["src/features/*"],
       "@components/*": ["src/components/*"],
 
       "@context/*": ["src/state/context/*"],

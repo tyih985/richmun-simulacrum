@@ -62,61 +62,7 @@ export const generateManifestFields = (config: RuntimeEnvironmentConfig) => {
   };
 };
 
-// https://vitejs.dev/config/
-export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), '');
-  const brand = env.VITE_CONFIG_KEY || 'default';
-  console.log('brand config:', brand);
-
-  const configPath = path.resolve(
-    __dirname,
-    `runtime-environments/${brand}/runtime.json`,
-  );
-  const configContent = fs.readFileSync(configPath, 'utf-8');
-  const configJson = JSON.parse(configContent); // Optional if you want type checking
-  const configString = JSON.stringify(configJson);
-
-  return {
-    plugins: [
-      react(),
-      VitePWA({
-        workbox: {
-          globPatterns: ['**/*'],
-        },
-        includeAssets: ['**/*'],
-        manifest: {
-          display: 'standalone',
-          scope: '/',
-          start_url: '/',
-          ...generateManifestFields(configJson),
-        },
-      }),
-    ],
-    define: {
-      __RUNTIME_CONFIG__: configString,
-      'import.meta.env.BUILD_DATE': JSON.stringify(new Date().toISOString()), // Inject the build timestamp
-    },
-    resolve: {
-      alias: {
-        '@features': path.resolve(__dirname, 'src/features'),
-        '@components': path.resolve(__dirname, 'src/components'),
-
-        '@context': path.resolve(__dirname, 'src/state/context'),
-        '@mutations': path.resolve(__dirname, 'src/state/mutations'),
-        '@store': path.resolve(__dirname, 'src/state/store'),
-        '@hooks': path.resolve(__dirname, 'src/state/hooks'),
-
-        '@packages': path.resolve(__dirname, 'src/packages'),
-        '@pages': path.resolve(__dirname, 'src/pages'),
-        '@lib': path.resolve(__dirname, 'src/lib'),
-        '@types': path.resolve(__dirname, 'src/types'),
-        '@runtime': path.resolve(__dirname, 'runtime-environments'),
-      },
-      extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json'],
-    },
-  };
-});
-
+// helper: extracts a safe image MIME type from the url extension
 function getImageExtensionType(url: string): string {
   const validImageExtensions = [
     'jpg',
@@ -169,3 +115,75 @@ function addImageEntryFromFieldName(
     console.warn(`Field ${fieldName} does not contain valid dimensions.`);
   }
 }
+
+// https://vitejs.dev/config/
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '');
+  const brand = env.VITE_CONFIG_KEY || 'default';
+  console.log('brand config:', brand);
+
+  const configPath = path.resolve(
+    __dirname,
+    `runtime-environments/${brand}/runtime.json`,
+  );
+  const configContent = fs.readFileSync(configPath, 'utf-8');
+  const configJson = JSON.parse(configContent); // Optional if you want type checking
+  const configString = JSON.stringify(configJson);
+
+  return {
+    build: {
+      chunkSizeWarningLimit: 2000,
+      rollupOptions: {
+        output: {
+          manualChunks(id: string) {
+            if (!id) return;
+            if (id.includes('node_modules')) {
+              const parts = id.split('node_modules/').pop()?.split('/') || [];
+              const pkgName = parts[0].startsWith('@') ? `${parts[0]}/${parts[1]}` : parts[0];
+              const safePkg = pkgName.replace(/[@\/\.\-]/g, '_');
+              return `vendor-${safePkg}`;
+            }
+          },
+        },
+      },
+    },
+
+    plugins: [
+      react(),
+      VitePWA({
+        workbox: {
+          maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MiB
+        },
+        includeAssets: ['**/*'],
+        manifest: {
+          display: 'standalone',
+          scope: '/',
+          start_url: '/',
+          ...generateManifestFields(configJson),
+        },
+      }),
+    ],
+    define: {
+      __RUNTIME_CONFIG__: configString,
+      'import.meta.env.BUILD_DATE': JSON.stringify(new Date().toISOString()), // Inject the build timestamp
+    },
+    resolve: {
+      alias: {
+        '@features': path.resolve(__dirname, 'src/features'),
+        '@components': path.resolve(__dirname, 'src/components'),
+
+        '@context': path.resolve(__dirname, 'src/state/context'),
+        '@mutations': path.resolve(__dirname, 'src/state/mutations'),
+        '@store': path.resolve(__dirname, 'src/state/store'),
+        '@hooks': path.resolve(__dirname, 'src/state/hooks'),
+
+        '@packages': path.resolve(__dirname, 'src/packages'),
+        '@pages': path.resolve(__dirname, 'src/pages'),
+        '@lib': path.resolve(__dirname, 'src/lib'),
+        '@types': path.resolve(__dirname, 'src/types'),
+        '@runtime': path.resolve(__dirname, 'runtime-environments'),
+      },
+      extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json'],
+    },
+  };
+});
