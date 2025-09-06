@@ -61,8 +61,8 @@ export const RootRoutes = () => {
     return (
       <Routes>
         {stableAccessRoutes}
-        <Route path="/c/*" element={<CommitteeRoutes />} />
-        <Route path="/*" element={<Navigate to="/c" />} />
+        {/* <Route path="/c/*" element={<CommitteeRoutes />} /> */}
+        <Route path="/*" element={<Navigate to="/dashboard" />} />
         <Route path="/setup" element={<Setup />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/committee/:committeeId" element={<CommitteeAppShell />}>
