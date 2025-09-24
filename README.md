@@ -2,6 +2,8 @@
 
 Deployment preview [https://simulacrum-theta.vercel.app/](https://simulacrum-theta.vercel.app/)
 
+<img width="2556" height="789" alt="image" src="https://github.com/user-attachments/assets/ea332982-d6d6-4947-bd25-e88b71a8b708" />
+
 # Quick Summary
 
 - this app uses VITE, with Typescript SWC ("speedy web compiler")
